@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Watcher", "TekkenFrameData.Backend\TekkenFrameData.Watcher\TekkenFrameData.Watcher.csproj", "{C1161E25-2255-49E3-BB94-E455EF0F9217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Service", "TekkenFrameData.Backend\TekkenFrameData.Service\TekkenFrameData.Service.csproj", "{582B410D-83ED-410D-8828-0D95CCBE5A5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Library", "TekkenFrameData.Backend\TekkenFrameData.Library\TekkenFrameData.Library.csproj", "{CDF5EBE5-68ED-477C-904D-D2869C4145D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{FF2CC7DF-7799-49DA-824D-8263F07F393C}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Streamer.Server", "TekkenFrameData.Backend\TekkenFrameData.Streamer\TekkenFrameData.Streamer.Server\TekkenFrameData.Streamer.Server.csproj", "{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TekkenFrameData.Streamer", "TekkenFrameData.Streamer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {89950E48-17E5-43D3-9116-7F8A79AD2E17}
+	EndGlobalSection
+EndGlobal

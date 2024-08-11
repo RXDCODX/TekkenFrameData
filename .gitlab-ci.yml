@@ -1,0 +1,54 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  SOLUTION_FILE: "./TekkenFrameData.sln"
+
+# .NET сборка и тесты
+dotnet-build:
+  stage: build
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - dotnet restore $SOLUTION_FILE
+    - dotnet build $SOLUTION_FILE --no-restore
+  artifacts:
+    paths:
+      - "**/bin/"
+      - "**/obj/"
+
+dotnet-test:
+  stage: test
+  image: mcr.microsoft.com/dotnet/sdk:9.0
+  script:
+    - dotnet test $SOLUTION_FILE --no-build --verbosity normal
+
+# Python сборка и тесты
+python-build:
+  stage: build
+  image: python:3.11
+  script:
+    - cd ./TekkenFrameData.Scraper
+    - python -m pip install --upgrade pip
+    - pip install flake8 pytest
+    - pip install -r requirements.txt
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - pytest tests/
+
+# Docker сборка и развертывание
+docker-build:
+  stage: deploy
+  image: docker:24.0
+  services:
+    - docker:24.0-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  before_script:
+    - apk add --no-cache docker-compose
+  script:
+    - docker-compose -f docker-compose.yml build
+    - docker-compose -f docker-compose.yml up -d
+    - docker ps -a

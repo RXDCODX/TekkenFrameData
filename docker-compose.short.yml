@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: tfd_short_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tekken_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5552:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  watcher:
+    image: tekken_frame_data.watcher:dev
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
+    container_name: tfd_short_watcher
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: tekken_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    extra_hosts:
+      - "irc.chat.twitch.tv:127.0.0.1"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    links:
+      - "db:db"
+    ports:
+      - "7080:8080"
+      - "7081:8081"
+    networks:
+      - default
+      
+  streamer:
+    image: tekken_frame_data.streamer:dev
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Streamer/TekkenFrameData.Streamer.Server/Dockerfile
+    container_name: tfd_short_streamer
+    depends_on:
+      watcher: 
+        condition: service_healthy
+    environment:
+      SIGNALR_URL: http://watcher
+      AUTOSTART : true
+      WS_PORT : 4455
+      WS_URL : ws://host.docker.internal
+      WS_PASSWORD : UZSy6ORCzknlTtzS
+    links:
+      - "watcher:watcher"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # автоматически получит IP хоста
+    ports:
+      - "7180:8080"
+      - "7181:8081"
+    networks:
+      - default
+       
+    
+volumes:
+  postgres_data:
+    
+networks:
+  default:
+    driver: bridge

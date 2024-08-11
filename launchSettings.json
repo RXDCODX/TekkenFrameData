@@ -1,0 +1,39 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "composeLaunchAction": "None",
+      "composeLaunchServiceName": "migrations",
+      "serviceActions": {
+        "frontend": "StartWithoutDebugging",
+        "db": "StartWithoutDebugging",
+        "scraper": "StartWithoutDebugging",
+        "service": "StartDebugging",
+        "watcher": "StartDebugging"
+      }
+    },
+    "debug all": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "db": "StartWithoutDebugging",
+        "frontend": "StartWithoutDebugging",
+        "scraper": "StartWithoutDebugging",
+        "service": "StartDebugging",
+        "watcher": "StartDebugging"
+      }
+    },
+    "ara": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "db": "StartWithoutDebugging",
+        "frontend": "StartWithoutDebugging",
+        "scraper": "StartWithoutDebugging",
+        "service": "StartDebugging",
+        "watcher": "StartDebugging"
+      }
+    }
+  }
+}

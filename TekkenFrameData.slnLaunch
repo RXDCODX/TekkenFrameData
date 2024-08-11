@@ -1,0 +1,30 @@
+[
+  {
+    "Name": "Docker",
+    "Projects": [
+      {
+        "Path": "docker-compose.dcproj",
+        "Action": "Start",
+        "DebugTarget": "debug all"
+      }
+    ]
+  },
+  {
+    "Name": "Service",
+    "Projects": [
+      {
+        "Path": "TekkenFrameData.Backend\\TekkenFrameData.Service\\TekkenFrameData.Service.csproj",
+        "Action": "Start"
+      }
+    ]
+  },
+  {
+    "Name": "Watcher",
+    "Projects": [
+      {
+        "Path": "TekkenFrameData.Backend\\TekkenFrameData.Watcher\\TekkenFrameData.Watcher.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

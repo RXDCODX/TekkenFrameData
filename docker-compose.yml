@@ -1,0 +1,106 @@
+﻿version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: tekken_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tekken_db
+    volumes:
+      - postgres_data:/etc/data
+    ports:
+      - "5432:5432"
+    networks:
+      - tekken_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  scraper:
+    image: tekken_frame_data.scraper:dev
+    build:
+      context: ./TekkenFrameData.Scraper
+      dockerfile: Dockerfile
+    container_name: tekken_scraper
+    depends_on:
+      db:
+        condition: service_healthy
+      service:
+        condition: service_started
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: tekken_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    networks:
+      - tekken_network
+
+  service:
+    image: tekken_frame_data.service:dev
+    build:
+      context: ./
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Service/Dockerfile
+    container_name: tekken_service
+    command: ["dotnet", "ef", "database update"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: tekken_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    networks:
+      - tekken_network
+      - internet
+
+  watcher:
+    image: tekken_frame_data.watcher:dev
+    build:
+      context: ./
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
+    container_name: tekken_watcher
+    depends_on:
+      frontend:
+        condition: service_started
+      service:
+        condition: service_started
+    ports:
+      - "7080:8080"
+      - "7081:8081"
+    networks:
+      - tekken_network
+      - internet 
+
+  frontend:
+    image: tekken_frame_data.frontend:dev
+    build:
+      context: ./TekkenFrameData.Frontend
+      dockerfile: Dockerfile
+    container_name: tekken_frontend
+    depends_on:
+      service:
+        condition: service_started
+    ports:
+      - "6080:3000"
+    networks:
+      - tekken_network
+      - internet
+
+volumes:
+  postgres_data:
+    name: "TekkenDatabaseVolume"
+
+networks:
+  tekken_network:
+    driver: bridge
+    internal: true
+  internet:
+    driver: bridge
+  

@@ -1,0 +1,18 @@
+﻿{
+  "profiles": {
+    "http": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SIGNALR_URL": "http://localhost:5196",
+        "AUTOSTART": "true",
+        "WS_PORT": "4455",
+        "WS_URL": "ws://localhost",
+        "WS_PASSWORD": "UZSy6ORCzknlTtzS"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5066"
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json"
+}

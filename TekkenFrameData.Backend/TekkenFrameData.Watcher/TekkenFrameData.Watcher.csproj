@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+			<TypeScriptTarget>ESNext</TypeScriptTarget>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+			<TypeScriptTarget>ESNext</TypeScriptTarget>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net9.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<DockerfileTag>pyrokxnezxz/tekkenfd</DockerfileTag>
+		<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<Version>1.0.0</Version>
+		<InformationalVersion>1.0.0-beta</InformationalVersion>
+		<UserSecretsId>8501e9de-8129-4a5b-a6f3-53630d5fa8fb</UserSecretsId>
+		<DockerfileContext>.</DockerfileContext>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="HtmlAgilityPack" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="System.Formats.Asn1" />
+		<PackageReference Include="System.Text.Json" />
+		<PackageReference Include="Telegram.Bot" />
+		<PackageReference Include="TwitchLib.Api" />
+		<PackageReference Include="TwitchLib.Api.Helix" />
+		<PackageReference Include="TwitchLib.Client" />
+		<PackageReference Include="TwitchLib.EventSub.Core" />
+		<PackageReference Include="TwitchLib.EventSub.Websockets" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+	  <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
+	</ItemGroup>
+
+</Project>

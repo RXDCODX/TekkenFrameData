@@ -1,0 +1,21 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TekkenFrameData.Library.Models.ExternalServices.Twitch;
+
+public class TwitchTokenInfo
+{
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    [Key]
+    [Required]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string AccessToken { get; set; }
+
+    [Required]
+    public string RefreshToken { get; set; }
+
+    [Required]
+    public TimeSpan ExpiresIn { get; set; }
+    public DateTime WhenCreated { get; set; }
+    public DateTime WhenExpires => WhenCreated.Add(ExpiresIn);
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+}

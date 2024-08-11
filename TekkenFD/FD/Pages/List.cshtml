@@ -1,0 +1,64 @@
+﻿@page
+@using tekkenfd.Domains.FrameData
+@using tekkenfd.Exstensions
+@model ListChars
+
+@{
+    ViewData["Title"] = "Список персонажей";
+}
+
+
+<form method="post">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <h1>Список персонажей</h1>
+                <label for="characterSelect">Выберите персонажа:</label>
+                <select asp-for="ViewModel.SelectedCharacterName" asp-items="@(new SelectList(Model.ViewModel.Characters, nameof(TekkenCharacter.Name), nameof(TekkenCharacter.Name)))" class="form-control" onchange="this.form.submit()">
+                    <option value="">Выберите персонажа</option>
+                </select>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ViewModel.SelectedCharacterName))
+            {
+                var selectedCharacter = Model.ViewModel.Characters.FirstOrDefault(c => c.Name == Model.ViewModel.SelectedCharacterName);
+                <div class="text-center">
+                    <img src="@selectedCharacter?.LinkToImage" alt="@selectedCharacter?.Name" class="img-fluid" />
+                    <p>Последнее обновление: @selectedCharacter?.LastUpdateTime.ToString("yyyy-MM-dd HH:mm:ss")</p>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <h1>Удары</h1>
+            @if (Model.ViewModel.SelectedCharacterMoves.Any())
+            {
+                <div class="form-group">
+                    <label for="moveSelect">Выберите удар:</label>
+                    <select asp-for="ViewModel.SelectedMove" asp-items="@(new SelectList(Model.ViewModel.SelectedCharacterMoves, nameof(TekkenMove.Command), nameof(TekkenMove.Command)))" class="form-control" onchange="redirectToEdit(this.value)">
+                        <option value="">Выберите удар</option>
+                        @foreach (var move in Model.ViewModel.SelectedCharacterMoves)
+                        {
+                            <option value="@move.Command">@move.Command</option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <p>Нет доступных ударов для выбранного персонажа.</p>
+            }
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        function redirectToEdit(selectedCommand) {
+            if (selectedCommand) {
+                const characterName = '@Model.ViewModel.SelectedCharacterName'; // Получаем имя персонажа из Razor
+                window.location.href = `/edit/${characterName}/${selectedCommand}`;
+            }
+        }
+    </script>
+}

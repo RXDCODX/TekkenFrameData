@@ -1,0 +1,121 @@
+﻿@page "/edit/{charactername}/{command}"
+@model TekkenMoveEditModel
+@{
+    ViewData["Title"] = "Edit Tekken Move";
+}
+
+<h1>Edit Tekken Move</h1>
+
+<div class="row">
+    <form method="post">
+        <div class="container">
+            <div class="row">
+                <div class="form-group text-center">
+                    <label asp-for="TekkenMove.CharacterName" class="control-label"></label>
+                    <input asp-for="TekkenMove.CharacterName" class="form-control text-center" readonly />
+                    <span asp-validation-for="TekkenMove.CharacterName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group text-center">
+                    <label asp-for="TekkenMove.Command" class="control-label"></label>
+                    <input asp-for="TekkenMove.Command" class="form-control text-center" readonly />
+                    <span asp-validation-for="TekkenMove.Command" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <h4>Основные параметры</h4>
+
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.HitLevel" class="control-label"></label>
+                        <input asp-for="TekkenMove.HitLevel" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.HitLevel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.Damage" class="control-label"></label>
+                        <input asp-for="TekkenMove.Damage" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.Damage" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.StartUpFrame" class="control-label"></label>
+                        <input asp-for="TekkenMove.StartUpFrame" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.StartUpFrame" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.BlockFrame" class="control-label"></label>
+                        <input asp-for="TekkenMove.BlockFrame" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.BlockFrame" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.HitFrame" class="control-label"></label>
+                        <input asp-for="TekkenMove.HitFrame" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.HitFrame" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.CounterHitFrame" class="control-label"></label>
+                        <input asp-for="TekkenMove.CounterHitFrame" class="form-control"/>
+                        <span asp-validation-for="TekkenMove.CounterHitFrame" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TekkenMove.Notes" class="control-label"></label>
+                        <textarea asp-for="TekkenMove.Notes" class="form-control"></textarea>
+                        <span asp-validation-for="TekkenMove.Notes" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex flex-column justify-content-between">
+                    <h4>Дополнительные параметры</h4>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.IsUserChanged" class="form-check-input" type="checkbox" />
+                        <label asp-for="TekkenMove.IsUserChanged" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.HeatEngage" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.HeatEngage" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.HeatSmash" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.HeatSmash" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.PowerCrush" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.PowerCrush" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.Throw" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.Throw" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.Homing" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.Homing" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.Tornado" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.Tornado" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.HeatBurst" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.HeatBurst" class="form-check-label"></label>
+                    </div>
+                    <div class="form-group form-check">
+                        <input asp-for="TekkenMove.RequiresHeat" class="form-check-input" type="checkbox"/>
+                        <label asp-for="TekkenMove.RequiresHeat" class="form-check-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center my-3">
+            <button type="submit" class="btn btn-primary" asp-page-handler="Save">Подтвердить</button>
+            <button type="submit" class="btn btn-secondary" asp-page-handler="Cancel">Отменить</button>
+            <a asp-page="./List" class="btn btn-light">Назад к списку</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

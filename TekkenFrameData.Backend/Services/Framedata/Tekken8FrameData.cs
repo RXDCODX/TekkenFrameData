@@ -65,7 +65,7 @@ public class Tekken8FrameData
                     var href = aNode.GetAttributeValue("href", "");
 
                     var nameNode = liNode.SelectSingleNode(
-                        ".//div[@class='overflow-hidden text-ellipsis whitespace-nowrap text-center text-text-primary first-letter:uppercase']");
+                        ".//div[@class='overflow-hidden text-ellipsis whitespace-nowrap text-center capitalize text-text-primary max-xs:text-xs']");
                     var name = nameNode.InnerText.Trim();
 
                     var imgNode = liNode.SelectSingleNode(".//img");
@@ -218,7 +218,12 @@ public class Tekken8FrameData
                     var cellNodes = rowNode.SelectNodes(".//td[@class='rt-TableCell']");
 
                     // Извлекаем текст из тега <a> в ячейке command
-                    move.Command = cellNodes[0].SelectSingleNode(".//a")?.InnerText.Trim().ToLower();
+                    move.Command = rowNode.SelectSingleNode(".//a[@data-discover='true']")?.InnerText.Trim().ToLower() ?? string.Empty;
+
+                    if (string.IsNullOrWhiteSpace(move.Command))
+                    {
+                        continue;
+                    }
 
                     move.Command = move.Command.Replace(".", " ");
 

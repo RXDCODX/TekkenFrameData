@@ -1,0 +1,6 @@
+services:
+  tekkenfd:
+    image: ${DOCKER_REGISTRY-}tekkenfd
+    build:
+      context: .
+      dockerfile: FD/Dockerfile

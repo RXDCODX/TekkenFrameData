@@ -46,7 +46,8 @@ public class Aliases
         //{"kunimitsu", new string[]{"kun", "kuni"}},
         { "azucena", new[] { "azu" } },
         { "victor", new[] { "vic", "victorian", "viktoriues" } },
-        { "reina", new[] { "rheina" } }
+        { "reina", new[] { "rheina" } },
+        { "mokujin", new []{ "mokujin" }}
     };
 
     public static readonly Dictionary<string, string> MoveInputReplacer = new()

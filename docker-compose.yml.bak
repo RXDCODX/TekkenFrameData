@@ -59,18 +59,7 @@ services:
       
   frontend:
     build:
-      context: ./TekkenFrameData.frontend
-      dockerfile: Dockerfile
-    container_name: tekken_frontend
-    depends_on:
-      backend:
-        condition: service_completed_successfully
-    ports:
-      -  "8080:5173"
-    networks:
-      -  tekken_network
-      
-     
+      context: ./
 
 volumes:
   postgres_data:

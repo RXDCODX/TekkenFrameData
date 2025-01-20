@@ -3,9 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tekkenfd", "TekkenFrameData.Backend\tekkenfd.csproj", "{36FA96BA-A175-421D-A56A-EDCCC00201FD}"
-EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Frontend", "TekkenFrameData.Frontend\TekkenFrameData.Frontend.csproj", "{58303AAB-C1C0-4692-AF0C-AAB1FB6B6368}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Watcher", "TekkenFrameData.Backend\TekkenFrameData.Watcher\TekkenFrameData.Watcher.csproj", "{C1161E25-2255-49E3-BB94-E455EF0F9217}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Service", "TekkenFrameData.Backend\TekkenFrameData.Service\TekkenFrameData.Service.csproj", "{582B410D-83ED-410D-8828-0D95CCBE5A5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +17,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{36FA96BA-A175-421D-A56A-EDCCC00201FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36FA96BA-A175-421D-A56A-EDCCC00201FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36FA96BA-A175-421D-A56A-EDCCC00201FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36FA96BA-A175-421D-A56A-EDCCC00201FD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58303AAB-C1C0-4692-AF0C-AAB1FB6B6368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58303AAB-C1C0-4692-AF0C-AAB1FB6B6368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58303AAB-C1C0-4692-AF0C-AAB1FB6B6368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58303AAB-C1C0-4692-AF0C-AAB1FB6B6368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Release|Any CPU.Build.0 = Release|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

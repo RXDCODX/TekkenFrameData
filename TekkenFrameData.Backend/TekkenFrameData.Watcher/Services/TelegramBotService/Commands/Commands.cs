@@ -1,9 +1,13 @@
 ﻿using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using TekkenFrameData.Watcher.Services.Framedata;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using TwitchLib.Client.Interfaces;
+using System.Linq;
+using System;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.Commands;
 
@@ -28,7 +32,7 @@ public partial class Commands(Tekken8FrameData frameData, ITwitchClient client)
         else
             usage = Template;
 
-        return await botClient.SendTextMessageAsync(
+        return await botClient.SendMessage(
             message.Chat.Id,
             usage,
             replyMarkup: new ReplyKeyboardRemove(),

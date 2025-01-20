@@ -8,5 +8,5 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.Abstract;
 /// </summary>
 public interface IReceiverService
 {
-    Task ReceiveAsync(CancellationToken stoppingToken);
+    public Task ReceiveAsync(CancellationToken stoppingToken);
 }

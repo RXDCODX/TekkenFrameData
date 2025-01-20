@@ -19,7 +19,7 @@ public partial class Commands
                              5) Различные картинки, советую брать пикчи до разрешения в 1920x1080, кинешь выше - сломаю колени
                              """;
 
-        return await botClient.SendTextMessageAsync(
+        return await botClient.SendMessage(
             message.Chat.Id,
             usage,
             replyMarkup: new ReplyKeyboardRemove(),

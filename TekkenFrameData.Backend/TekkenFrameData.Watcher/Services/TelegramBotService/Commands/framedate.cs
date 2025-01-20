@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -15,15 +16,27 @@ public partial class Commands
         var msg = message.Text;
         var text = string.Empty;
         InlineKeyboardMarkup? markup = null;
-        var split = msg.Split(" ");
+        if (string.IsNullOrWhiteSpace(msg)) 
+            { 
+            text = "Плохие параметры запроса фреймдаты: Пустое сообщение";
+            
+            return await botClient.SendMessage(
+            message.Chat.Id,
+            text,
+            replyMarkup: markup,
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+        }
+        
+            var split = msg.Split(" ");
 
-        if (split.Length >= 3)
+        if (split.Length >= 3 )
         {
             var bb = split.Skip(1).ToArray();
 
             var move = frameData.GetMove(bb);
 
-            if (move != null)
+            if (move is not null && move.Character is not null)
             {
                 text = $"""
                         🎭 <b>Character</b> 🎭
@@ -121,8 +134,9 @@ public partial class Commands
             else
                 text = "Плохие параметры запроса фреймдаты.";
         }
-
-        return await botClient.SendTextMessageAsync(
+    
+    
+        return await botClient.SendMessage(
             message.Chat.Id,
             text,
             replyMarkup: markup,

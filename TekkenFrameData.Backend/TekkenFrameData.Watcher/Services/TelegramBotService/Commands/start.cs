@@ -15,9 +15,9 @@ public partial class Commands
                              /commands
                              """;
 
-        return await botClient.SendTextMessageAsync(
+        return await botClient.SendMessage(
             message.Chat.Id,
             usage,
-            cancellationToken: cancellationToken, parseMode: ParseMode.Html, replyToMessageId: message.MessageId);
+            cancellationToken: cancellationToken, parseMode: ParseMode.Html, replyParameters: message.MessageId);
     }
 }

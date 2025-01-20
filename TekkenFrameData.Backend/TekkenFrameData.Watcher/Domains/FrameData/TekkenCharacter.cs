@@ -10,6 +10,6 @@ public class TekkenCharacter
     [Required]
     public string? Name { get; set; }
     public string? LinkToImage { get; set; }
-    public IEnumerable<TekkenMove> Movelist { get; set; }
+    public ICollection<TekkenMove> Movelist { get; set; } = [];
     public System.DateTime LastUpdateTime { get; set; } = DateTime.Now.ToLocalTime();
 }

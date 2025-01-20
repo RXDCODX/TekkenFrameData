@@ -353,8 +353,8 @@ public class Tekken8FrameData
 
                 var chatid = new ChatId(data.Message.Chat.Id);
 
-                await client.AnswerCallbackQueryAsync(data.Id);
-                await client.SendTextMessageAsync(chatid, text.ToString(), parseMode: ParseMode.Html);
+                await client.AnswerCallbackQuery(data.Id);
+                await client.SendMessage(chatid, text.ToString(), parseMode: ParseMode.Html);
             }
         }
     }
@@ -514,7 +514,7 @@ public class Tekken8FrameData
         var tekkenMoves = movelist as TekkenMove[] ?? movelist.ToArray();
         var currentMove = GetMoveFromMovelistByCommandWithoutReplace(movename, tekkenMoves);
 
-        if (currentMove == null)
+        if (currentMove is null)
         {
             var replaced = ReplaceCommandCharacters(movename.ToLower());
             currentMove = tekkenMoves

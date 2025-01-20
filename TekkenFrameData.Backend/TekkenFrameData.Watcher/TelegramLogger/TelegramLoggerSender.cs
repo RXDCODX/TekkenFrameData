@@ -69,7 +69,7 @@ public class TelegramLoggerSender : IDisposable
             try
             {
                 foreach (var id in _chatIds)
-                    await _botClient.SendTextMessageAsync(id, message, parseMode: ParseMode.Markdown)
+                    await _botClient.SendMessage(id, message, parseMode: ParseMode.Markdown)
                         .ConfigureAwait(false);
             }
             catch (Exception)

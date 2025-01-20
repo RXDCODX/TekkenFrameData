@@ -15,7 +15,7 @@
 		<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-		<!--<TreatWarningsAsErrors>True</TreatWarningsAsErrors>-->
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>

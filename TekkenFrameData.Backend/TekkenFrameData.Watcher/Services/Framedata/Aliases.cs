@@ -1,4 +1,6 @@
-﻿namespace TekkenFrameData.Watcher.Services.Framedata;
+﻿using System.Collections.Generic;
+
+namespace TekkenFrameData.Watcher.Services.Framedata;
 
 public class Aliases
 {

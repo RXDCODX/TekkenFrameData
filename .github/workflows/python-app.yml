@@ -33,7 +33,7 @@ jobs:
     # Шаг 4: Проверка структуры репозитория
     - name: List repository contents
       run: |
-        cp -R
+        ls -a
 
     # Шаг 5: Установка зависимостей
     - name: Install dependencies

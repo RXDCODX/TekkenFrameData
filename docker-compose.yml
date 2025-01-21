@@ -20,14 +20,33 @@ services:
       timeout: 5s
       retries: 5
 
+  migrations:
+    build:
+      context: ./TekkenFrameData.Backend  # “кажите путь к вашему .NET проекту
+      dockerfile: Dockerfile
+    container_name: tekken_migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: tekken_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    command: >
+      sh -c "dotnet ef database update --project TekkenFrameData.Backend.csproj"
+    networks:
+      - tekken_network
+
   scraper:
     build:
       context: ./TekkenFrameData.Scrupper
       dockerfile: Dockerfile
     container_name: tekken_scraper
     depends_on:
-      db:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -56,7 +75,7 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
-      
+
   frontend:
     build:
       context: ./TekkenFrameData.frontend
@@ -66,11 +85,9 @@ services:
       backend:
         condition: service_completed_successfully
     ports:
-      -  "8080:5173"
+      - "8080:5173"
     networks:
-      -  tekken_network
-      
-     
+      - tekken_network
 
 volumes:
   postgres_data:

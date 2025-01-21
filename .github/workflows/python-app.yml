@@ -43,11 +43,12 @@ jobs:
     # Шаг 5: Запуск тестов (если они есть)
     - name: Test with pytest
       run: |
-        pytest TekkenFrameData/TekkenFrameData.Scrupper/tests/
+        pytest TekkenFrameData.Scrupper/tests/
 
     # Шаг 6: Запуск скрапера
     - name: Run Scraper
       run: |
+        cd ./TekkenFrameData.Scrupper
         python -m scraper.main
       env:
         DB_HOST: localhost

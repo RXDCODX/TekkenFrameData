@@ -38,6 +38,7 @@ jobs:
     # Шаг 5: Установка зависимостей
     - name: Install dependencies
       run: |
+        echo "Current directory: $(pwd)"
         python -m pip install --upgrade pip
         pip install flake8 pytest
         pip install -r requirements.txt

@@ -7,7 +7,6 @@ using TekkenFrameData.Watcher.TelegramLogger;
 using TekkenFrameData.Watcher.DB;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
-using TekkenFrameData.Watcher.Services.TelegramBotService.Commands;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using Telegram.Bot;
 using TwitchLib.Api;
@@ -15,6 +14,7 @@ using TwitchLib.Api.Core.Enums;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client;
 using TwitchLib.Client.Interfaces;
+using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
 namespace TekkenFrameData.Watcher;
 

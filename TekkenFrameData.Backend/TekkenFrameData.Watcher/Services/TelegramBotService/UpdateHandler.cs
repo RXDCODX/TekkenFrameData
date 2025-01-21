@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Watcher.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -13,7 +14,7 @@ public class UpdateHandler : IUpdateHandler
     private delegate Task TelegramUpdateDelegate(ITelegramBotClient client, Update update);
 
     private readonly ITelegramBotClient _botClient;
-    private readonly Commands.Commands _commands;
+    private readonly Commands _commands;
     private readonly ILogger<UpdateHandler> _logger;
     private long[] AdminLongs { get; init; }
 
@@ -21,7 +22,7 @@ public class UpdateHandler : IUpdateHandler
 
     public UpdateHandler(ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
-        Commands.Commands commands,
+        Commands commands,
         Tekken8FrameData frameData)
     {
         _botClient = botClient; 
@@ -99,14 +100,14 @@ public class UpdateHandler : IUpdateHandler
                 "/help" => _commands.OnHelpCommandReceived(_botClient, message, cancellationToken),
                 "/framedate" => _commands.OnFramedataCommandReceived(_botClient, message, cancellationToken),
                 "/fd" => _commands.OnFramedataCommandReceived(_botClient, message, cancellationToken),
-                "/commands" => _commands.OnUsageCommandReceived(_botClient, message, cancellationToken),
+                "/commands" => Commands.OnUsageCommandReceived(_botClient, message, cancellationToken),
                 "/start" => _commands.OnStartCommandReceived(_botClient, message, cancellationToken),
                 _ => ErrorCommand(_botClient, message, cancellationToken)
             };
 
             static Task<Message> ErrorCommand(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
             {
-                return client.SendMessage(message.Chat.Id, Commands.Commands.Template, cancellationToken: cancellationToken);
+                return client.SendMessage(message.Chat.Id, Commands.Template, cancellationToken: cancellationToken);
             }
 
             var sentMessage = await action;

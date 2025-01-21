@@ -1,11 +1,7 @@
-﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using TekkenFrameData.Watcher.Exstensions;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace TekkenFrameData.Watcher.Services.TelegramBotService.Commands;
+namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {

@@ -40,7 +40,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -r requirements.txt
 
     # Шаг 6: Проверка кода с помощью flake8
     - name: Lint with flake8
@@ -53,7 +53,7 @@ jobs:
     # Шаг 7: Запуск тестов (если они есть)
     - name: Test with pytest
       run: |
-        pytest
+        pytest TekkenFrameData/TekkenFrameData.Scrupper/tests/
 
     # Шаг 8: Запуск скрапера
     - name: Run Scraper

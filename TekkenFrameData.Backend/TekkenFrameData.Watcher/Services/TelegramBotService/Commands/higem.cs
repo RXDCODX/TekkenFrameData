@@ -13,14 +13,10 @@ public partial class Commands
     {
         var userName = message.Chat.Id;
         var split = message?.Text?.Split(' ');
-        
+
         if (split is { Length: < 3 })
         {
-            return await botClient.SendMessage(
-                userName, 
-                text: "Кривые параметры котисы!", 
-                messageThreadId: message!.MessageThreadId,
-                replyParameters: message.MessageId,
+            return await botClient.SendTextMessageAsync(userName, "Кривые параметры котисы!", message!.MessageThreadId, replyToMessageId: message.MessageId,
                 cancellationToken: cancellationToken);
         }
         else
@@ -33,16 +29,12 @@ public partial class Commands
                 client.JoinChannel(channel, true);
                 client.SendMessage(channel, string.Join(' ', text));
 
-                return await botClient.SendMessage(userName, $"Сообщение на канал {channel} отправленно!", 
-                    messageThreadId: message!.MessageThreadId, 
-                    replyParameters: message.MessageId,
+                return await botClient.SendTextMessageAsync(userName, $"Сообщение на канал {channel} отправленно!", message!.MessageThreadId, replyToMessageId: message.MessageId,
                     cancellationToken: cancellationToken);
             }
             catch (Exception ex)
             {
-                return await botClient.SendMessage(userName, $"Ошибка отправления сообщения на канал {channel}! {ex.Message}", 
-                    messageThreadId: message!.MessageThreadId,
-                    replyParameters: message.MessageId,
+                return await botClient.SendTextMessageAsync(userName, $"Ошибка отправления сообщения на канал {channel}! {ex.Message}", message!.MessageThreadId, replyToMessageId: message.MessageId,
                     cancellationToken: cancellationToken);
             }
         }

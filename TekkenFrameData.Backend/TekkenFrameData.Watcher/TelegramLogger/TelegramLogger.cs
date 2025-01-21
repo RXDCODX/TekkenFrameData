@@ -64,7 +64,7 @@ public class TelegramLogger : ILogger
     private void SendMessage(LogLevel logLevel, string logName, int eventId, string message, Exception exception)
     {
         var logBuilder = _logBuilder;
-        _logBuilder.Clear();
+        _logBuilder = null;
 
         if ((int)logLevel < (int)_options.MinimumLevel)
             return;
@@ -101,7 +101,6 @@ public class TelegramLogger : ILogger
         if (logBuilder.Length > 4096)
         {
             logBuilder.Remove(4080, logBuilder.Length - 4080);
-           
             logBuilder.Append("...");
             logBuilder.AppendLine();
             logBuilder.Append("...");

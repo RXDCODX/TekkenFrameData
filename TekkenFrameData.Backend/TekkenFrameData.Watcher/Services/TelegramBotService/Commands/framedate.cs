@@ -16,29 +16,22 @@ public partial class Commands
         var msg = message.Text;
         var text = string.Empty;
         InlineKeyboardMarkup? markup = null;
-        if (string.IsNullOrWhiteSpace(msg)) 
-            { 
-            text = "Плохие параметры запроса фреймдаты: Пустое сообщение";
-            
-            return await botClient.SendMessage(
-            message.Chat.Id,
-            text,
-            replyMarkup: markup,
-            parseMode: ParseMode.Html,
-            cancellationToken: cancellationToken);
-        }
-        
+
+        if (msg is not null)
+        {
             var split = msg.Split(" ");
 
-        if (split.Length >= 3 )
-        {
-            var bb = split.Skip(1).ToArray();
-
-            var move = frameData.GetMove(bb);
-
-            if (move is not null && move.Character is not null)
+            if (split.Length >= 3)
             {
-                text = $"""
+                var bb = split.Skip(1).ToArray();
+
+                var move = frameData.GetMove(bb);
+
+                if (move is not null)
+                {
+                    if (move.Character is not null)
+                    {
+                        text = $"""
                         🎭 <b>Character</b> 🎭
                                 <i>{move.Character.Name}</i>
 
@@ -70,77 +63,90 @@ public partial class Commands
                         <i>{move.Notes}</i>
                       
                         """;
+                    }
+                    else
+                    {
+                        text = "Плохие параметры запроса фреймдаты: Отсутствует имя персонажа.";
+                        return await botClient.SendMessage(
+                                    message.Chat.Id,
+                                    text,
+                                    replyMarkup: markup,
+                                    parseMode: ParseMode.Html,
+                                    cancellationToken: cancellationToken);
+                    }
 
-                var buttons = new List<InlineKeyboardButton>();
+                    var buttons = new List<InlineKeyboardButton>();
 
-                if (move.HeatEngage)
-                {
-                    var button = new InlineKeyboardButton("Heat Engager");
-                    button.CallbackData = $"framedata:{move.Character.Name}:heatengage";
-                    buttons.Add(button);
+                    if (move.HeatEngage)
+                    {
+                        var button = new InlineKeyboardButton("Heat Engager");
+                        button.CallbackData = $"framedata:{move.Character.Name}:heatengage";
+                        buttons.Add(button);
+                    }
+
+                    if (move.Tornado)
+                    {
+                        var button = new InlineKeyboardButton("Tornado");
+                        button.CallbackData = $"framedata:{move.Character.Name}:tornado";
+                        buttons.Add(button);
+                    }
+
+                    if (move.HeatSmash)
+                    {
+                        var button = new InlineKeyboardButton("Heat Smash");
+                        button.CallbackData = $"framedata:{move.Character.Name}:heatsmash";
+                        buttons.Add(button);
+                    }
+
+                    if (move.PowerCrush)
+                    {
+                        var button = new InlineKeyboardButton("Power Crush");
+                        button.CallbackData = $"framedata:{move.Character.Name}:powercrush";
+                        buttons.Add(button);
+                    }
+
+                    if (move.HeatBurst)
+                    {
+                        var button = new InlineKeyboardButton("Heat Burst");
+                        button.CallbackData = $"framedata:{move.Character.Name}:heatburst";
+                        buttons.Add(button);
+                    }
+
+                    if (move.Homing)
+                    {
+                        var button = new InlineKeyboardButton("Homing");
+                        button.CallbackData = $"framedata:{move.Character.Name}:homing";
+                        buttons.Add(button);
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(move.StanceCode))
+                    {
+                        var button = new InlineKeyboardButton(move.StanceName);
+                        button.CallbackData = $"framedata:{move.Character.Name}:stance:{move.StanceCode}";
+                        buttons.Add(button);
+                    }
+
+                    if (move.Throw)
+                    {
+                        var button = new InlineKeyboardButton("Throw");
+                        button.CallbackData = $"framedata:{move.Character.Name}:throw";
+                        buttons.Add(button);
+                    }
+
+                    markup = new InlineKeyboardMarkup(buttons);
                 }
-
-                if (move.Tornado)
-                {
-                    var button = new InlineKeyboardButton("Tornado");
-                    button.CallbackData = $"framedata:{move.Character.Name}:tornado";
-                    buttons.Add(button);
-                }
-
-                if (move.HeatSmash)
-                {
-                    var button = new InlineKeyboardButton("Heat Smash");
-                    button.CallbackData = $"framedata:{move.Character.Name}:heatsmash";
-                    buttons.Add(button);
-                }
-
-                if (move.PowerCrush)
-                {
-                    var button = new InlineKeyboardButton("Power Crush");
-                    button.CallbackData = $"framedata:{move.Character.Name}:powercrush";
-                    buttons.Add(button);
-                }
-
-                if (move.HeatBurst)
-                {
-                    var button = new InlineKeyboardButton("Heat Burst");
-                    button.CallbackData = $"framedata:{move.Character.Name}:heatburst";
-                    buttons.Add(button);
-                }
-
-                if (move.Homing)
-                {
-                    var button = new InlineKeyboardButton("Homing");
-                    button.CallbackData = $"framedata:{move.Character.Name}:homing";
-                    buttons.Add(button);
-                }
-
-                if (!string.IsNullOrWhiteSpace(move.StanceCode))
-                {
-                    var button = new InlineKeyboardButton(move.StanceName);
-                    button.CallbackData = $"framedata:{move.Character.Name}:stance:{move.StanceCode}";
-                    buttons.Add(button);
-                }
-
-                if (move.Throw)
-                {
-                    var button = new InlineKeyboardButton("Throw");
-                    button.CallbackData = $"framedata:{move.Character.Name}:throw";
-                    buttons.Add(button);
-                }
-
-                markup = new InlineKeyboardMarkup(buttons);
+                else
+                    text = "Плохие параметры запроса фреймдаты.";
             }
-            else
-                text = "Плохие параметры запроса фреймдаты.";
         }
-    
-    
+        else
+            text = "Плохие параметры запроса фреймдаты.";
+
         return await botClient.SendMessage(
-            message.Chat.Id,
-            text,
-            replyMarkup: markup,
-            parseMode: ParseMode.Html,
-            cancellationToken: cancellationToken);
+                message.Chat.Id,
+                text,
+                replyMarkup: markup,
+                parseMode: ParseMode.Html,
+                cancellationToken: cancellationToken);
     }
 }

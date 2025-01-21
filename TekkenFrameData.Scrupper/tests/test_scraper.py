@@ -2,6 +2,7 @@ import pytest
 import requests_mock
 from scraper.scraper import Scraper
 from scraper.models import Character, Move
+from scraper.utils import load_page  # Импортируем load_page из utils
 
 # Пример HTML-страницы с персонажами
 SAMPLE_HTML = """
@@ -48,16 +49,17 @@ def scraper():
     return Scraper("https://tekkendocs.com")
 
 # Тест: Загрузка HTML-страницы
-def test_load_page(scraper):
+def test_load_page():
     with requests_mock.Mocker() as m:
         m.get("https://tekkendocs.com", text=SAMPLE_HTML)
-        html = scraper.load_page("https://tekkendocs.com")
+        html = load_page("https://tekkendocs.com")  # Используем load_page из utils
         assert html == SAMPLE_HTML
 
 # Тест: Парсинг персонажей
 def test_scrape_characters(scraper):
     with requests_mock.Mocker() as m:
         m.get("https://tekkendocs.com", text=SAMPLE_HTML)
+        m.get("https://tekkendocs.com/character1", text=SAMPLE_MOVELIST_HTML)  # Мок для движений
         characters = scraper.scrape_characters(SAMPLE_HTML)
         assert len(characters) == 2
         assert isinstance(characters[0], Character)

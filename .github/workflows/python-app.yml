@@ -1,0 +1,56 @@
+name: Python Scraper CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    # Шаг 1: Получение кода из репозитория
+    - uses: actions/checkout@v4
+
+    # Шаг 2: Установка Python 3.11
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+
+    # Шаг 3: Установка зависимостей
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    # Шаг 4: Проверка кода с помощью flake8
+    - name: Lint with flake8
+      run: |
+        # Остановка сборки при наличии синтаксических ошибок
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Проверка стиля кода (предупреждения, но не останавливают сборку)
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    # Шаг 5: Запуск тестов (если они есть)
+    - name: Test with pytest
+      run: |
+        pytest
+
+    # Шаг 6: Запуск скрапера (опционально)
+    - name: Run Scraper
+      run: |
+        python -m scraper.main
+      env:
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_NAME: tekken_db
+        DB_USER: postgres
+        DB_PASSWORD: postgres

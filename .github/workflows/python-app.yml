@@ -24,16 +24,16 @@ jobs:
       with:
         python-version: "3.11"
 
-    # Шаг 3: Проверка структуры репозитория
-    - name: List repository contents
-      run: |
-        ls -R
-
-    # Шаг 4: Переход в рабочую директорию (TekkenFrameData/TekkenFrameData.Scrupper)
+    # Шаг 3: Переход в рабочую директорию (TekkenFrameData/TekkenFrameData.Scrupper)
     - name: Change to Scrupper directory
       run: |
         cd ./TekkenFrameData.Scrupper
         echo "Current directory: $(pwd)"
+
+    # Шаг 4: Проверка структуры репозитория
+    - name: List repository contents
+      run: |
+        cp -R
 
     # Шаг 5: Установка зависимостей
     - name: Install dependencies

@@ -2,8 +2,9 @@
 
 public class TekkenMove
 {
-    public string CharacterName { get; set; }
+    public string CharacterName { get; set; } = string.Empty;
     public TekkenCharacter? Character { get; set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public bool IsFromStance => !string.IsNullOrWhiteSpace(StanceCode);
     public string? StanceCode { get; set; } = string.Empty;
     public string? StanceName { get; set; } = string.Empty;

@@ -1,4 +1,7 @@
-﻿using Telegram.Bot;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -15,7 +18,7 @@ public partial class Commands
                                  База данных была принудительно обновленна!
                                  """;
 
-            return await botClient.SendTextMessageAsync(
+            return await botClient.SendMessage(
                 message.Chat.Id,
                 usage,
                 replyMarkup: new ReplyKeyboardRemove(),
@@ -27,7 +30,7 @@ public partial class Commands
                                  Не удалось обновить бд! {0} # {1}
                                  """;
 
-            return await botClient.SendTextMessageAsync(
+            return await botClient.SendMessage(
                 message.Chat.Id,
                 string.Format(usage, e.Message, e.StackTrace),
                 replyMarkup: new ReplyKeyboardRemove(),

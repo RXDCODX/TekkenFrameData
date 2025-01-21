@@ -142,54 +142,6 @@ public class Tekken8FrameData
             _logger.LogError("Не удалось найти узел ul.");
     }
 
-    public static List<TekkenMove> ConsolidateMoveGroups(List<TekkenMove> moves)
-    {
-        var groupedMoves = moves
-            .GroupBy(m => new { m.CharacterName, m.Command });
-
-        var consolidatedMoves = new List<TekkenMove>();
-        var uniqueMoves = new List<TekkenMove>();
-
-        foreach (var group in groupedMoves)
-            if (group.Count() > 1)
-            {
-                // Consolidate the duplicate moves
-                var consolidatedMove = new TekkenMove
-                {
-                    CharacterName = group.Key.CharacterName,
-                    Command = group.Key.Command,
-                    HeatEngage = group.Any(m => m.HeatEngage),
-                    HeatSmash = group.Any(m => m.HeatSmash),
-                    PowerCrush = group.Any(m => m.PowerCrush),
-                    Throw = group.Any(m => m.Throw),
-                    Homing = group.Any(m => m.Homing),
-                    Tornado = group.Any(m => m.Tornado),
-                    HeatBurst = group.Any(m => m.HeatBurst),
-                    RequiresHeat = group.Any(m => m.RequiresHeat),
-                    StanceCode = group.First().StanceCode,
-                    HitLevel = group.First().HitLevel,
-                    Damage = group.First().Damage,
-                    StartUpFrame = group.First().StartUpFrame,
-                    BlockFrame = group.First().BlockFrame,
-                    HitFrame = group.First().HitFrame,
-                    CounterHitFrame = group.First().CounterHitFrame,
-                    Notes = string.Join(Environment.NewLine, group.Select(m => m.Notes))
-                };
-
-                consolidatedMoves.Add(consolidatedMove);
-            }
-            else
-                // Add unique move to the list of unique moves
-                uniqueMoves.Add(group.First());
-
-        // Combine unique moves and consolidated moves into an array
-        var result = new TekkenMove[uniqueMoves.Count + consolidatedMoves.Count];
-        uniqueMoves.CopyTo(result, 0);
-        consolidatedMoves.CopyTo(result, uniqueMoves.Count);
-
-        return result.ToList();
-    }
-
     private List<TekkenMove> GetMoveList(TekkenCharacter character, string url)
     {
         var movelist = new List<TekkenMove>();
@@ -285,6 +237,53 @@ public class Tekken8FrameData
         return movelist;
     }
 
+    public static List<TekkenMove> ConsolidateMoveGroups(List<TekkenMove> moves)
+    {
+        var groupedMoves = moves
+            .GroupBy(m => new { m.CharacterName, m.Command });
+
+        var consolidatedMoves = new List<TekkenMove>();
+        var uniqueMoves = new List<TekkenMove>();
+
+        foreach (var group in groupedMoves)
+            if (group.Count() > 1)
+            {
+                // Consolidate the duplicate moves
+                var consolidatedMove = new TekkenMove
+                {
+                    CharacterName = group.Key.CharacterName,
+                    Command = group.Key.Command,
+                    HeatEngage = group.Any(m => m.HeatEngage),
+                    HeatSmash = group.Any(m => m.HeatSmash),
+                    PowerCrush = group.Any(m => m.PowerCrush),
+                    Throw = group.Any(m => m.Throw),
+                    Homing = group.Any(m => m.Homing),
+                    Tornado = group.Any(m => m.Tornado),
+                    HeatBurst = group.Any(m => m.HeatBurst),
+                    RequiresHeat = group.Any(m => m.RequiresHeat),
+                    StanceCode = group.First().StanceCode,
+                    HitLevel = group.First().HitLevel,
+                    Damage = group.First().Damage,
+                    StartUpFrame = group.First().StartUpFrame,
+                    BlockFrame = group.First().BlockFrame,
+                    HitFrame = group.First().HitFrame,
+                    CounterHitFrame = group.First().CounterHitFrame,
+                    Notes = string.Join(Environment.NewLine, group.Select(m => m.Notes))
+                };
+
+                consolidatedMoves.Add(consolidatedMove);
+            }
+            else
+                // Add unique move to the list of unique moves
+                uniqueMoves.Add(group.First());
+
+        // Combine unique moves and consolidated moves into an array
+        var result = new TekkenMove[uniqueMoves.Count + consolidatedMoves.Count];
+        uniqueMoves.CopyTo(result, 0);
+        consolidatedMoves.CopyTo(result, uniqueMoves.Count);
+
+        return result.ToList();
+    }
     public async Task HandAlert(ITelegramBotClient client, Update update)
     {
         if (update.Type == UpdateType.CallbackQuery)

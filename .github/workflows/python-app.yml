@@ -32,7 +32,7 @@ jobs:
     # Шаг 4: Переход в рабочую директорию (TekkenFrameData/TekkenFrameData.Scrupper)
     - name: Change to Scrupper directory
       run: |
-        cd TekkenFrameData.Scrupper
+        cd ./TekkenFrameData.Scrupper
         echo "Current directory: $(pwd)"
 
     # Шаг 5: Установка зависимостей

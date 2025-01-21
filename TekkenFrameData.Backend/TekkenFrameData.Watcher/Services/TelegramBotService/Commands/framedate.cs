@@ -79,57 +79,73 @@ public partial class Commands
 
                     if (move.HeatEngage)
                     {
-                        var button = new InlineKeyboardButton("Heat Engager");
-                        button.CallbackData = $"framedata:{move.Character.Name}:heatengage";
+                        var button = new InlineKeyboardButton("Heat Engager")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:heatengage"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.Tornado)
                     {
-                        var button = new InlineKeyboardButton("Tornado");
-                        button.CallbackData = $"framedata:{move.Character.Name}:tornado";
+                        var button = new InlineKeyboardButton("Tornado")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:tornado"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.HeatSmash)
                     {
-                        var button = new InlineKeyboardButton("Heat Smash");
-                        button.CallbackData = $"framedata:{move.Character.Name}:heatsmash";
+                        var button = new InlineKeyboardButton("Heat Smash")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:heatsmash"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.PowerCrush)
                     {
-                        var button = new InlineKeyboardButton("Power Crush");
-                        button.CallbackData = $"framedata:{move.Character.Name}:powercrush";
+                        var button = new InlineKeyboardButton("Power Crush")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:powercrush"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.HeatBurst)
                     {
-                        var button = new InlineKeyboardButton("Heat Burst");
-                        button.CallbackData = $"framedata:{move.Character.Name}:heatburst";
+                        var button = new InlineKeyboardButton("Heat Burst")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:heatburst"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.Homing)
                     {
-                        var button = new InlineKeyboardButton("Homing");
-                        button.CallbackData = $"framedata:{move.Character.Name}:homing";
+                        var button = new InlineKeyboardButton("Homing")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:homing"
+                        };
                         buttons.Add(button);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(move.StanceCode))
+                    if (!string.IsNullOrWhiteSpace(move.StanceCode) && !string.IsNullOrWhiteSpace(move.StanceName))
                     {
-                        var button = new InlineKeyboardButton(move.StanceName);
-                        button.CallbackData = $"framedata:{move.Character.Name}:stance:{move.StanceCode}";
+                        var button = new InlineKeyboardButton(move.StanceName)
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:stance:{move.StanceCode}"
+                        };
                         buttons.Add(button);
                     }
 
                     if (move.Throw)
                     {
-                        var button = new InlineKeyboardButton("Throw");
-                        button.CallbackData = $"framedata:{move.Character.Name}:throw";
+                        var button = new InlineKeyboardButton("Throw")
+                        {
+                            CallbackData = $"framedata:{move.Character.Name}:throw"
+                        };
                         buttons.Add(button);
                     }
 

@@ -17,7 +17,7 @@ public static class TelegramLoggerProviderExtensions
         }
 
         var botClient = new TelegramBotClient(options.BotToken);
-        loggerFactory?.AddProvider(new TelegramLoggerProvider(botClient, options, filter));
+        loggerFactory.AddProvider(new TelegramLoggerProvider(botClient, options, filter));
         return loggerFactory;
     }
 
@@ -33,6 +33,6 @@ public static class TelegramLoggerProviderExtensions
 
         var options = new TelegramLoggerOptions();
         configure(options);
-        return loggerFactory?.AddTelegramLogger(options, filter);
+        return loggerFactory.AddTelegramLogger(options, filter);
     }
 }

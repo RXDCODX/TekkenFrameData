@@ -2,6 +2,8 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
 
 namespace TekkenFrameData.Watcher.TelegramLogger;
 
@@ -11,7 +13,7 @@ public class TelegramLogger : ILogger
     private readonly Func<string, LogLevel, bool> _filter;
     private readonly TelegramLoggerSender _messageQueue;
     private readonly TelegramLoggerOptions _options;
-    private StringBuilder _logBuilder;
+    private StringBuilder? _logBuilder;
 
     internal TelegramLogger(
         string category,
@@ -38,17 +40,20 @@ public class TelegramLogger : ILogger
         LogLevel logLevel,
         EventId eventId,
         TState state,
-        Exception exception,
+        Exception? exception,
         Func<TState, Exception, string> formatter)
     {
         if (!IsEnabled(logLevel)) return;
 
-        if (formatter == null) throw new ArgumentNullException(nameof(formatter));
+        ArgumentNullException.ThrowIfNull(formatter);
 
-        var message = formatter(state, exception);
+        if (exception != null)
+        {
+            var message = formatter(state, exception);
 
-        if (!string.IsNullOrEmpty(message) &&
-            !string.IsNullOrWhiteSpace(message)) SendMessage(logLevel, _category, eventId.Id, message, exception);
+            if (!string.IsNullOrEmpty(message) &&
+                !string.IsNullOrWhiteSpace(message)) SendMessage(logLevel, _category, eventId.Id, message, exception);
+        }
     }
 
     public bool IsEnabled(LogLevel logLevel)
@@ -61,7 +66,7 @@ public class TelegramLogger : ILogger
         return null;
     }
 
-    private void SendMessage(LogLevel logLevel, string logName, int eventId, string message, Exception exception)
+    private void SendMessage(LogLevel logLevel, string logName, int eventId, string message, Exception? exception)
     {
         var logBuilder = _logBuilder;
         _logBuilder = null;
@@ -69,7 +74,7 @@ public class TelegramLogger : ILogger
         if ((int)logLevel < (int)_options.MinimumLevel)
             return;
 
-        if (logBuilder == null) logBuilder = new StringBuilder();
+        logBuilder ??= new StringBuilder();
 
         var logLevelString = GetLogLevelString(logLevel);
 
@@ -79,9 +84,9 @@ public class TelegramLogger : ILogger
         if (!string.IsNullOrEmpty(logLevelString)) logBuilder.Append($"{logLevelString}: ");
 
         logBuilder.Append(logName);
-        logBuilder.Append("[");
+        logBuilder.Append('[');
         logBuilder.Append(eventId);
-        logBuilder.Append("]");
+        logBuilder.Append(']');
         logBuilder.AppendLine("```");
 
         if (!string.IsNullOrEmpty(message))
@@ -117,22 +122,15 @@ public class TelegramLogger : ILogger
 
     private static string GetLogLevelString(LogLevel logLevel)
     {
-        switch (logLevel)
+        return logLevel switch
         {
-            case LogLevel.Trace:
-                return "trce";
-            case LogLevel.Debug:
-                return "dbug";
-            case LogLevel.Information:
-                return "info";
-            case LogLevel.Warning:
-                return "warn";
-            case LogLevel.Error:
-                return "fail";
-            case LogLevel.Critical:
-                return "crit";
-            default:
-                return null;
-        }
+            LogLevel.Trace => "trce",
+            LogLevel.Debug => "dbug",
+            LogLevel.Information => "info",
+            LogLevel.Warning => "warn",
+            LogLevel.Error => "fail",
+            LogLevel.Critical => "crit",
+            _ => null
+        };
     }
 }

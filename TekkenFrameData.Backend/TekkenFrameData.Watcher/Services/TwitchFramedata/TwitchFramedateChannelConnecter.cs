@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TekkenFrameData.Watcher.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
 using TwitchLib.Api.Interfaces;
@@ -22,7 +23,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
     private readonly Tekken8FrameData _frameData;
     private readonly ITwitchAPI _api;
 
-    private Timer _timer;
+    private Timer? _timer;
 
     public TwitchFramedateChannelConnecter(
         ILogger<TwitchFramedateChannelConnecter> logger,
@@ -40,8 +41,8 @@ public class TwitchFramedateChannelConnecter : IHostedService
         _client.OnConnected += (sender, args) => _logger.LogInformation("Твич подключился!");
         _client.OnReconnected += (sender, args) => _logger.LogInformation("Твич подключился!");
         _client.OnDisconnected += (sender, args) => _logger.LogInformation("Твич отключился(");
-        _client.OnConnectionError += (sender, args) => _logger.LogError(args.BotUsername, args.Error.Message);
-        _client.OnLog += (sender, args) => _logger.LogInformation(args.Data);
+        _client.OnConnectionError += (sender, args) => _logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
+        _client.OnLog += (sender, args) => _logger.LogInformation("{Data}", args.Data);
     }
 
     public async Task ConnectToStreams()
@@ -93,7 +94,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
     {
         try
         {
-            var clipsResponse = await _api.Helix.Streams.GetStreamsAsync(first: 100, gameIds: new List<string>(){ "538054672" }, languages: new List<string>(){"ru"});
+            var clipsResponse = await _api.Helix.Streams.GetStreamsAsync(first: 100, gameIds: ["538054672"], languages: ["ru"]);
             return clipsResponse.Streams;
         }
         catch (Exception e) when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))
@@ -127,7 +128,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message, e.StackTrace);
+            _logger.LogException(e);
             return false;
         }
     }
@@ -169,7 +170,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
                     }
                     catch (Exception e)
                     {
-                        _logger?.LogError(e.Message, e.StackTrace);
+                        _logger.LogException(e);
                     }
 
                 }
@@ -190,8 +191,10 @@ public class TwitchFramedateChannelConnecter : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timer = new Timer(TimeSpan.FromMinutes(5));
-        _timer.AutoReset = true;
+        _timer = new Timer(TimeSpan.FromMinutes(5))
+        {
+            AutoReset = true
+        };
         _timer.Elapsed += async (sender, args) => await ConnectToStreams();
 
         _timer.Start();
@@ -200,8 +203,8 @@ public class TwitchFramedateChannelConnecter : IHostedService
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        _timer.Stop();
-        _timer.Dispose();
+        _timer?.Stop();
+        _timer?.Dispose();
         return Task.CompletedTask;
     }
 }

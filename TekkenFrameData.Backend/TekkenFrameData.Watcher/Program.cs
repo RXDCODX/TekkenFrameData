@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,7 +20,7 @@ namespace TekkenFrameData.Watcher;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -62,16 +59,16 @@ public class Program
         builder.Logging.AddTelegramLogger(options =>
         {
             options.BotToken = "7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw";
-            options.ChatId = new long[] { 402763435, 1917524881 };
+            options.ChatId = [402763435, 1917524881];
             options.SourceName = "Higemus";
             options.MinimumLevel = LogLevel.Warning;
         });
 
         var twitchApi = new TwitchAPI();
         twitchApi.Settings.ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7";
-        twitchApi.Settings.AccessToken = twitchApi.Auth.GetAccessTokenAsync().Result;
+        twitchApi.Settings.AccessToken = await twitchApi.Auth.GetAccessTokenAsync();
         twitchApi.Settings.Secret = "vx3i8o1egpo4zssseu70jqg8hbkgnw";
-        twitchApi.Settings.Scopes = new List<AuthScopes> { AuthScopes.Any };
+        twitchApi.Settings.Scopes = [AuthScopes.Any];
 
         services.AddSingleton<ITwitchAPI>(twitchApi);
 
@@ -101,6 +98,6 @@ public class Program
 
         app.UseStatusCodePages();
 
-        app.Run();
+        await app.RunAsync();
     }
 }

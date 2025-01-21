@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TekkenFrameData.Watcher.Exstensions;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client.Interfaces;
 using TwitchLib.Client.Models;
@@ -58,17 +59,16 @@ public class TwitchReconector : IHostedService
 
         if (!File.Exists(_tokenInfoPath))
         {
-            var text =
-                $"При отсутвующем {_tokenInfoPath} не удалось найти Environment Variable с названием token. Помести в параметры запуска контейнера аргумент token с последним опубликованным в телеграмме refresh token";
             var token = Environment.GetEnvironmentVariable("token");
 
-            if (token == null)
+            switch (token)
             {
-                _logger.LogCritical(text);
-                throw new NullReferenceException(text);
+                case null:
+                    throw new NullReferenceException($"При отсутвующем {_tokenInfoPath} не удалось найти Environment Variable с названием token. Помести в параметры запуска контейнера аргумент token с последним опубликованным в телеграмме refresh token");
+                default:
+                    RefreshToken(token).GetAwaiter().GetResult();
+                    break;
             }
-
-            RefreshToken(token).GetAwaiter().GetResult();
         }
         else
         {
@@ -87,8 +87,10 @@ public class TwitchReconector : IHostedService
         _client.Initialize(credential);
         _client.Connect();
 
-        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(5));
-        _timer.AutoReset = true;
+        _timer = new System.Timers.Timer(TimeSpan.FromMinutes(5))
+        {
+            AutoReset = true
+        };
         _timer.Elapsed += async (sender, args) => await ReconnectClient();
     }
 
@@ -148,7 +150,7 @@ public class TwitchReconector : IHostedService
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message, e.StackTrace);
+            _logger.LogException(e);
             return false;
         }
     }
@@ -166,14 +168,14 @@ public class TwitchReconector : IHostedService
                 WhenCreated = DateTime.Now.AddSeconds(-30)
             };
 
-            _logger.LogCritical("Твич обновил токен! ```{0}```", JsonSerializer.Serialize(tokenInfo));
+            _logger.LogCritical("Твич обновил токен! ```{Token}```", JsonSerializer.Serialize(tokenInfo));
 
             Token = tokenInfo;
             return true;
         }
         catch (Exception e)
         {
-            _logger.LogError(e.Message, e.StackTrace);
+            _logger.LogException(e);
         }
 
         return false;

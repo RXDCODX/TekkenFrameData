@@ -5,18 +5,18 @@ namespace TekkenFrameData.Watcher.DB;
 
 public sealed class AppDbContext : DbContext
 {
-    private static bool IsDbReCreated = false;
-    private static object Locker = new();
+    private static bool _isDbReCreated = false;
+    private static readonly object Locker = new();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
         ChangeTracker.AutoDetectChangesEnabled = false;
 
-        if (!IsDbReCreated)
+        if (!_isDbReCreated)
         {
             lock (Locker)
             {
-                IsDbReCreated = true;
+                _isDbReCreated = true;
 
                 Database.EnsureDeleted();
                 Database.EnsureCreated();

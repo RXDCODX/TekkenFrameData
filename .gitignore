@@ -399,3 +399,5 @@ FodyWeavers.xsd
 /tree.txt
 
 *.bak
+/TekkenFrameData.Frontend/repomix-output.txt
+/TekkenFrameData.Frontend/TekkenFrameData.Frontend.csproj.bak

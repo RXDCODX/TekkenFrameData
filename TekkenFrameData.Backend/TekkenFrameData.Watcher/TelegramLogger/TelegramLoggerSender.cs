@@ -32,6 +32,7 @@ public class TelegramLoggerSender : IDisposable
     public void Dispose()
     {
         _messageQueue.CompleteAdding();
+        GC.SuppressFinalize(this);
 
         try
         {
@@ -69,8 +70,10 @@ public class TelegramLoggerSender : IDisposable
             try
             {
                 foreach (var id in _chatIds)
+                {
                     await _botClient.SendMessage(id, message, parseMode: ParseMode.Markdown)
                         .ConfigureAwait(false);
+                }
             }
             catch (Exception)
             {
@@ -81,12 +84,15 @@ public class TelegramLoggerSender : IDisposable
 
     private void ProcessLogQueue()
     {
-        foreach (var message in _messageQueue.GetConsumingEnumerable()) WriteMessage(message);
+        foreach (var message in _messageQueue.GetConsumingEnumerable())
+        {
+            WriteMessage(message);
+        }
     }
 
-    private static void ProcessLogQueue(object state)
+    private static void ProcessLogQueue(object? state)
     {
-        var telegramLogger = (TelegramLoggerSender)state;
+        var telegramLogger = (TelegramLoggerSender)state!;
 
         telegramLogger.ProcessLogQueue();
     }

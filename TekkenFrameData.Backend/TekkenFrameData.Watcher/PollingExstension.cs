@@ -10,9 +10,6 @@ public static class PollingExtensions
         where T : class
     {
         var o = serviceProvider.GetService<IOptions<T>>();
-        if (o is null)
-            throw new ArgumentNullException(nameof(T));
-
-        return o.Value;
+        return o is null ? throw new ArgumentNullException(nameof(T)) : o.Value;
     }
 }

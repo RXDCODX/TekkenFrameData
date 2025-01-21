@@ -39,5 +39,6 @@
     <PackageVersion Include="TwitchLib.Client" Version="3.3.1" />
     <PackageVersion Include="Microsoft.TypeScript.MSBuild" Version="5.7.1" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="9.0.1" />
   </ItemGroup>
 </Project>

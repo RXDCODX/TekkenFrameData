@@ -25,7 +25,7 @@ public class Aliases
         { "kazuya", new[] { "kaz", "kazze", "masku" } },
         { "king", new[] { "kin" } },
         { "kuma", new[] { "karhu", "bear" } },
-        { "panda", new string[] { } },
+        { "panda", [] },
         { "lars", new[] { "lar" } },
         { "law", new[] { "marshall" } },
         { "lee", new[] { "violet" } },
@@ -83,6 +83,7 @@ public class Aliases
         { "hold", "*" }
     };
 
+    // TODO: https://github.com/RXDCODX/TekkenFrameData/issues/16
     public static Dictionary<string, string> Stances = new()
     {
         { "bkp", "Backup" },

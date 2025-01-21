@@ -78,7 +78,7 @@ services:
 
   frontend:
     build:
-      context: ./TekkenFrameData.frontend
+      context: ./TekkenFrameData.Frontend
       dockerfile: Dockerfile
     container_name: tekken_frontend
     depends_on:

@@ -24,20 +24,25 @@ jobs:
       with:
         python-version: "3.11"
 
-    # Шаг 3: Установка зависимостей
+    # Шаг 3: Проверка структуры репозитория
+    - name: List repository contents
+      run: |
+        ls -R
+
+    # Шаг 4: Переход в рабочую директорию (TekkenFrameData/TekkenFrameData.Scrupper)
+    - name: Change to Scrupper directory
+      run: |
+        cd TekkenFrameData.Scrupper
+        echo "Current directory: $(pwd)"
+
+    # Шаг 5: Установка зависимостей
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # Шаг 4: Переход в рабочую директорию (TekkenFrameData/TekkenFrameData.Scrupper)
-    - name: Change to Scrupper directory
-      run: |
-        cd TekkenFrameData/TekkenFrameData.Scrupper
-        echo "Current directory: $(pwd)"
-
-    # Шаг 5: Проверка кода с помощью flake8
+    # Шаг 6: Проверка кода с помощью flake8
     - name: Lint with flake8
       run: |
         # Остановка сборки при наличии синтаксических ошибок
@@ -45,12 +50,12 @@ jobs:
         # Проверка стиля кода (предупреждения, но не останавливают сборку)
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    # Шаг 6: Запуск тестов (если они есть)
+    # Шаг 7: Запуск тестов (если они есть)
     - name: Test with pytest
       run: |
         pytest
 
-    # Шаг 7: Запуск скрапера
+    # Шаг 8: Запуск скрапера
     - name: Run Scraper
       run: |
         python -m scraper.main

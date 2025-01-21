@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using TekkenFrameData.Watcher.Services.TelegramBotService.Abstract;
 using Telegram.Bot;
 

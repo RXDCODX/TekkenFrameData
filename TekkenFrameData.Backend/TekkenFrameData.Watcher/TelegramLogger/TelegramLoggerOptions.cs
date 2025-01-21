@@ -1,4 +1,6 @@
-﻿namespace TekkenFrameData.Watcher.TelegramLogger;
+﻿using Microsoft.Extensions.Logging;
+
+namespace TekkenFrameData.Watcher.TelegramLogger;
 
 public class TelegramLoggerOptions
 {

@@ -89,12 +89,6 @@ public class Program
         services.AddSingleton<TwitchReconector>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
 
-        services.AddRazorPages()
-            .AddRazorPagesOptions(options =>
-            {
-                options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
-            });
-
         var app = builder.Build();
 
         app.UseDeveloperExceptionPage();
@@ -103,10 +97,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseStaticFiles();
-        app.UseEndpoints(e =>
-        {
-            e.MapRazorPages();
-        });
+        
 
         app.UseStatusCodePages();
 

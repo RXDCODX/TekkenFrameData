@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -67,7 +69,7 @@ public class TelegramLoggerSender : IDisposable
             try
             {
                 foreach (var id in _chatIds)
-                    await _botClient.SendTextMessageAsync(id, message, parseMode: ParseMode.Markdown)
+                    await _botClient.SendMessage(id, message, parseMode: ParseMode.Markdown)
                         .ConfigureAwait(false);
             }
             catch (Exception)

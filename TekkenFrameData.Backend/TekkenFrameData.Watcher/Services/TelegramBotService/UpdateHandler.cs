@@ -32,7 +32,7 @@ public class UpdateHandler : IUpdateHandler
         IHostEnvironment environment,
         Tekken8FrameData _frameData)
     {
-        _botClient = botClient;
+        _botClient = botClient; 
         _logger = logger;
         _commands = commands;
         _environment = environment;
@@ -68,6 +68,12 @@ public class UpdateHandler : IUpdateHandler
         }
     }
 
+    // TODO: Добавить ILogger.LogException
+    private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         var ErrorMessage = exception switch
@@ -92,14 +98,14 @@ public class UpdateHandler : IUpdateHandler
                     var messageId = update.Message!.MessageId;
                     var chatId = update.Message.Chat.Id;
 
-                    if (update.Message.Chat.HasProtectedContent != true) await _botClient.ForwardMessageAsync(id, chatId, messageId);
+                    if (update.Message.HasProtectedContent != true) await _botClient.ForwardMessage(id, chatId, messageId);
 
                     break;
                 case UpdateType.ChannelPost:
                     messageId = update.ChannelPost!.MessageId;
                     chatId = update.ChannelPost.Chat.Id;
 
-                    if (update.ChannelPost.HasProtectedContent != true) await _botClient.ForwardMessageAsync(id, chatId, messageId);
+                    if (update.ChannelPost.HasProtectedContent != true) await _botClient.ForwardMessage(id, chatId, messageId);
 
                     //if (_environment.IsDevelopment())
                     //    _logger.LogCritical(update.ChannelPost.Text);
@@ -133,7 +139,7 @@ public class UpdateHandler : IUpdateHandler
 
             static Task<Message> ErrorCommand(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
             {
-                return client.SendTextMessageAsync(message.Chat.Id, Commands.Commands.Template, cancellationToken: cancellationToken);
+                return client.SendMessage(message.Chat.Id, Commands.Commands.Template, cancellationToken: cancellationToken);
             }
 
             var sentMessage = await action;
@@ -156,7 +162,7 @@ public class UpdateHandler : IUpdateHandler
                 new InputTextMessageContent("hello"))
         };
 
-        await _botClient.AnswerInlineQueryAsync(
+        await _botClient.AnswerInlineQuery(
             inlineQuery.Id,
             results,
             0,
@@ -171,6 +177,11 @@ public class UpdateHandler : IUpdateHandler
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
+        return Task.CompletedTask;
+    }
+
+    public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+    {
         return Task.CompletedTask;
     }
 }

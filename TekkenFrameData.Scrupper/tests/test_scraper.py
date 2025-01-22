@@ -59,20 +59,20 @@ def test_load_page():
 def test_scrape_characters(scraper):
     with requests_mock.Mocker() as m:
         m.get("https://tekkendocs.com", text=SAMPLE_HTML)
-        m.get("https://tekkendocs.com/character1", text=SAMPLE_MOVELIST_HTML)  # Мок для движений
+        m.get("https://tekkendocs.com/alisa", text=SAMPLE_MOVELIST_HTML)  # Мок для движений
         characters = scraper.scrape_characters(SAMPLE_HTML)
         assert len(characters) == 2
         assert isinstance(characters[0], Character)
         assert characters[0].name == "Character 1"
-        assert characters[0].image_url == "https://example.com/image1.jpg"
+        assert characters[0].image_url == "https://tekkendocs/assets/alisa-128-DBtqQyfd.webp"
         assert characters[0].href == "/character1"
 
 # Тест: Парсинг движений
 def test_scrape_movelist(scraper):
-    character = Character("Character 1", "https://example.com/image1.jpg", "/character1")
+    character = Character("Character 1", "https://tekkendocs/assets/alisa-128-DBtqQyfd.webp", "/character1")
     with requests_mock.Mocker() as m:
-        m.get("https://tekkendocs.com/character1", text=SAMPLE_MOVELIST_HTML)
-        movelist = scraper.scrape_movelist(character, "https://tekkendocs.com/character1")
+        m.get("https://tekkendocs.com/alisa", text=SAMPLE_MOVELIST_HTML)
+        movelist = scraper.scrape_movelist(character, "https://tekkendocs.com/alisa")
         assert len(movelist) == 1
         assert isinstance(movelist[0], Move)
         assert movelist[0].command == "1,2,3"

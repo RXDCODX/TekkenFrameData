@@ -1,9 +1,10 @@
-# test_all.py
+# tests/test_all.py
 import pytest
 from bs4 import BeautifulSoup
 from scraper.models import Character, Move
 from scraper.scraper import Scraper
 from scraper.utils import load_page
+import requests_mock
 
 # Тесты для models.py
 def test_character_initialization():
@@ -47,7 +48,12 @@ def test_scrape_characters():
         </li>
     </ul>
     """
-    characters = scraper.scrape_characters(html)
+    
+    # Мокируем запрос к /character/test
+    with requests_mock.Mocker() as m:
+        m.get("http://example.com/character/test", text="<html>Test Movelist</html>")
+        characters = scraper.scrape_characters(html)
+    
     assert len(characters) == 1
     assert characters[0].name == "Test Character"
     assert characters[0].image_url == "http://example.com/image.jpg"
@@ -69,8 +75,14 @@ def test_scrape_movelist():
         </tr>
     </tbody>
     """
+    
     character = Character(name="Test Character", image_url="http://example.com/image.jpg", href="/character/test")
-    movelist = scraper.scrape_movelist(character, "http://example.com/character/test")
+    
+    # Мокируем запрос к /character/test
+    with requests_mock.Mocker() as m:
+        m.get("http://example.com/character/test", text=html)
+        movelist = scraper.scrape_movelist(character, "http://example.com/character/test")
+    
     assert len(movelist) == 1
     assert movelist[0].command == "1, 2, 3"
     assert movelist[0].hit_level == "mid"
@@ -82,36 +94,14 @@ def test_scrape_movelist():
     assert movelist[0].notes == "power crush"
 
 # Тесты для utils.py
-def test_load_page_success(monkeypatch):
-    class MockResponse:
-        def __init__(self):
-            self.status_code = 200
-            self.text = "<html>Test</html>"
+def test_load_page_success():
+    with requests_mock.Mocker() as m:
+        m.get("http://example.com", text="<html>Test</html>")
+        result = load_page("http://example.com")
+        assert result == "<html>Test</html>"
 
-        def raise_for_status(self):
-            pass
-
-    def mock_get(*args, **kwargs):
-        return MockResponse()
-
-    monkeypatch.setattr("requests.get", mock_get)
-    assert load_page("http://example.com") == "<html>Test</html>"
-
-def test_load_page_failure(monkeypatch):
-    class MockResponse:
-        def __init__(self):
-            self.status_code = 404
-
-        def raise_for_status(self):
-            raise Exception("404 Not Found")
-
-    def mock_get(*args, **kwargs):
-        return MockResponse()
-
-    monkeypatch.setattr("requests.get", mock_get)
-    with pytest.raises(Exception, match="Не удалось загрузить страницу: 404"):
-        load_page("http://example.com")
-
-# Запуск тестов
-if __name__ == "__main__":
-    pytest.main()
+def test_load_page_failure():
+    with requests_mock.Mocker() as m:
+        m.get("http://example.com", status_code=404)
+        with pytest.raises(Exception, match="Не удалось загрузить страницу: 404"):
+            load_page("http://example.com")

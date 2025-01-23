@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TekkenFrameData.Library.Domains.FrameData;
+namespace TekkenFrameData.Library.Models.FrameData;
 
 public class TekkenCharacter
 {

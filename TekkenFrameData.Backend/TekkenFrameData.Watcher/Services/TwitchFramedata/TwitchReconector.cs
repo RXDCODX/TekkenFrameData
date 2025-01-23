@@ -1,11 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Watcher.Exstensions;
+using TekkenFrameData.Library.Exstensions;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client.Interfaces;
 using TwitchLib.Client.Models;

@@ -1,7 +1,6 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace TekkenFrameData.Core.DB;
+namespace TekkenFrameData.Cli.DB;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {

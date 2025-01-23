@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TekkenFrameData.Watcher.Exstensions;
+﻿namespace TekkenFrameData.Library.Exstensions;
 
 public static class StringExst
 {

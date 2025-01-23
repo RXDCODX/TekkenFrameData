@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Watcher.Exstensions;
+using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
 using TwitchLib.Api.Interfaces;

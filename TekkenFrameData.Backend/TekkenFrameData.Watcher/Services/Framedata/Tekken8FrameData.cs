@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Core.DB;
-using TekkenFrameData.Library.Domains.FrameData;
-using TekkenFrameData.Watcher.Exstensions;
+using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.FrameData;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using AppDbContext = TekkenFrameData.Cli.DB.AppDbContext;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 

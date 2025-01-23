@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Core.DB;
 using TekkenFrameData.Watcher.TelegramLogger;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
@@ -14,6 +13,7 @@ using TwitchLib.Api.Core.Enums;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client;
 using TwitchLib.Client.Interfaces;
+using AppDbContext = TekkenFrameData.Cli.DB.AppDbContext;
 using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
 namespace TekkenFrameData.Watcher;

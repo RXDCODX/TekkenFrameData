@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace TekkenFrameData.Watcher.Exstensions;
+namespace TekkenFrameData.Library.Exstensions;
 
 public static class LoggerExstension
 {

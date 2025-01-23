@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using TekkenFrameData.Cli.Interfaces;
-using TekkenFrameData.Core.DB;
+using AppDbContext = TekkenFrameData.Cli.DB.AppDbContext;
 
 namespace TekkenFrameData.Cli.Services;
 

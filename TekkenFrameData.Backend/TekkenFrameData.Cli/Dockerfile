@@ -11,7 +11,7 @@ COPY ["Directory.Packages.props", "."]
 RUN dotnet restore "TekkenFrameData.Cli/TekkenFrameData.Cli.csproj"
 
 # Копируем весь исходный код
-COPY . .
+COPY ./TekkenFrameData.Backend/TekkenFrameData.Cli .
 
 # Собираем проект
 WORKDIR "/src/TekkenFrameData.Cli"

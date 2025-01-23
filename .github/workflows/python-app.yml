@@ -44,15 +44,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest TekkenFrameData.Scrupper/tests/
-
-    # Шаг 6: Запуск скрапера
-    - name: Run Scraper
-      run: |
-        cd ./TekkenFrameData.Scrupper
-        python -m scraper.main
-      env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: tekken_db
-        DB_USER: postgres
-        DB_PASSWORD: postgres

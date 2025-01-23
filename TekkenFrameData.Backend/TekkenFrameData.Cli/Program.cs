@@ -8,9 +8,9 @@ using TekkenFrameData.Cli.Services;
 
 namespace TekkenFrameData.Cli;
 
-internal class Program
+public class Program
 {
-    private static async Task Main()
+    public static async Task Main()
     {
         var configuration = BuildConfiguration();
         var serviceProvider = BuildServiceProvider(configuration);

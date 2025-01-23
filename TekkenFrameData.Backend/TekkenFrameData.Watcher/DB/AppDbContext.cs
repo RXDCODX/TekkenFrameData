@@ -6,7 +6,7 @@ namespace TekkenFrameData.Watcher.DB;
 public sealed class AppDbContext : DbContext
 {
     private static bool _isDbReCreated = false;
-    private static readonly object Locker = new();
+    private static readonly Lock Locker = new();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {

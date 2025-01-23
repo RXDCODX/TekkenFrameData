@@ -401,3 +401,4 @@ FodyWeavers.xsd
 *.bak
 /TekkenFrameData.Frontend/repomix-output.txt
 /TekkenFrameData.Frontend/TekkenFrameData.Frontend.csproj.bak
+repomix-output.txt

@@ -1,33 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TekkenFrameData.Watcher.Domains.FrameData;
+using TekkenFrameData.Library.Domains.FrameData;
 
-namespace TekkenFrameData.Watcher.DB;
+namespace TekkenFrameData.Core.DB;
 
-public sealed class AppDbContext : DbContext
+public partial class AppDbContext
 {
-    private static bool _isDbReCreated = false;
-    private static readonly Lock Locker = new();
-
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-    {
-        ChangeTracker.AutoDetectChangesEnabled = false;
-
-        if (!_isDbReCreated)
-        {
-            lock (Locker)
-            {
-                _isDbReCreated = true;
-
-                Database.EnsureDeleted();
-                Database.EnsureCreated();
-            }
-        }
-    }
-
     public DbSet<TekkenMove> TekkenMoves { get; set; } = null!;
     public DbSet<TekkenCharacter> TekkenCharacters { get; set; } = null!;
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 

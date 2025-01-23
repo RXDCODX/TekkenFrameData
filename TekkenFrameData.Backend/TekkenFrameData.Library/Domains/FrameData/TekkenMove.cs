@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TekkenFrameData.Watcher.Domains.FrameData;
+namespace TekkenFrameData.Library.Domains.FrameData;
 
 public class TekkenMove
 {
     [MaxLength(150)]
-    public string CharacterName { get; set; } = string.Empty;
+    public string CharacterName => Character.Name;
     public required TekkenCharacter Character { get; set; }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public bool IsFromStance => !string.IsNullOrWhiteSpace(StanceCode);
     [MaxLength(10)]
     public string? StanceCode { get; set; } = string.Empty;
@@ -21,9 +20,9 @@ public class TekkenMove
     public bool Tornado { get; set; }
     public bool HeatBurst { get; set; }
     public bool RequiresHeat { get; set; }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    [MaxLength(20)]
-    public string Command { get; set; }
+    [MaxLength(30)]
+    [Required]
+    public required string Command { get; set; }
     [MaxLength(20)]
     public string? HitLevel { get; set; }
     [MaxLength(20)]
@@ -37,6 +36,5 @@ public class TekkenMove
     [MaxLength(100)]
     public string? CounterHitFrame { get; set; }
     public string? Notes { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     public bool IsUserChanged { get; set; } = false;
 }

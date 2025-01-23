@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TekkenFrameData.Core.DB;
 using TekkenFrameData.Watcher.TelegramLogger;
-using TekkenFrameData.Watcher.DB;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
@@ -64,8 +64,13 @@ public class Program
             options.MinimumLevel = LogLevel.Warning;
         });
 
-        var twitchApi = new TwitchAPI();
-        twitchApi.Settings.ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7";
+        var twitchApi = new TwitchAPI
+        {
+            Settings =
+            {
+                ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7"
+            }
+        };
         twitchApi.Settings.AccessToken = await twitchApi.Auth.GetAccessTokenAsync();
         twitchApi.Settings.Secret = "vx3i8o1egpo4zssseu70jqg8hbkgnw";
         twitchApi.Settings.Scopes = [AuthScopes.Any];

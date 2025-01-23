@@ -147,7 +147,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
                 var move = _frameData.GetMove(bb);
                 var channel = args.ChatMessage.Channel;
 
-                if (move != null)
+                if (move is not null)
                 {
                     var teges = _frameData.GetMoveTags(move);
 

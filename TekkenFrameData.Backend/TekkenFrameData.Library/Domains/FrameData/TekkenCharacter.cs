@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace TekkenFrameData.Watcher.Domains.FrameData;
+namespace TekkenFrameData.Library.Domains.FrameData;
 
 public class TekkenCharacter
 {

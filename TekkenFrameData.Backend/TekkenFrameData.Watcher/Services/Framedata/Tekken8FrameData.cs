@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HtmlAgilityPack;
+﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Watcher.DB;
-using TekkenFrameData.Watcher.Domains.FrameData;
+using TekkenFrameData.Core.DB;
+using TekkenFrameData.Library.Domains.FrameData;
 using TekkenFrameData.Watcher.Exstensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;

@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
 # Копируем файлы проекта
-COPY ["TekkenFrameData.Cli/TekkenFrameData.Cli.csproj", "TekkenFrameData.Cli/"]
-COPY ["TekkenFrameData.Library/TekkenFrameData.Library.csproj", "TekkenFrameData.Library/"]
+COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli/TekkenFrameData.Cli.csproj", "TekkenFrameData.Cli/"]
+COPY ["TekkenFrameData.Backend/TekkenFrameData.Library/TekkenFrameData.Library.csproj", "TekkenFrameData.Library/"]
 COPY ["Directory.Packages.props", "."]
 
 # Восстанавливаем зависимости

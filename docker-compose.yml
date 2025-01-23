@@ -22,7 +22,7 @@ services:
 
   migrations:
     build:
-      context: ./TekkenFrameData.Backend/TekkenFrameData.Cli
+      context: ./
       dockerfile: Dockerfile
     container_name: tekken_migrations
     depends_on:

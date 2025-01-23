@@ -1,9 +1,5 @@
-﻿using System;
-using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Telegram.Bot;
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
 
 namespace TekkenFrameData.Watcher.TelegramLogger;
 
@@ -61,10 +57,11 @@ public class TelegramLogger : ILogger
         return _filter(_category, logLevel);
     }
 
-    public IDisposable BeginScope<TState>(TState state)
-    {
-        return null;
-    }
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
+    public IDisposable BeginScope<TState>(TState state) => null;
+#pragma warning restore CS8633 // Nullability in constraints for type parameter doesn't match the constraints for type parameter in implicitly implemented interface method'.
+#pragma warning restore CS8603 // Possible null reference return.
 
     private void SendMessage(LogLevel logLevel, string logName, int eventId, string message, Exception? exception)
     {
@@ -120,7 +117,7 @@ public class TelegramLogger : ILogger
         _logBuilder = logBuilder;
     }
 
-    private static string GetLogLevelString(LogLevel logLevel)
+    private static string? GetLogLevelString(LogLevel logLevel)
     {
         return logLevel switch
         {

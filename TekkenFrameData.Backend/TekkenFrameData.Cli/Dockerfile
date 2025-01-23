@@ -1,29 +1,36 @@
-# См. статью по ссылке https://aka.ms/customizecontainer, чтобы узнать как настроить контейнер отладки и как Visual Studio использует этот Dockerfile для создания образов для ускорения отладки.
-
-# Этот этап используется при запуске из VS в быстром режиме (по умолчанию для конфигурации отладки)
-FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
-USER $APP_UID
-WORKDIR /app
-
-
-# Этот этап используется для сборки проекта службы
+# Используем официальный образ .NET SDK для сборки
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Копируем файлы проекта
+COPY ["TekkenFrameData.Cli/TekkenFrameData.Cli.csproj", "TekkenFrameData.Cli/"]
+COPY ["TekkenFrameData.Library/TekkenFrameData.Library.csproj", "TekkenFrameData.Library/"]
 COPY ["Directory.Packages.props", "."]
-COPY ["TekkenFrameData.Backend/TekkenFrameData.Core/TekkenFrameData.Core.csproj", "TekkenFrameData.Backend/TekkenFrameData.Core/"]
-RUN dotnet restore "./TekkenFrameData.Backend/TekkenFrameData.Core/TekkenFrameData.Core.csproj"
+
+# Восстанавливаем зависимости
+RUN dotnet restore "TekkenFrameData.Cli/TekkenFrameData.Cli.csproj"
+
+# Копируем весь исходный код
 COPY . .
-WORKDIR "/src/TekkenFrameData.Backend/TekkenFrameData.Core"
-RUN dotnet build "./TekkenFrameData.Core.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
+# Собираем проект
+WORKDIR "/src/TekkenFrameData.Cli"
+RUN dotnet build "TekkenFrameData.Cli.csproj" -c Release -o /app/build
+
+# Публикуем проект
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./TekkenFrameData.Core.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "TekkenFrameData.Cli.csproj" -c Release -o /app/publish
 
-# Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)
-FROM base AS final
+# Используем образ .NET Runtime для запуска
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TekkenFrameData.Core.dll"]
+
+# Устанавливаем инструменты EF Core
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
+
+# Добавляем dotnet-ef в PATH
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+# Команда для выполнения миграций
+ENTRYPOINT ["dotnet", "ef", "database", "update", "--project", "TekkenFrameData.Cli.csproj"]

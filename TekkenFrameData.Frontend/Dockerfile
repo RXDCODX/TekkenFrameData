@@ -1,9 +1,6 @@
 # Используем официальный образ Node.js на основе Alpine (легковесный)
 FROM node:18-alpine
 
-# Устанавливаем yarn глобально
-RUN npm install -g yarn
-
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
@@ -11,7 +8,7 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # Устанавливаем зависимости через yarn
-RUN yarn install
+RUN yarn
 
 # Копируем все файлы проекта в контейнер
 COPY . .

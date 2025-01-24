@@ -67,14 +67,14 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
-      
+
   watcher:
     build:
       context: ./
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tekken_watcher
     depends_on:
-      scraper:
+      frontend:
         condition: service_completed_successfully
     ports:
       - "8080:8080"

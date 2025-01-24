@@ -39,10 +39,4 @@
     <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

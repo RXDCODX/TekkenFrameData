@@ -15,6 +15,7 @@ WORKDIR /src
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher/TekkenFrameData.Watcher.csproj", "TekkenFrameData.Watcher/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library". "TekkenFrameData.Library/"]
+COPY ["Directory.Packages/Props". "."]
 RUN dotnet restore "TekkenFrameData.Watcher/TekkenFrameData.Watcher.csproj"
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher/", "."]
 WORKDIR "/src/TekkenFrameData.Watcher/."

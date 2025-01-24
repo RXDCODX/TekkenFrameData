@@ -56,8 +56,8 @@ services:
 
   service:
     build:
-      context: ./TekkenFrameData.Backend/TekkenFrameData.Service
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Service/Dockerfile
     container_name: tekken_service
     depends_on:
       scraper:
@@ -70,8 +70,8 @@ services:
       
   watcher:
     build:
-      context: ./TekkenFrameData.Backend/TekkenFrameData.Watcher
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tekken_watcher
     depends_on:
       scraper:

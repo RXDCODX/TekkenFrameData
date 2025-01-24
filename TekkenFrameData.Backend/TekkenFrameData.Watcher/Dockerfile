@@ -17,8 +17,11 @@ COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library", "TekkenFrameData.Library/"]
 COPY ["Directory.Packages.props", "."]
 
+# Восстанавливаем нагет пакеты
 RUN dotnet restore "TekkenFrameData.Watcher/TekkenFrameData.Watcher.csproj"
-COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher", "."]
+
+# Копируем сам проект
+COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher", "TekkenFrameData.Watcher/"]
 WORKDIR "/src/TekkenFrameData.Watcher"
 RUN dotnet build "./TekkenFrameData.Watcher.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

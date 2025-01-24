@@ -17,8 +17,11 @@ COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library", "TekkenFrameData.Library/"]
 COPY ["Directory.Packages.props", "."]
 
+# Восстановление Nuget пакетов
 RUN dotnet restore "./TekkenFrameData.Service/TekkenFrameData.Service.csproj"
-COPY ["TekkenFrameData.Backend/TekkenFrameData.Service/", "TekkenFrameData.Service/."]
+
+# Копируем сам проект
+COPY ["TekkenFrameData.Backend/TekkenFrameData.Service/", "TekkenFrameData.Service/"]
 WORKDIR "/src/TekkenFrameData.Service"
 RUN dotnet build "./TekkenFrameData.Service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

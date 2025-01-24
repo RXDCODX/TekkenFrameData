@@ -15,7 +15,7 @@ WORKDIR /src
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Service/TekkenFrameData.Service.csproj", "TekkenFrameData.Service/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library", "TekkenFrameData.Library/"]
-COPY ["Directory.Packages.Props", "."]
+COPY ["Directory.Packages.props", "."]
 
 RUN dotnet restore "./TekkenFrameData.Service/TekkenFrameData.Service.csproj"
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Service/", "TekkenFrameData.Service/."]

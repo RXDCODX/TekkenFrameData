@@ -1,8 +1,11 @@
 # Используем официальный образ Python 3.11
-FROM python:3.14.0a4
+FROM python:latest
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
+
+# Обновляем pip и setuptools до последних версий
+RUN pip install --no-cache-dir --upgrade pip setuptools
 
 # Копируем файл с зависимостями
 COPY requirements.txt .

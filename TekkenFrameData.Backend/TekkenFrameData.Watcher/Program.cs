@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -24,13 +25,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Environment.EnvironmentName = "Development";
-
-        if (builder.Environment.IsDevelopment())
-        {
-            Environment.SetEnvironmentVariable("token", "sburxpcmdt2anh791ooxcq1bgefgyxmbskc6rlx651k8yokdwb");
-        }
-
         var services = builder.Services;
 
         services.AddHttpClient("telegram_bot_client").AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
@@ -42,7 +36,7 @@ public class Program
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
         {
-            optionsBuilder.UseSqlite("Data Source=DATABASE.db;").
+            optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DB")).
                 UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
             if (builder.Environment.IsDevelopment())

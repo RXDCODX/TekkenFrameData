@@ -39,7 +39,7 @@ services:
 
   scraper:
     build:
-      context: ./TekkenFrameData.Scrupper
+      context: ./TekkenFrameData.Scraper
       dockerfile: Dockerfile
     container_name: tekken_scraper
     depends_on:

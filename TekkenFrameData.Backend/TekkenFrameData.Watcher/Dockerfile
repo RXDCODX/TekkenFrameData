@@ -15,10 +15,10 @@ WORKDIR /src
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher/TekkenFrameData.Watcher.csproj", "TekkenFrameData.Watcher/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library". "TekkenFrameData.Library/"]
-COPY ["Directory.Packages/Props". "."]
+COPY ["Directory.Packages.Props". "."]
 RUN dotnet restore "TekkenFrameData.Watcher/TekkenFrameData.Watcher.csproj"
-COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher/", "."]
-WORKDIR "/src/TekkenFrameData.Watcher/."
+COPY ["TekkenFrameData.Backend/TekkenFrameData.Watcher", "."]
+WORKDIR "/src/TekkenFrameData.Watcher"
 RUN dotnet build "./TekkenFrameData.Watcher.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап

@@ -27,7 +27,7 @@ jobs:
     # Шаг 3: Установка зависимостей
     - name: Install dependencies
       run: |
-        cd ./TekkenFrameData.Scrupper
+        cd ./TekkenFrameData.Scraper
         python -m pip install --upgrade pip
         pip install flake8 pytest
         pip install -r requirements.txt
@@ -43,4 +43,4 @@ jobs:
     # Шаг 5: Запуск тестов (если они есть)
     - name: Test with pytest
       run: |
-        pytest TekkenFrameData.Scrupper/tests/
+        pytest TekkenFrameData.Scraper/tests/

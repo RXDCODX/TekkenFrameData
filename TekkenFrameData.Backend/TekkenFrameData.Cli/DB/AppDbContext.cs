@@ -8,8 +8,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbCo
     {
         base.OnModelCreating(modelBuilder);
 
-        OnModelCreatingPartial(modelBuilder);
+        OnFrameDataModelCreatingPartial(modelBuilder);
+        OnConfigurationModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

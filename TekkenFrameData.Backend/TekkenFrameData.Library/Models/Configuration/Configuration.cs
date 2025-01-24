@@ -9,5 +9,5 @@
 /// </summary>
 public partial class Configuration
 {
-    
+    public Guid Id { get; set; }
 }

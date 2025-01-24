@@ -8,10 +8,8 @@ public partial class AppDbContext
     public DbSet<TekkenMove> TekkenMoves { get; set; } = null!;
     public DbSet<TekkenCharacter> TekkenCharacters { get; set; } = null!;
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder)
+    private static void OnFrameDataModelCreatingPartial(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<TekkenMove>()
             .HasKey(o => new { o.CharacterName, o.Command });
 

@@ -11,4 +11,5 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbCo
         OnFrameDataModelCreatingPartial(modelBuilder);
         OnConfigurationModelCreatingPartial(modelBuilder);
     }
+
 }

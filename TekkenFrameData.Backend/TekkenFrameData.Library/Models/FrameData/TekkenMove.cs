@@ -5,7 +5,7 @@ namespace TekkenFrameData.Library.Models.FrameData;
 public class TekkenMove
 {
     [MaxLength(150)]
-    public string CharacterName => Character.Name;
+    public required string CharacterName { get; set; }
     public required TekkenCharacter Character { get; set; }
     public bool IsFromStance => !string.IsNullOrWhiteSpace(StanceCode);
     [MaxLength(10)]

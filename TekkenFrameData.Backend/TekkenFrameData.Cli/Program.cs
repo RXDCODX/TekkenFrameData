@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TekkenFrameData.Cli.DB;
+using TekkenFrameData.Cli.Interfaces;
+using TekkenFrameData.Cli.Models;
 using TekkenFrameData.Cli.Services;
 
 namespace TekkenFrameData.Cli;
@@ -15,28 +18,10 @@ public class Program
         var configuration = BuildConfiguration();
         var serviceProvider = BuildServiceProvider(configuration);
 
-        var commonOptions = serviceProvider.GetRequiredService<IOptions<Models.CommonOptions>>()?.Value
-            ?? throw new Exception("Wrong config");
+        var dataMigrationService = serviceProvider.GetRequiredService<IDataMigrationService>();
+        await dataMigrationService.SchemaMigrateAsync();
 
-        if (commonOptions.Action == Models.CommonOptions.ActionEnum.Migrate)
-        {
-            var dataMigrationService = serviceProvider.GetRequiredService<Interfaces.IDataMigrationService>();
-            await dataMigrationService.SchemaMigrateAsync();
-            if (!string.IsNullOrEmpty(commonOptions.Scripts))
-            {
-                await dataMigrationService.RunPostMigrationScriptsAsync();
-            }
-        }
-        else if (commonOptions.Action == Models.CommonOptions.ActionEnum.Delete)
-        {
-            var databaseRemovalService = serviceProvider.GetRequiredService<Interfaces.IDatabaseRemovalService>();
-            await databaseRemovalService.RemoveAsync();
-        }
-        else
-        {
-            throw new Exception($"Unknown action: {commonOptions.Action}");
-        }
-        serviceProvider.Dispose();
+        await serviceProvider.DisposeAsync();
         Environment.Exit(0);
     }
 
@@ -77,16 +62,14 @@ public class Program
             c.AddFilter(categoryLevelFilter: (category, level) => category?.StartsWith("Microsoft.EntityFrameworkCore") != true);
         });
 
-        services.Configure<Models.CommonOptions>(configuration.GetSection("Migrator"));
-        services.PostConfigure<Models.CommonOptions>(c =>
-        {
-            c.ConnectionString = configuration.GetConnectionString("DB")
-                ?? throw new ArgumentNullException(nameof(configuration));
-        });
+        //services.ConfigureDbContext<AppDbContext>(builder =>
+        //{
+        //    builder.UseNpgsql(configuration.GetConnectionString("DB")).EnableThreadSafetyChecks();
+        //});
 
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("DB")));
-        services.AddTransient<Interfaces.IDatabaseRemovalService, EfDatabaseRemovalService>();
-        services.AddTransient<Interfaces.IDataMigrationService, EfDataMigrationService>();
+        services.AddTransient<IDatabaseRemovalService, EfDatabaseRemovalService>();
+        services.AddTransient<IDataMigrationService, EfDataMigrationService>();
 
         var serviceProvider = services.BuildServiceProvider()
             ?? throw new Exception("Unable to create service provider");

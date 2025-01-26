@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup Label="Globals">
+      <TargetFrameworkMoniker></TargetFrameworkMoniker>
+        <TargetFrameworks>none</TargetFrameworks>
+    </PropertyGroup>
+</Project>

@@ -1,12 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using TekkenFrameData.Cli.DB;
 using TekkenFrameData.Cli.Interfaces;
-using TekkenFrameData.Cli.Models;
 using TekkenFrameData.Cli.Services;
 
 namespace TekkenFrameData.Cli;
@@ -33,7 +30,6 @@ public class Program
     {
         ConfigurationBuilder configBuilder = new();
 
-        configBuilder.AddJsonFile("appsettings.json");
         var otherAppsettings = Environment.GetEnvironmentVariable("APPSETTINGS");
         if (!string.IsNullOrWhiteSpace(otherAppsettings))
         {
@@ -67,7 +63,7 @@ public class Program
         //    builder.UseNpgsql(configuration.GetConnectionString("DB")).EnableThreadSafetyChecks();
         //});
 
-        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(configuration.GetConnectionString("DB")));
+        services.AddDbContext<AppDbContext>(options => options.UseNpgsql("Host=localhost;Port=5623;Database=postgres;Username=postgres;Password=postgres;"));
         services.AddTransient<IDatabaseRemovalService, EfDatabaseRemovalService>();
         services.AddTransient<IDataMigrationService, EfDataMigrationService>();
 

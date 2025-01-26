@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
+		<OutputType>Exe</OutputType>
 		<TargetFramework>net9.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<DockerfileTag>pyrokxnezxz/tekkenfd</DockerfileTag>
@@ -31,7 +32,6 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
 		<PackageReference Include="Telegram.Bot" />
 		<PackageReference Include="TwitchLib.Api" />

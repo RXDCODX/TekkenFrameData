@@ -1,5 +1,5 @@
 # Используем официальный образ .NET SDK для сборки
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 WORKDIR /src
 
 # Копируем исходники
@@ -25,7 +25,7 @@ FROM build AS publish
 RUN dotnet publish "TekkenFrameData.Cli.csproj" -c Release -o /app/publish
 
 # Используем образ .NET Runtime для запуска
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:latest AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 

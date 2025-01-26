@@ -5,8 +5,6 @@ VisualStudioVersion = 17.9.34701.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "TekkenFrameData.Frontend", "TekkenFrameData.Frontend\TekkenFrameData.Frontend.esproj", "{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Watcher", "TekkenFrameData.Backend\TekkenFrameData.Watcher\TekkenFrameData.Watcher.csproj", "{C1161E25-2255-49E3-BB94-E455EF0F9217}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Service", "TekkenFrameData.Backend\TekkenFrameData.Service\TekkenFrameData.Service.csproj", "{582B410D-83ED-410D-8828-0D95CCBE5A5E}"
@@ -25,12 +23,6 @@ Global
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BA00808-62AD-428B-BCB1-D68EE2F6CC07}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35FA85A9-7FB3-40C4-9E4D-A9C8C77B1847}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1161E25-2255-49E3-BB94-E455EF0F9217}.Release|Any CPU.ActiveCfg = Release|Any CPU

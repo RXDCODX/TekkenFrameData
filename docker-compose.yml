@@ -2,14 +2,14 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:13
+    image: postgres:latest
     container_name: tekken_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: tekken_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql@latest/data
     ports:
       - "5432:5432"
     networks:
@@ -21,6 +21,7 @@ services:
       retries: 5
 
   migrations:
+    image: tekken_frame_data.migrations:latest
     build:
       context: ./
       dockerfile: ./TekkenFrameData.Backend/TekkenFrameData.Cli/Dockerfile
@@ -38,13 +39,14 @@ services:
       - tekken_network
 
   scraper:
+    image: tekken_frame_data.scraper:latest
     build:
       context: ./TekkenFrameData.Scraper
       dockerfile: Dockerfile
     container_name: tekken_scraper
     depends_on:
       migrations:
-        condition: service_completed_successfully
+        condition: service_started
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -55,13 +57,14 @@ services:
       - tekken_network
 
   service:
+    image: tekken_frame_data.service:latest
     build:
       context: ./
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Service/Dockerfile
     container_name: tekken_service
     depends_on:
       scraper:
-        condition: service_completed_successfully
+        condition: service_started
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -69,29 +72,31 @@ services:
       - tekken_network
 
   watcher:
+    image: tekken_frame_data.watcher:latest
     build:
       context: ./
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tekken_watcher
     depends_on:
       frontend:
-        condition: service_completed_successfully
+        condition: service_started
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "7080:8080"
+      - "7081:8081"
     networks:
       - tekken_network
 
   frontend:
+    image: tekken_frame_data.frontend:latest
     build:
       context: ./TekkenFrameData.Frontend
       dockerfile: Dockerfile
     container_name: tekken_frontend
     depends_on:
       service:
-        condition: service_completed_successfully
+        condition: service_started
     ports:
-      - "8080:5173"
+      - "6080:5173"
     networks:
       - tekken_network
 
@@ -101,3 +106,6 @@ volumes:
 networks:
   tekken_network:
     driver: bridge
+    name: "TekkenNetwork"
+    internal: true
+  

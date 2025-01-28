@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TekkenFrameData.Library.Models.FrameData;
 
+[Table("tekken_moves")]
 public class TekkenMove
 {
     [MaxLength(150)]

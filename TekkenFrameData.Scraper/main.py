@@ -20,7 +20,7 @@ def connect_to_db():
             dbname="tekken_db",
             user="postgres",
             password="postgres",
-            host="localhost",
+            host="tekken_db",
             port="5432"
         )
         return conn

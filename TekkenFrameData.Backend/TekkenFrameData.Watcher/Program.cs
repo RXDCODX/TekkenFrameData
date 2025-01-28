@@ -14,7 +14,7 @@ using TwitchLib.Api.Core.Enums;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client;
 using TwitchLib.Client.Interfaces;
-using AppDbContext = TekkenFrameData.Cli.DB.AppDbContext;
+using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;
 using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
 namespace TekkenFrameData.Watcher;
@@ -27,63 +27,63 @@ public class Program
 
         var services = builder.Services;
 
-        services.AddHttpClient("telegram_bot_client").AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
-        {
-            TelegramBotClientOptions options = new("7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw");
+        //services.AddHttpClient("telegram_bot_client").AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
+        //{
+        //    TelegramBotClientOptions options = new("7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw");
 
-            return new TelegramBotClient(options, httpClient);
-        });
+        //    return new TelegramBotClient(options, httpClient);
+        //});
 
-        services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-        {
-            optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DB")).
-                UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        //services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
+        //{
+        //    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DB")).
+        //        UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-            if (builder.Environment.IsDevelopment())
-            {
-                optionsBuilder.EnableDetailedErrors();
-                optionsBuilder.EnableThreadSafetyChecks();
-            }
-        });
+        //    if (builder.Environment.IsDevelopment())
+        //    {
+        //        optionsBuilder.EnableDetailedErrors();
+        //        optionsBuilder.EnableThreadSafetyChecks();
+        //    }
+        //});
 
-        builder.Logging.AddConsole();
-        builder.Logging.AddDebug();
-        builder.Logging.SetMinimumLevel(LogLevel.Trace);
+        //builder.Logging.AddConsole();
+        //builder.Logging.AddDebug();
+        //builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
-        builder.Logging.AddTelegramLogger(options =>
-        {
-            options.BotToken = "7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw";
-            options.ChatId = [402763435, 1917524881];
-            options.SourceName = "Higemus";
-            options.MinimumLevel = LogLevel.Warning;
-        });
+        //builder.Logging.AddTelegramLogger(options =>
+        //{
+        //    options.BotToken = "7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw";
+        //    options.ChatId = [402763435, 1917524881];
+        //    options.SourceName = "Higemus";
+        //    options.MinimumLevel = LogLevel.Warning;
+        //});
 
-        var twitchApi = new TwitchAPI
-        {
-            Settings =
-            {
-                ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7"
-            }
-        };
-        twitchApi.Settings.AccessToken = await twitchApi.Auth.GetAccessTokenAsync();
-        twitchApi.Settings.Secret = "vx3i8o1egpo4zssseu70jqg8hbkgnw";
-        twitchApi.Settings.Scopes = [AuthScopes.Any];
+        //var twitchApi = new TwitchAPI
+        //{
+        //    Settings =
+        //    {
+        //        ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7"
+        //    }
+        //};
+        //twitchApi.Settings.AccessToken = await twitchApi.Auth.GetAccessTokenAsync();
+        //twitchApi.Settings.Secret = "vx3i8o1egpo4zssseu70jqg8hbkgnw";
+        //twitchApi.Settings.Scopes = [AuthScopes.Any];
 
-        services.AddSingleton<ITwitchAPI>(twitchApi);
+        //services.AddSingleton<ITwitchAPI>(twitchApi);
 
-        var client = new TwitchClient(default, default);
+        //var client = new TwitchClient(default, default);
 
-        services.AddSingleton<ITwitchClient>(client);
+        //services.AddSingleton<ITwitchClient>(client);
 
-        services.AddScoped<Commands>();
-        services.AddScoped<UpdateHandler>();
-        services.AddScoped<ReceiverService>();
-        services.AddHostedService<PollingService>();
-        services.AddSingleton<TwitchFramedateChannelConnecter>();
-        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
-        services.AddSingleton<Tekken8FrameData>();
-        services.AddSingleton<TwitchReconector>();
-        services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
+        //services.AddScoped<Commands>();
+        //services.AddScoped<UpdateHandler>();
+        //services.AddScoped<ReceiverService>();
+        //services.AddHostedService<PollingService>();
+        //services.AddSingleton<TwitchFramedateChannelConnecter>();
+        //services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
+        //services.AddSingleton<Tekken8FrameData>();
+        //services.AddSingleton<TwitchReconector>();
+        //services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
 
         var app = builder.Build();
 

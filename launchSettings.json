@@ -6,7 +6,6 @@
       "composeLaunchAction": "None",
       "composeLaunchServiceName": "migrations",
       "serviceActions": {
-        "migrations": "StartDebugging",
         "frontend": "StartWithoutDebugging",
         "db": "StartWithoutDebugging",
         "scraper": "StartWithoutDebugging",
@@ -20,7 +19,17 @@
       "serviceActions": {
         "db": "StartWithoutDebugging",
         "frontend": "StartWithoutDebugging",
-        "migrations": "StartDebugging",
+        "scraper": "StartWithoutDebugging",
+        "service": "StartDebugging",
+        "watcher": "StartDebugging"
+      }
+    },
+    "ara": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "db": "StartWithoutDebugging",
+        "frontend": "StartWithoutDebugging",
         "scraper": "StartWithoutDebugging",
         "service": "StartDebugging",
         "watcher": "StartDebugging"

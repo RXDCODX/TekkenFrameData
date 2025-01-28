@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace TekkenFrameData.Cli.DB;
+namespace TekkenFrameData.Library.DB;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
@@ -8,8 +8,8 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options) : DbCo
     {
         base.OnModelCreating(modelBuilder);
 
-        OnFrameDataModelCreatingPartial(modelBuilder);
-        OnConfigurationModelCreatingPartial(modelBuilder);
+        AppDbContext.OnFrameDataModelCreatingPartial(modelBuilder);
+        AppDbContext.OnConfigurationModelCreatingPartial(modelBuilder);
     }
 
 }

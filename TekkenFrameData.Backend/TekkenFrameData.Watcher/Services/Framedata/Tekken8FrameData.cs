@@ -6,7 +6,7 @@ using TekkenFrameData.Library.Models.FrameData;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using AppDbContext = TekkenFrameData.Cli.DB.AppDbContext;
+using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 

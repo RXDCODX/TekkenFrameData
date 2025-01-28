@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Watcher", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Service", "TekkenFrameData.Backend\TekkenFrameData.Service\TekkenFrameData.Service.csproj", "{582B410D-83ED-410D-8828-0D95CCBE5A5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Cli", "TekkenFrameData.Backend\TekkenFrameData.Cli\TekkenFrameData.Cli.csproj", "{27A79F24-5578-4C36-863E-40AD706CC10B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Library", "TekkenFrameData.Backend\TekkenFrameData.Library\TekkenFrameData.Library.csproj", "{CDF5EBE5-68ED-477C-904D-D2869C4145D7}"
 EndProject
 Global
@@ -31,10 +29,6 @@ Global
 		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{582B410D-83ED-410D-8828-0D95CCBE5A5E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27A79F24-5578-4C36-863E-40AD706CC10B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{27A79F24-5578-4C36-863E-40AD706CC10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27A79F24-5578-4C36-863E-40AD706CC10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{27A79F24-5578-4C36-863E-40AD706CC10B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -13,7 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Service/TekkenFrameData.Service.csproj", "TekkenFrameData.Service/"]
-COPY ["TekkenFrameData.Backend/TekkenFrameData.Cli", "TekkenFrameData.Cli/"]
 COPY ["TekkenFrameData.Backend/TekkenFrameData.Library", "TekkenFrameData.Library/"]
 COPY ["Directory.Packages.props", "."]
 

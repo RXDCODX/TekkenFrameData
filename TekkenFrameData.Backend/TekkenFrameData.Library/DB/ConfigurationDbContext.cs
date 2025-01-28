@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TekkenFrameData.Library.Models.Configuration;
 
-namespace TekkenFrameData.Cli.DB;
+namespace TekkenFrameData.Library.DB;
 
 public partial class AppDbContext
 {

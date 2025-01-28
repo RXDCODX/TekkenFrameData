@@ -41,7 +41,6 @@
 
 
 	<ItemGroup>
-	  <ProjectReference Include="..\TekkenFrameData.Cli\TekkenFrameData.Cli.csproj" />
 	  <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
 	</ItemGroup>
 

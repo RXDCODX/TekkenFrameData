@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TekkenFrameData.Cli.DB;
+using TekkenFrameData.Library.DB;
 
 #nullable disable
 
@@ -47,7 +47,7 @@ namespace TekkenFrameData.Cli.Migrations
 
                     b.HasKey("Name");
 
-                    b.ToTable("TekkenCharacters");
+                    b.ToTable("tekken_characters");
                 });
 
             modelBuilder.Entity("TekkenFrameData.Library.Models.FrameData.TekkenMove", b =>
@@ -124,7 +124,7 @@ namespace TekkenFrameData.Cli.Migrations
 
                     b.HasKey("CharacterName", "Command");
 
-                    b.ToTable("TekkenMoves");
+                    b.ToTable("tekken_moves");
                 });
 
             modelBuilder.Entity("TekkenFrameData.Library.Models.FrameData.TekkenMove", b =>

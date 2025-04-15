@@ -1,6 +1,5 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
 name: .NET
 
 on:
@@ -11,8 +10,9 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    env:
+      SOLUTION_FILE: "./TekkenFrameData.sln"  # Определяем переменную
 
     steps:
     - uses: actions/checkout@v4
@@ -21,8 +21,8 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
-      run: dotnet restore ./TekkenFrameData.sln
+      run: dotnet restore $SOLUTION_FILE  # Используем переменную
     - name: Build
-      run: dotnet build ./TekkenFrameData.sln --no-restore
+      run: dotnet build $SOLUTION_FILE --no-restore
     - name: Test
-      run: dotnet test ./TekkenFrameData.sln --no-build --verbosity normal
+      run: dotnet test $SOLUTION_FILE --no-build --verbosity normal

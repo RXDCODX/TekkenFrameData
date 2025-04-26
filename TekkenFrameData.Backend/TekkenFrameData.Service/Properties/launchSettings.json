@@ -1,19 +1,16 @@
 {
   "profiles": {
-    "http": {
+    "Local": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_LOCAL_LAUNCH": "TRUE",
+        "ASPNETCORE_HTTPS_PORTS": "7261",
+        "ASPNETCORE_HTTP_PORTS": "5112",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5112"
-    },
-    "https": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
+      "launchBrowser": true,
       "applicationUrl": "https://localhost:7261;http://localhost:5112"
     },
     "Container (Dockerfile)": {
@@ -21,7 +18,8 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
         "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "8080"
+        "ASPNETCORE_HTTP_PORTS": "8080",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
       },
       "publishAllPorts": true,
       "useSSL": true

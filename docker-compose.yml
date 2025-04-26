@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: TekkenFrameDataCompose
+
 services:
   db:
     image: postgres:latest
@@ -40,7 +42,6 @@ services:
       DB_PASSWORD: postgres
     networks:
       - tekken_network
-      - bbc 
 
   service:
     image: tekken_frame_data.service:dev
@@ -60,6 +61,7 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
+      - default
 
   watcher:
     image: tekken_frame_data.watcher:dev
@@ -88,7 +90,7 @@ services:
       service:
         condition: service_started
     ports:
-      - "6080:5137"
+      - "6080:3000"
     networks:
       - tekken_network
 

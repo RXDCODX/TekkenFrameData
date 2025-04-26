@@ -23,4 +23,4 @@ RUN yarn build
 EXPOSE 3000
 
 # Запускаем приложение через yarn dev
-CMD ["yarn", "dev"]
+CMD ["yarn", "prod"]

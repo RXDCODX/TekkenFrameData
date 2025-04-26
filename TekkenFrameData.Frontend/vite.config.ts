@@ -70,10 +70,6 @@ export default defineConfig({
   server: {
     host: true,
     port: port,
-    https: {
-      key: fs.readFileSync(keyFilePath),
-      cert: fs.readFileSync(certFilePath),
-    },
     proxy: {
       "*": proxyConfig,
     },

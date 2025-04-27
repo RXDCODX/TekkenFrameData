@@ -58,7 +58,7 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
-      - internet_net
+      - internet
 
   watcher:
     image: tekken_frame_data.watcher:dev
@@ -76,7 +76,7 @@ services:
       - "7081:8081"
     networks:
       - tekken_network
-      - internet_net 
+      - internet 
 
   frontend:
     image: tekken_frame_data.frontend:dev
@@ -91,7 +91,7 @@ services:
       - "6080:3000"
     networks:
       - tekken_network
-      - internet_net
+      - internet
 
 volumes:
   postgres_data:
@@ -101,7 +101,6 @@ networks:
   tekken_network:
     driver: bridge
     internal: true
-  internet_net:
+  internet:
     driver: bridge
-    external: true
   

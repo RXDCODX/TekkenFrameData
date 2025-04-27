@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   db:
@@ -14,7 +14,6 @@ services:
       - "5432:5432"
     networks:
       - tekken_network
-      - bbc
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -40,7 +39,6 @@ services:
       DB_PASSWORD: postgres
     networks:
       - tekken_network
-      - bbc 
 
   service:
     image: tekken_frame_data.service:dev
@@ -60,6 +58,7 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
+      - internet
 
   watcher:
     image: tekken_frame_data.watcher:dev
@@ -77,6 +76,7 @@ services:
       - "7081:8081"
     networks:
       - tekken_network
+      - internet 
 
   frontend:
     image: tekken_frame_data.frontend:dev
@@ -88,9 +88,10 @@ services:
       service:
         condition: service_started
     ports:
-      - "6080:5137"
+      - "6080:3000"
     networks:
       - tekken_network
+      - internet
 
 volumes:
   postgres_data:
@@ -100,5 +101,6 @@ networks:
   tekken_network:
     driver: bridge
     internal: true
-  bbc: {}
+  internet:
+    driver: bridge
   

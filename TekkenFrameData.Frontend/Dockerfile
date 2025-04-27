@@ -1,26 +1,34 @@
-# Используем официальный образ Node.js на основе Alpine (легковесный)
-FROM node:latest
+# Этап сборки (builder)
+FROM node:latest as builder
 
-# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Копируем package.json и yarn.lock для установки зависимостей
+# Копируем файлы зависимостей
 COPY package.json yarn.lock ./
 
-# Устанавливаем зависимости через yarn
-RUN yarn
+# Устанавливаем зависимости
+RUN yarn install
 
-# Проверяем устаревшие пакеты
-RUN yarn outdated || echo "Проверка устаревших пакетов завершена."
-
-# Копируем все файлы проекта в контейнер
+# Копируем все файлы проекта
 COPY . .
 
-# Собираем проект
+# Собираем приложение
 RUN yarn build
 
-# Открываем порт, на котором будет работать приложение
-EXPOSE 3000
+# Этап production (nginx)
+FROM nginx:stable-alpine
 
-# Запускаем приложение через yarn dev
-CMD ["yarn", "dev"]
+# Копируем конфигурацию nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Удаляем дефолтную страницу nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# Копируем собранные файлы из этапа builder
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Открываем порт 80
+EXPOSE 80
+
+# Команда для запуска nginx
+CMD ["nginx", "-g", "daemon off;"]

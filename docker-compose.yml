@@ -102,5 +102,6 @@ networks:
     driver: bridge
     internal: true
   internet_net:
+    driver: bridge
     external: true
   

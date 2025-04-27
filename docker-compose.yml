@@ -14,7 +14,6 @@ services:
       - "5432:5432"
     networks:
       - tekken_network
-      - bbc
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -59,7 +58,7 @@ services:
       - "8081:8081"
     networks:
       - tekken_network
-      - default
+      - internet_net
 
   watcher:
     image: tekken_frame_data.watcher:dev
@@ -77,6 +76,7 @@ services:
       - "7081:8081"
     networks:
       - tekken_network
+      - internet_net 
 
   frontend:
     image: tekken_frame_data.frontend:dev
@@ -91,6 +91,7 @@ services:
       - "6080:3000"
     networks:
       - tekken_network
+      - internet_net
 
 volumes:
   postgres_data:
@@ -100,5 +101,6 @@ networks:
   tekken_network:
     driver: bridge
     internal: true
-  bbc: {}
+  internet_net:
+    external: true
   

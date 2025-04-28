@@ -8,7 +8,11 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {
-    public async Task<Message> OnFramedataCommandReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    public async Task<Message> OnFramedataCommandReceived(
+        ITelegramBotClient botClient,
+        Message message,
+        CancellationToken cancellationToken
+    )
     {
         var msg = message.Text;
         var text = string.Empty;
@@ -22,13 +26,11 @@ public partial class Commands
             {
                 var bb = split.Skip(1).ToArray();
 
-                var move = frameData.GetMove(bb);
+                var move = await frameData.GetMoveAsync(bb);
 
                 if (move is not null)
                 {
-                    if (move.Character is not null)
-                    {
-                        text = $"""
+                    text = $"""
                         🎭 <b>Character</b> 🎭
                                 <i>{move.Character.Name}</i>
 
@@ -58,19 +60,8 @@ public partial class Commands
                         📝 <b>Notes</b> 📝
 
                         <i>{move.Notes}</i>
-                      
+                        
                         """;
-                    }
-                    else
-                    {
-                        text = "Плохие параметры запроса фреймдаты: Отсутствует имя персонажа.";
-                        return await botClient.SendMessage(
-                                    message.Chat.Id,
-                                    text,
-                                    replyMarkup: markup,
-                                    parseMode: ParseMode.Html,
-                                    cancellationToken: cancellationToken);
-                    }
 
                     var buttons = new List<InlineKeyboardButton>();
 
@@ -78,7 +69,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Heat Engager")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:heatengage"
+                            CallbackData = $"framedata:{move.Character.Name}:heatengage",
                         };
                         buttons.Add(button);
                     }
@@ -87,7 +78,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Tornado")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:tornado"
+                            CallbackData = $"framedata:{move.Character.Name}:tornado",
                         };
                         buttons.Add(button);
                     }
@@ -96,7 +87,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Heat Smash")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:heatsmash"
+                            CallbackData = $"framedata:{move.Character.Name}:heatsmash",
                         };
                         buttons.Add(button);
                     }
@@ -105,7 +96,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Power Crush")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:powercrush"
+                            CallbackData = $"framedata:{move.Character.Name}:powercrush",
                         };
                         buttons.Add(button);
                     }
@@ -114,7 +105,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Heat Burst")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:heatburst"
+                            CallbackData = $"framedata:{move.Character.Name}:heatburst",
                         };
                         buttons.Add(button);
                     }
@@ -123,16 +114,20 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Homing")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:homing"
+                            CallbackData = $"framedata:{move.Character.Name}:homing",
                         };
                         buttons.Add(button);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(move.StanceCode) && !string.IsNullOrWhiteSpace(move.StanceName))
+                    if (
+                        !string.IsNullOrWhiteSpace(move.StanceCode)
+                        && !string.IsNullOrWhiteSpace(move.StanceName)
+                    )
                     {
                         var button = new InlineKeyboardButton(move.StanceName)
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:stance:{move.StanceCode}"
+                            CallbackData =
+                                $"framedata:{move.Character.Name}:stance:{move.StanceCode}",
                         };
                         buttons.Add(button);
                     }
@@ -141,7 +136,7 @@ public partial class Commands
                     {
                         var button = new InlineKeyboardButton("Throw")
                         {
-                            CallbackData = $"framedata:{move.Character.Name}:throw"
+                            CallbackData = $"framedata:{move.Character.Name}:throw",
                         };
                         buttons.Add(button);
                     }
@@ -156,10 +151,11 @@ public partial class Commands
             text = "Плохие параметры запроса фреймдаты.";
 
         return await botClient.SendMessage(
-                message.Chat.Id,
-                text,
-                replyMarkup: markup,
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken);
+            message.Chat.Id,
+            text,
+            replyMarkup: markup,
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken
+        );
     }
 }

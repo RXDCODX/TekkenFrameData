@@ -15,6 +15,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="TwitchLib.Api" />
+    <PackageReference Include="TwitchLib.Api.Helix" />
+    <PackageReference Include="TwitchLib.Client" />
+    <PackageReference Include="TwitchLib.EventSub.Core" />
+    <PackageReference Include="TwitchLib.EventSub.Websockets" />
   </ItemGroup>
 
 </Project>

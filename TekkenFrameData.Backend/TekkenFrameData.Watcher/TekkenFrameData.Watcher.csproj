@@ -27,6 +27,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="HtmlAgilityPack" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
 		  <PrivateAssets>all</PrivateAssets>
@@ -37,6 +38,8 @@
 		<PackageReference Include="TwitchLib.Api" />
 		<PackageReference Include="TwitchLib.Api.Helix" />
 		<PackageReference Include="TwitchLib.Client" />
+		<PackageReference Include="TwitchLib.EventSub.Core" />
+		<PackageReference Include="TwitchLib.EventSub.Websockets" />
 	</ItemGroup>
 
 

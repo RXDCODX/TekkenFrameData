@@ -1,10 +1,10 @@
-{
+﻿{
   "profiles": {
     "Local": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_LOCAL_LAUNCH": "TRUE",
+        "ASPNETCORE_DOCKER_LAUNCH": "TRUE",
         "ASPNETCORE_HTTPS_PORTS": "7261",
         "ASPNETCORE_HTTP_PORTS": "5112",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"

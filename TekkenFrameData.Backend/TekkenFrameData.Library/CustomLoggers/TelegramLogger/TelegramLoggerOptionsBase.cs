@@ -1,13 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace TekkenFrameData.Watcher.TelegramLogger;
+namespace TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 
-public class TelegramLoggerOptions
+public class TelegramLoggerOptionsBase
 {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-
-    public string BotToken { get; set; }
-
     /// <summary>
     ///     Unique identifier for the target chat or username of the target channel (in the format @channelusername)
     /// </summary>

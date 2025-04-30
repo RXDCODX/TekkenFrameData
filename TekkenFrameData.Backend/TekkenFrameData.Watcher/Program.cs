@@ -1,10 +1,11 @@
+﻿using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TekkenFrameData.Watcher.TelegramLogger;
+using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
@@ -14,6 +15,7 @@ using TwitchLib.Api.Core.Enums;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client;
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;
 using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
@@ -27,63 +29,79 @@ public class Program
 
         var services = builder.Services;
 
-        //services.AddHttpClient("telegram_bot_client").AddTypedClient<ITelegramBotClient>((httpClient, sp) =>
-        //{
-        //    TelegramBotClientOptions options = new("7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw");
+        services
+            .AddHttpClient("telegram_bot_client")
+            .AddTypedClient<ITelegramBotClient>(
+                (client, sp) =>
+                {
+                    var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
 
-        //    return new TelegramBotClient(options, httpClient);
-        //});
+                    var dbContext = factory.CreateDbContext();
 
-        //services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-        //{
-        //    optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DB")).
-        //        UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                    var configuration = dbContext.Configuration.Single();
 
-        //    if (builder.Environment.IsDevelopment())
-        //    {
-        //        optionsBuilder.EnableDetailedErrors();
-        //        optionsBuilder.EnableThreadSafetyChecks();
-        //    }
-        //});
+                    var token = configuration.BotToken;
 
-        //builder.Logging.AddConsole();
-        //builder.Logging.AddDebug();
-        //builder.Logging.SetMinimumLevel(LogLevel.Trace);
+                    var tclient = new TelegramBotClient(token, client);
 
-        //builder.Logging.AddTelegramLogger(options =>
-        //{
-        //    options.BotToken = "7320382686:AAE_nK-vnSlnVGQuUUkQCBev9zWUU9DAhJw";
-        //    options.ChatId = [402763435, 1917524881];
-        //    options.SourceName = "Higemus";
-        //    options.MinimumLevel = LogLevel.Warning;
-        //});
+                    builder.Logging.AddConsole();
+                    builder.Logging.AddDebug();
+                    builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
-        //var twitchApi = new TwitchAPI
-        //{
-        //    Settings =
-        //    {
-        //        ClientId = "zp4lacics0o2j0l3huzw1gtcp64ck7"
-        //    }
-        //};
-        //twitchApi.Settings.AccessToken = await twitchApi.Auth.GetAccessTokenAsync();
-        //twitchApi.Settings.Secret = "vx3i8o1egpo4zssseu70jqg8hbkgnw";
-        //twitchApi.Settings.Scopes = [AuthScopes.Any];
+                    builder.Logging.AddTelegramLogger(
+                        new TelegramLoggerOptionsBase()
+                        {
+                            SourceName = "Higemus",
+                            MinimumLevel = LogLevel.Warning,
+                            ChatId = configuration.AdminIdsArray,
+                        },
+                        () => tclient,
+                        (s, level) => true
+                    );
 
-        //services.AddSingleton<ITwitchAPI>(twitchApi);
+                    return tclient;
+                }
+            );
 
-        //var client = new TwitchClient(default, default);
+        services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
+        {
+            optionsBuilder
+                .UseNpgsql(builder.Configuration.GetConnectionString("DB"))
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 
-        //services.AddSingleton<ITwitchClient>(client);
+            if (builder.Environment.IsDevelopment())
+            {
+                optionsBuilder.EnableDetailedErrors();
+                optionsBuilder.EnableThreadSafetyChecks();
+            }
+        });
 
-        //services.AddScoped<Commands>();
-        //services.AddScoped<UpdateHandler>();
-        //services.AddScoped<ReceiverService>();
-        //services.AddHostedService<PollingService>();
-        //services.AddSingleton<TwitchFramedateChannelConnecter>();
-        //services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
-        //services.AddSingleton<Tekken8FrameData>();
-        //services.AddSingleton<TwitchReconector>();
-        //services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
+        services.AddSingleton<ITwitchClient>(sp =>
+        {
+            var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
+
+            var dbContext = factory.CreateDbContext();
+
+            var configuration = dbContext
+                .Configuration.Include(configuration => configuration.Token)
+                .Single();
+
+            var token = configuration.Token;
+
+            var client = new TwitchClient(default, default);
+            client.Initialize(new ConnectionCredentials("higemus", token.AccessToken));
+            return client;
+        });
+
+        services.AddScoped<Commands>();
+        services.AddScoped<UpdateHandler>();
+        services.AddScoped<ReceiverService>();
+        services.AddHostedService<PollingService>();
+        services.AddSingleton<TwitchFramedateChannelConnecter>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
+        services.AddSingleton<Tekken8FrameData>();
+        services.AddSingleton<TwitchReconector>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
 
         var app = builder.Build();
 
@@ -93,7 +111,6 @@ public class Program
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseStaticFiles();
-        
 
         app.UseStatusCodePages();
 

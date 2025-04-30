@@ -1,17 +1,18 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 
-namespace TekkenFrameData.Watcher.TelegramLogger;
+namespace TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 
 public static class TelegramLoggerProviderExtensions
 {
     public static ILoggingBuilder AddTelegramLogger(
         this ILoggingBuilder loggerFactory,
         TelegramLoggerOptions options,
-        Func<string, LogLevel, bool>? filter = default)
+        Func<string, LogLevel, bool>? filter = default
+    )
     {
-        if(filter is null)
+        if (filter is null)
         {
             return loggerFactory;
         }
@@ -24,7 +25,8 @@ public static class TelegramLoggerProviderExtensions
     public static ILoggingBuilder AddTelegramLogger(
         this ILoggingBuilder loggerFactory,
         Action<TelegramLoggerOptions> configure,
-        Func<string, LogLevel, bool>? filter = default)
+        Func<string, LogLevel, bool>? filter = default
+    )
     {
         if (filter is null)
         {
@@ -34,5 +36,23 @@ public static class TelegramLoggerProviderExtensions
         var options = new TelegramLoggerOptions();
         configure(options);
         return loggerFactory.AddTelegramLogger(options, filter);
+    }
+
+    public static ILoggingBuilder AddTelegramLogger(
+        this ILoggingBuilder loggerFactory,
+        TelegramLoggerOptionsBase options,
+        Func<ITelegramBotClient> configure,
+        Func<string, LogLevel, bool>? filter = default
+    )
+    {
+        if (filter is null)
+        {
+            return loggerFactory;
+        }
+
+        var result = configure();
+
+        loggerFactory.AddProvider(new TelegramLoggerProvider(result, options, filter));
+        return loggerFactory;
     }
 }

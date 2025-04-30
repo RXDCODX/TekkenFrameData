@@ -54,8 +54,8 @@ public class TwitchFramedateChannelConnecter : IHostedService
         var streams = await GetStreamsFromRuTekken();
         var joined = _client.JoinedChannels;
         var newStreams = streams.Where(e =>
-            !joined.Any(joined =>
-                joined.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
+            !joined.Any(joinedChannel =>
+                joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
             ) && !e.Id.Equals("40792090693", StringComparison.OrdinalIgnoreCase)
         );
         var streamsToLeave = joined.Where(e =>

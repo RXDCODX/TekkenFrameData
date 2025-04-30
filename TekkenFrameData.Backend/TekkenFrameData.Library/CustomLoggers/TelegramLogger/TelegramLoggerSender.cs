@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace TekkenFrameData.Watcher.TelegramLogger;
+namespace TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 
 public class TelegramLoggerSender : IDisposable
 {
@@ -23,10 +21,7 @@ public class TelegramLoggerSender : IDisposable
         _botClient = botClient;
         _chatIds = chatIds;
 
-        _outputTask = Task.Factory.StartNew(
-            ProcessLogQueue,
-            this,
-            TaskCreationOptions.LongRunning);
+        _outputTask = Task.Factory.StartNew(ProcessLogQueue, this, TaskCreationOptions.LongRunning);
     }
 
     public void Dispose()
@@ -38,13 +33,10 @@ public class TelegramLoggerSender : IDisposable
         {
             _outputTask.Wait(1500);
         }
-        catch (TaskCanceledException)
-        {
-        }
+        catch (TaskCanceledException) { }
         catch (AggregateException ex)
             when (ex.InnerExceptions.Count == 1 && ex.InnerExceptions[0] is TaskCanceledException)
-        {
-        }
+        { }
     }
 
     public void EnqueueMessage(string message)
@@ -55,9 +47,7 @@ public class TelegramLoggerSender : IDisposable
                 _messageQueue.Add(message);
                 return;
             }
-            catch (InvalidOperationException)
-            {
-            }
+            catch (InvalidOperationException) { }
 
         // Adding is completed so just log the message
         WriteMessage(message);
@@ -71,7 +61,8 @@ public class TelegramLoggerSender : IDisposable
             {
                 foreach (var id in _chatIds)
                 {
-                    await _botClient.SendMessage(id, message, parseMode: ParseMode.Markdown)
+                    await _botClient
+                        .SendMessage(id, message, parseMode: ParseMode.Markdown)
                         .ConfigureAwait(false);
                 }
             }

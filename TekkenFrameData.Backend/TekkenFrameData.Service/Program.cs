@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,8 +21,10 @@ class Program
 
         services.AddDbContext<AppDbContext>(optionsBuilder =>
         {
-            var environmentVariable = Environment.GetEnvironmentVariable("ASPNETCORE_LOCAL_LAUNCH");
-            if (environmentVariable != "TRUE")
+            var environmentVariable = Environment.GetEnvironmentVariable(
+                "ASPNETCORE_DOCKER_LAUNCH"
+            );
+            if (environmentVariable == "TRUE")
             {
                 optionsBuilder
                     .UseNpgsql(builder.Configuration.GetConnectionString("docker_pg"))

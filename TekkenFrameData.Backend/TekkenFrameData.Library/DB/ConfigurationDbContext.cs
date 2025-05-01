@@ -3,7 +3,7 @@ using TekkenFrameData.Library.Models.Configuration;
 
 namespace TekkenFrameData.Library.DB;
 
-public partial class AppDbContext
+public sealed partial class AppDbContext
 {
     public DbSet<Configuration> Configuration { get; set; } = null!;
 

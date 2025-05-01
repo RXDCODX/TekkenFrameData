@@ -47,9 +47,4 @@
 	  <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
 	</ItemGroup>
 
-
-	<ItemGroup>
-	  <Folder Include="Services\TekkenVictorina\" />
-	</ItemGroup>
-
 </Project>

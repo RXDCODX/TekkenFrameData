@@ -4,8 +4,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
+using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.Manager;
+using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using Telegram.Bot;
@@ -64,14 +68,30 @@ public class Program
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
         {
-            optionsBuilder
-                .UseNpgsql(builder.Configuration.GetConnectionString("DB"))
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
             if (builder.Environment.IsDevelopment())
             {
                 optionsBuilder.EnableDetailedErrors();
                 optionsBuilder.EnableThreadSafetyChecks();
+                optionsBuilder
+                    .UseNpgsql(builder.Configuration.GetConnectionString("DB"))
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+            }
+            else
+            {
+                var constring = new NpgsqlConnectionStringBuilder
+                {
+                    { "Host", Environment.GetEnvironmentVariable("DB_HOST")! },
+                    { "Port", Environment.GetEnvironmentVariable("DB_PORT")! },
+                    { "Database", Environment.GetEnvironmentVariable("DB_NAME")! },
+                    { "Username", Environment.GetEnvironmentVariable("DB_USER")! },
+                    { "Password", Environment.GetEnvironmentVariable("DB_PASSWORD")! },
+                };
+
+                optionsBuilder.EnableDetailedErrors();
+                optionsBuilder.EnableThreadSafetyChecks();
+                optionsBuilder
+                    .UseNpgsql(constring.ToString())
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
             }
         });
 
@@ -113,6 +133,24 @@ public class Program
         services.AddSingleton<TwitchFramedateChannelConnecter>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
         services.AddSingleton<Tekken8FrameData>();
+        services.AddHostedService(sp => sp.GetRequiredService<Tekken8FrameData>());
+
+        services.AddSingleton<ContractorService>();
+        services.AddHostedService(sp => sp.GetRequiredService<ContractorService>());
+
+        services.AddSingleton<TwitchAuthService>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchAuthService>());
+        services.AddSingleton<TokenService>();
+        services.AddSingleton<TelegramTokenNotification>();
+
+        services.AddSingleton<CrossChannelManager>();
+        services.AddHostedService(sp => sp.GetRequiredService<CrossChannelManager>());
+
+        services.AddSingleton<TekkenVictorina>();
+        services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorina>());
+
+        services.AddSingleton<TekkenVictorinaLeaderbord>();
+        services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
         var app = builder.Build();
 

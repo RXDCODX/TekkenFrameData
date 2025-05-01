@@ -27,6 +27,7 @@ services:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: only_watcher_tekken_watcher
+    command: ["dotnet", "ef", "database update"]
     depends_on:
       db:
         condition: service_healthy

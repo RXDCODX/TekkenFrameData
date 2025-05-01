@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +22,7 @@ namespace TekkenFrameData.Watcher;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -82,15 +81,29 @@ public class Program
 
             var dbContext = factory.CreateDbContext();
 
-            var configuration = dbContext
-                .Configuration.Include(configuration => configuration.Token)
-                .Single();
-
-            var token = configuration.Token;
+            var configuration = dbContext.Configuration.Single();
 
             var client = new TwitchClient(default, default);
-            client.Initialize(new ConnectionCredentials("higemus", token.AccessToken));
+            client.Initialize(new ConnectionCredentials("higemus", configuration.ClientOAuthToken));
+            client.AddChatCommandIdentifier('!');
+            client.AddChatCommandIdentifier('/');
             return client;
+        });
+
+        services.AddSingleton<ITwitchAPI>(sp =>
+        {
+            var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
+
+            var dbContext = factory.CreateDbContext();
+
+            var configuration = dbContext.Configuration.Single();
+
+            var twitchApi = new TwitchAPI { Settings = { ClientId = configuration.ApiClientId } };
+            twitchApi.Settings.AccessToken = twitchApi.Auth.GetAccessTokenAsync().Result;
+            twitchApi.Settings.Secret = configuration.ApiClientSecret;
+            twitchApi.Settings.Scopes = [AuthScopes.Any];
+
+            return twitchApi;
         });
 
         services.AddScoped<Commands>();
@@ -100,8 +113,6 @@ public class Program
         services.AddSingleton<TwitchFramedateChannelConnecter>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
         services.AddSingleton<Tekken8FrameData>();
-        services.AddSingleton<TwitchReconector>();
-        services.AddHostedService(sp => sp.GetRequiredService<TwitchReconector>());
 
         var app = builder.Build();
 
@@ -114,6 +125,6 @@ public class Program
 
         app.UseStatusCodePages();
 
-        await app.RunAsync();
+        app.RunAsync();
     }
 }

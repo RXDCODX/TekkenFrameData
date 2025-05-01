@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
 using TwitchLib.Api.Interfaces;
@@ -11,48 +14,23 @@ using Timer = System.Timers.Timer;
 
 namespace TekkenFrameData.Watcher.Services.TwitchFramedata;
 
-public class TwitchFramedateChannelConnecter : IHostedService
+public class TwitchFramedateChannelConnecter(
+    ILogger<TwitchFramedateChannelConnecter> logger,
+    ITwitchClient client,
+    Tekken8FrameData frameData,
+    ITwitchAPI api,
+    IDbContextFactory<AppDbContext> factory
+) : IHostedService
 {
-    private readonly ILogger<TwitchFramedateChannelConnecter> _logger;
-    private readonly ITwitchClient _client;
-    private readonly Tekken8FrameData _frameData;
-    private readonly ITwitchAPI _api;
-
     private Timer? _timer;
-
-    public TwitchFramedateChannelConnecter(
-        ILogger<TwitchFramedateChannelConnecter> logger,
-        ITwitchClient client,
-        Tekken8FrameData frameData,
-        ITwitchAPI api
-    )
-    {
-        _logger = logger;
-        _client = client;
-        _client.OnMessageReceived += FrameDateMessage;
-
-        _frameData = frameData;
-        _api = api;
-
-        _client.OnConnected += (sender, args) => _logger.LogInformation("Твич подключился!");
-        _client.OnReconnected += (sender, args) => _logger.LogInformation("Твич подключился!");
-        _client.OnDisconnected += (sender, args) => _logger.LogInformation("Твич отключился(");
-        _client.OnConnectionError += (sender, args) =>
-            _logger.LogError(
-                "{BotUsername} # {ErrorMessage}",
-                args.BotUsername,
-                args.Error.Message
-            );
-        _client.OnLog += (sender, args) => _logger.LogInformation("{Data}", args.Data);
-    }
 
     public async Task ConnectToStreams()
     {
-        if (!_client.IsConnected)
+        if (!client.IsConnected)
             return;
 
         var streams = await GetStreamsFromRuTekken();
-        var joined = _client.JoinedChannels;
+        var joined = client.JoinedChannels;
         var newStreams = streams.Where(e =>
             !joined.Any(joinedChannel =>
                 joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
@@ -66,7 +44,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
 
         foreach (var joinedChannel in streamsToLeave)
         {
-            _client.LeaveChannel(joinedChannel);
+            client.LeaveChannel(joinedChannel);
         }
 
         foreach (var stream in newStreams)
@@ -82,7 +60,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
                 }
             )
             {
-                _client.JoinChannel(stream.UserLogin);
+                client.JoinChannel(stream.UserLogin);
             }
 
             await Task.Delay(500);
@@ -93,16 +71,16 @@ public class TwitchFramedateChannelConnecter : IHostedService
     {
         try
         {
-            var response = await _api.Helix.Chat.GetChatSettingsAsync(id, id);
+            var response = await api.Helix.Chat.GetChatSettingsAsync(id, id);
             return response.Data[0];
         }
         catch (Exception e)
             when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))
         {
-            var aa = await ValidateToken(_api.Settings.AccessToken);
+            var aa = await ValidateToken(api.Settings.AccessToken);
             if (!aa)
             {
-                _api.Settings.AccessToken = await _api.Auth.GetAccessTokenAsync();
+                api.Settings.AccessToken = await api.Auth.GetAccessTokenAsync();
             }
 
             return await GetStreamInfo(id);
@@ -113,20 +91,28 @@ public class TwitchFramedateChannelConnecter : IHostedService
     {
         try
         {
-            var clipsResponse = await _api.Helix.Streams.GetStreamsAsync(
+            await using var dbContext = await factory.CreateDbContextAsync();
+            var allowedChannels = await dbContext
+                .TekkenChannels.Where(e => e.FramedataStatus == TekkenFramedataStatus.Accepted)
+                .ToArrayAsync();
+
+            var clipsResponse = await api.Helix.Streams.GetStreamsAsync(
                 first: 100,
                 gameIds: ["538054672"],
                 languages: ["ru"]
             );
-            return clipsResponse.Streams;
+
+            return clipsResponse
+                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.Id))
+                .ToArray();
         }
         catch (Exception e)
             when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))
         {
-            var aa = await ValidateToken(_api.Settings.AccessToken);
+            var aa = await ValidateToken(api.Settings.AccessToken);
             if (!aa)
             {
-                _api.Settings.AccessToken = await _api.Auth.GetAccessTokenAsync();
+                api.Settings.AccessToken = await api.Auth.GetAccessTokenAsync();
             }
 
             return await GetStreamsFromRuTekken();
@@ -137,7 +123,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
     {
         try
         {
-            var response = await _api.Auth.ValidateAccessTokenAsync(token);
+            var response = await api.Auth.ValidateAccessTokenAsync(token);
 
             if (response == null)
             {
@@ -153,7 +139,7 @@ public class TwitchFramedateChannelConnecter : IHostedService
         }
         catch (Exception e)
         {
-            _logger.LogException(e);
+            logger.LogException(e);
             return false;
         }
     }
@@ -171,12 +157,12 @@ public class TwitchFramedateChannelConnecter : IHostedService
                 if (split.Length > 2)
                 {
                     var bb = split.Skip(1).ToArray();
-                    var move = await _frameData.GetMoveAsync(bb);
+                    var move = await frameData.GetMoveAsync(bb);
                     var channel = args.ChatMessage.Channel;
 
                     if (move is not null)
                     {
-                        var teges = await _frameData.GetMoveTags(move);
+                        var teges = await frameData.GetMoveTags(move);
 
                         message =
                             "✅ "
@@ -199,21 +185,21 @@ public class TwitchFramedateChannelConnecter : IHostedService
                         try
                         {
                             if (
-                                !_client.JoinedChannels.Any(e =>
+                                !client.JoinedChannels.Any(e =>
                                     e.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
                                 )
                             )
                             {
-                                _client.JoinChannel(channel);
+                                client.JoinChannel(channel);
                             }
 
-                            var joinedChannel = _client.GetJoinedChannel(channel);
-                            _client.SendMessage(joinedChannel, message);
+                            var joinedChannel = client.GetJoinedChannel(channel);
+                            client.SendMessage(joinedChannel, message);
                             return;
                         }
                         catch (Exception e)
                         {
-                            _logger.LogException(e);
+                            logger.LogException(e);
                         }
                     }
 
@@ -222,16 +208,16 @@ public class TwitchFramedateChannelConnecter : IHostedService
                     message = string.Format(tempLate, args.ChatMessage.Username);
 
                     if (
-                        !_client.JoinedChannels.Any(e =>
+                        !client.JoinedChannels.Any(e =>
                             e.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
                         )
                     )
                     {
-                        _client.JoinChannel(channel);
+                        client.JoinChannel(channel);
                     }
 
-                    var joined = _client.GetJoinedChannel(channel);
-                    _client.SendMessage(joined, message);
+                    var joined = client.GetJoinedChannel(channel);
+                    client.SendMessage(joined, message);
                 }
             });
         }
@@ -243,6 +229,15 @@ public class TwitchFramedateChannelConnecter : IHostedService
         _timer.Elapsed += async (sender, args) => await ConnectToStreams();
 
         _timer.Start();
+
+        client.OnMessageReceived += FrameDateMessage;
+        client.OnConnected += (sender, args) => logger.LogInformation("Твич подключился!");
+        client.OnReconnected += (sender, args) => logger.LogInformation("Твич подключился!");
+        client.OnDisconnected += (sender, args) => logger.LogInformation("Твич отключился(");
+        client.OnConnectionError += (sender, args) =>
+            logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
+        client.OnLog += (sender, args) => logger.LogInformation("{Data}", args.Data);
+
         return Task.CompletedTask;
     }
 

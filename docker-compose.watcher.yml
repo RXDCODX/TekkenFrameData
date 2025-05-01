@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: only_watcher_tekken_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tekken_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5552:5432"
+    networks:
+      - tekken_network
+      - internet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  watcher:
+    image: tekken_frame_data.watcher:dev
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
+    container_name: only_watcher_tekken_watcher
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: tekken_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "7080:8080"
+      - "7081:8081"
+    networks:
+      - tekken_network
+      - internet
+
+volumes:
+  postgres_data:
+
+networks:
+  tekken_network:
+    driver: bridge
+  internet: {}
+    

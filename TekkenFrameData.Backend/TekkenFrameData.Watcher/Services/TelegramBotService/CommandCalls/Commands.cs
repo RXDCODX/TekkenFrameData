@@ -7,15 +7,22 @@ using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
-public partial class Commands(Tekken8FrameData frameData, ITwitchClient client)
+public partial class Commands(Tekken8FrameData frameData)
 {
-    public const string Template = "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";
+    public const string Template =
+        "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";
 
-    internal static async Task<Message> OnUsageCommandReceived(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    internal static async Task<Message> OnUsageCommandReceived(
+        ITelegramBotClient botClient,
+        Message message,
+        CancellationToken cancellationToken
+    )
     {
         var commands = typeof(Commands);
 
-        var methods = commands.GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+        var methods = commands.GetMethods(
+            BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public
+        );
 
         string usage;
 
@@ -31,7 +38,8 @@ public partial class Commands(Tekken8FrameData frameData, ITwitchClient client)
             message.Chat.Id,
             usage,
             replyMarkup: new ReplyKeyboardRemove(),
-            cancellationToken: cancellationToken);
+            cancellationToken: cancellationToken
+        );
     }
 
     private static string[] GetCommandName(MethodInfo[] methods)

@@ -54,7 +54,7 @@ public class TekkenMove
         if (obj is TekkenMove move)
         {
             return Command.Equals(move.Command, StringComparison.OrdinalIgnoreCase)
-                && (CharacterName.Equals(move.CharacterName, StringComparison.OrdinalIgnoreCase));
+                && CharacterName.Equals(move.CharacterName, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;

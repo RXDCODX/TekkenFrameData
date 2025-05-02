@@ -24,7 +24,7 @@ public static class TelegramLoggerProviderExtensions
 
     public static ILoggingBuilder AddTelegramLogger(
         this ILoggingBuilder loggerFactory,
-        Action<TelegramLoggerOptions> configure,
+        Func<TelegramLoggerOptions> configure,
         Func<string, LogLevel, bool>? filter = default
     )
     {
@@ -33,8 +33,7 @@ public static class TelegramLoggerProviderExtensions
             return loggerFactory;
         }
 
-        var options = new TelegramLoggerOptions();
-        configure(options);
+        var options = configure();
         return loggerFactory.AddTelegramLogger(options, filter);
     }
 

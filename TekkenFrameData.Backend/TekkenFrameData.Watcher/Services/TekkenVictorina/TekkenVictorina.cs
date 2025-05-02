@@ -1,44 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.DB;
-using TekkenFrameData.Library.Exstensions;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
-using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TekkenVictorina.Entitys;
 using TwitchLib.Client.Events;
-using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TekkenVictorina;
 
 public class TekkenVictorina(
-    ITwitchClient client,
-    Tekken8FrameData frameData,
-    IHostApplicationLifetime lifetime,
-    ILogger<TekkenVictorina> logger,
-    TekkenVictorinaLeaderbord tekkenVictorinaLeaderbord
-) : BackgroundService
+    TekkenVictorinaLeaderbord tekkenVictorinaLeaderbord,
+    TekkenMove randomMove,
+    string channelName,
+    string channelId,
+    Action<string> sendMessage,
+    Action removeVictorina
+) : ITekkenVictorina
 {
-    private CancellationToken? _cancellationToken = lifetime.ApplicationStopping;
-    public bool IsGameRunning { get; set; } = false;
     private const string? CommandForStop = "!стопвикторина";
     private TekkenVictorinaGame? _currentGame;
+    private static readonly TimeSpan _awaitTime = TimeSpan.FromSeconds(20);
 
-    public required string channelName { get; init; }
-    public required string channelId { get; init; }
+    public string channelName { get; init; } = channelName;
+    public string channelId { get; init; } = channelId;
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    public async void TwitchClientOnMessageReceived(object? sender, OnMessageReceivedArgs args)
     {
-        lifetime.ApplicationStarted.Register(() =>
-        {
-            client.OnMessageReceived += TwitchClientOnOnMessageReceived;
-        });
-        return Task.CompletedTask;
-    }
-
-    private async void TwitchClientOnOnMessageReceived(object? sender, OnMessageReceivedArgs args)
-    {
-        await Task.Factory.StartNew(async () =>
+        await Task.Factory.StartNew(() =>
         {
             var name = args.ChatMessage.Username;
             var message = args.ChatMessage.Message;
@@ -61,13 +46,12 @@ public class TekkenVictorina(
             {
                 if (_currentGame is { Active: true })
                 {
-                    _currentGame.Active = false;
-                    _currentGame = null;
-                    await client.SendMessageToMainTwitchAsync("Теккен викторина была остановлена!");
+                    ClearGame();
+                    sendMessage("Теккен викторина была остановлена!");
                 }
                 else
                 {
-                    await client.SendMessageToMainTwitchAsync("Теккен викторина не была запущена.");
+                    sendMessage("Теккен викторина не была запущена.");
                 }
 
                 return;
@@ -75,7 +59,7 @@ public class TekkenVictorina(
 
             if (_currentGame != null)
             {
-                CheckIsAnswer(name, userId, message);
+                ProcessMessage(name, userId, message);
             }
         });
     }
@@ -84,21 +68,16 @@ public class TekkenVictorina(
     {
         if (_currentGame is null)
         {
-            var randomIndex = Random.Shared.Next(frameData.VictorinaMoves.Count) - 1;
-            var randomMove = frameData.VictorinaMoves[randomIndex];
-            var awaitTime = TimeSpan.FromSeconds(20);
             var startTime = DateTime.Now;
 
             var prepare = $"""
                 @{userName} начал(а) новую теккен викторину! Нужно назвать фреймдату на блоке для: {string.Concat(
                     randomMove.Character!.Name[0].ToString().ToUpper(),
                     randomMove.Character!.Name.AsSpan(1)
-                )} {randomMove.Command} в течении {awaitTime.TotalSeconds} секунд! Принимается ответ в формате: -14 или -14~-11 если это диапазон
+                )} {randomMove.Command} в течении {_awaitTime.TotalSeconds} секунд! Принимается ответ в формате: -14 или -14~-11 если это диапазон
                 """;
 
-            var joinedChannel =
-                client.GetJoinedChannel(channelName) ?? throw new NullReferenceException();
-            client.SendMessage(joinedChannel, prepare);
+            sendMessage(prepare);
             var answer = GetAnswer(randomMove);
             _currentGame = new TekkenVictorinaGame(answer);
             var token = _currentGame.CancellationTokenForRightAnswer.Token;
@@ -106,7 +85,7 @@ public class TekkenVictorina(
             while (!token.IsCancellationRequested)
             {
                 var now = DateTime.Now;
-                if (now - startTime >= awaitTime)
+                if (now - startTime >= _awaitTime)
                 {
                     break;
                 }
@@ -117,9 +96,8 @@ public class TekkenVictorina(
             if (_currentGame.CancellationTokenForRightAnswer.IsCancellationRequested)
             {
                 var rightAnswer = _currentGame.GoodAnswers.First();
-                await client.SendMessageToMainTwitchAsync(
-                    $"У нас есть победитель в теккен викторине! Поздравляем {rightAnswer.displayName} с ответом {rightAnswer.answer}.",
-                    logger
+                sendMessage(
+                    $"У нас есть победитель в теккен викторине! Поздравляем {rightAnswer.displayName} с ответом {rightAnswer.answer}."
                 );
                 await tekkenVictorinaLeaderbord.AddOrUpdateUserLeaderBoard(
                     channelId,
@@ -130,7 +108,7 @@ public class TekkenVictorina(
             }
             else if (_currentGame.GoodAnswers.Count == 0)
             {
-                await client.SendMessageToMainTwitchAsync(
+                sendMessage(
                     $"Никто не попытался ответить на теккен викторину. Ответ - {_currentGame.Answer}."
                 );
                 ClearGame();
@@ -140,7 +118,7 @@ public class TekkenVictorina(
                 if (_currentGame.GoodAnswers.Count == 1)
                 {
                     var goodAnswer = _currentGame.GoodAnswers.First();
-                    await client.SendMessageToMainTwitchAsync(
+                    sendMessage(
                         $"Наиболее подходящий ответ на теккен викторине был от {goodAnswer.displayName} с текстом {goodAnswer.answer}. Ответ - {_currentGame.Answer}."
                     );
                     ClearGame();
@@ -151,7 +129,7 @@ public class TekkenVictorina(
                         ',',
                         _currentGame.GoodAnswers.Select(e => $" {e.displayName} с {e.answer}")
                     );
-                    await client.SendMessageToMainTwitchAsync(
+                    sendMessage(
                         $"Наиболее подходящие ответы на теккен викторину: {answers}. Ответ - {_currentGame.Answer}"
                     );
                     ClearGame();
@@ -160,14 +138,18 @@ public class TekkenVictorina(
         }
         else
         {
-            await client.SendMessageToMainTwitchAsync("Теккен викторина уже используется!");
+            sendMessage("Теккен викторина уже используется!");
         }
     }
 
-    private void ClearGame()
+    public void ClearGame()
     {
+        if (_currentGame != null)
+        {
+            _currentGame.Active = false;
+        }
         _currentGame = null;
-        IsGameRunning = false;
+        removeVictorina();
     }
 
     private IntRange GetAnswer(TekkenMove tekkenMove)
@@ -190,18 +172,18 @@ public class TekkenVictorina(
         );
     }
 
-    private bool CheckIsAnswer(string displayName, string userId, string input)
+    private Task ProcessMessage(string displayName, string userId, string input)
     {
         if (_currentGame is not { Active: true })
         {
-            return false;
+            return Task.CompletedTask;
         }
 
         // Парсим ввод пользователя (может быть число или диапазон)
         var userRange = TryParseInput(input);
         if (!userRange.HasValue)
         {
-            return false;
+            return Task.CompletedTask;
         }
 
         var answerRange = _currentGame.Answer;
@@ -218,15 +200,15 @@ public class TekkenVictorina(
         if (distance == 0)
         {
             AddOrUpdateGoodAnswer(displayName, userRange.Value);
-            _currentGame.CancellationTokenForRightAnswer.Cancel();
-            return true;
+            _currentGame.FoundRightAnswerTask();
+            return Task.CompletedTask;
         }
 
         // Если диапазоны пересекаются - это точный ответ (distance = 0)
         if (isIntersect)
         {
             AddOrUpdateGoodAnswer(displayName, userRange.Value);
-            return true;
+            return Task.CompletedTask;
         }
 
         // Получаем текущее минимальное расстояние
@@ -244,7 +226,7 @@ public class TekkenVictorina(
             AddOrUpdateGoodAnswer(displayName, userRange.Value);
         }
 
-        return isIntersect;
+        return Task.CompletedTask;
 
         // Парсит строку в IntRange (число или диапазон)
         IntRange? TryParseInput(string str)

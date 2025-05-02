@@ -21,15 +21,12 @@ public partial class Tekken8FrameData(
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(stoppingToken);
         var list = dbContext.TekkenCharacters.AsNoTracking().ToList();
         var character = list.FirstOrDefault();
-        if (
-            character == null
-            || !Tekken8FrameData
-                .IsDateInCurrentWeek(character.LastUpdateTime)
-                .GetAwaiter()
-                .GetResult()
-        )
+        var isDateInCurrentWeek = await IsDateInCurrentWeek(
+            character?.LastUpdateTime ?? DateTime.UnixEpoch
+        );
+        if (character == null || isDateInCurrentWeek)
         {
-            await Task.Factory.StartNew<Task>(() => StartScrupFrameData(), stoppingToken);
+            await Task.Factory.StartNew(() => StartScrupFrameData(), stoppingToken);
         }
 
         await UpdateMovesForVictorina();

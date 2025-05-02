@@ -183,7 +183,12 @@ public partial class Tekken8FrameData
                 var cellNodes = rowNode.SelectNodes(".//td[@class='rt-TableCell']");
 
                 // Извлекаем текст из тега <a> в ячейке command
-                var command = cellNodes![0].SelectSingleNode(".//a")?.InnerText.Trim().ToLower();
+                var command = cellNodes!
+                    [0]
+                    .SelectSingleNode(".//a")
+                    ?.InnerText.Replace(".", " ")
+                    .Trim()
+                    .ToLower();
 
                 // Создаем новый объект Move
                 if (command != null)
@@ -199,8 +204,6 @@ public partial class Tekken8FrameData
                     {
                         continue;
                     }
-
-                    move.Command = move.Command!.Replace(".", " ");
 
                     var noteDivs = cellNodes[7].SelectNodes(".//div");
                     if (noteDivs is { Count: > 0 })

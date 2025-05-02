@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
@@ -18,14 +18,17 @@ public class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private long[] AdminLongs { get; init; }
 
-    private readonly TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
+    private readonly TelegramUpdateDelegate _telegramDelegate = (client, update) =>
+        Task.CompletedTask;
 
-    public UpdateHandler(ITelegramBotClient botClient,
+    public UpdateHandler(
+        ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
         Commands commands,
-        Tekken8FrameData frameData)
+        Tekken8FrameData frameData
+    )
     {
-        _botClient = botClient; 
+        _botClient = botClient;
         _logger = logger;
         _commands = commands;
         AdminLongs = [402763435, 1917524881];
@@ -33,7 +36,11 @@ public class UpdateHandler : IUpdateHandler
         _telegramDelegate += frameData.HandAlert;
     }
 
-    public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
+    public async Task HandleUpdateAsync(
+        ITelegramBotClient _,
+        Update update,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
@@ -49,7 +56,7 @@ public class UpdateHandler : IUpdateHandler
             var handler = update switch
             {
                 { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
-                _ => UnknownUpdateHandlerAsync(update)
+                _ => UnknownUpdateHandlerAsync(update),
             };
 
             await handler;
@@ -68,14 +75,16 @@ public class UpdateHandler : IUpdateHandler
                     var messageId = update.Message!.MessageId;
                     var chatId = update.Message.Chat.Id;
 
-                    if (update.Message.HasProtectedContent != true) await _botClient.ForwardMessage(id, chatId, messageId);
+                    if (update.Message.HasProtectedContent != true)
+                        await _botClient.ForwardMessage(id, chatId, messageId);
 
                     break;
                 case UpdateType.ChannelPost:
                     messageId = update.ChannelPost!.MessageId;
                     chatId = update.ChannelPost.Chat.Id;
 
-                    if (update.ChannelPost.HasProtectedContent != true) await _botClient.ForwardMessage(id, chatId, messageId);
+                    if (update.ChannelPost.HasProtectedContent != true)
+                        await _botClient.ForwardMessage(id, chatId, messageId);
 
                     //if (_environment.IsDevelopment())
                     //    _logger.LogCritical(update.ChannelPost.Text);
@@ -93,25 +102,53 @@ public class UpdateHandler : IUpdateHandler
             if (message.Text is not { } messageText)
                 return;
 
-            if (!messageText.StartsWith('/')) return;
+            if (!messageText.StartsWith('/'))
+                return;
 
             var action = messageText.Split(' ')[0] switch
             {
                 "/help" => _commands.OnHelpCommandReceived(_botClient, message, cancellationToken),
-                "/framedate" => _commands.OnFramedataCommandReceived(_botClient, message, cancellationToken),
-                "/fd" => _commands.OnFramedataCommandReceived(_botClient, message, cancellationToken),
-                "/commands" => Commands.OnUsageCommandReceived(_botClient, message, cancellationToken),
-                "/start" => _commands.OnStartCommandReceived(_botClient, message, cancellationToken),
-                _ => ErrorCommand(_botClient, message, cancellationToken)
+                "/framedate" => _commands.OnFramedataCommandReceived(
+                    _botClient,
+                    message,
+                    cancellationToken
+                ),
+                "/fd" => _commands.OnFramedataCommandReceived(
+                    _botClient,
+                    message,
+                    cancellationToken
+                ),
+                "/commands" => Commands.OnUsageCommandReceived(
+                    _botClient,
+                    message,
+                    cancellationToken
+                ),
+                "/start" => _commands.OnStartCommandReceived(
+                    _botClient,
+                    message,
+                    cancellationToken
+                ),
+                _ => ErrorCommand(_botClient, message, cancellationToken),
             };
 
-            static Task<Message> ErrorCommand(ITelegramBotClient client, Message message, CancellationToken cancellationToken)
+            static Task<Message> ErrorCommand(
+                ITelegramBotClient client,
+                Message message,
+                CancellationToken cancellationToken
+            )
             {
-                return client.SendMessage(message.Chat.Id, Commands.Template, cancellationToken: cancellationToken);
+                return client.SendMessage(
+                    message.Chat.Id,
+                    Commands.Template,
+                    cancellationToken: cancellationToken
+                );
             }
 
             var sentMessage = await action;
-            _logger.LogInformation("The message was sent with id: {SentMessageId}", sentMessage.MessageId);
+            _logger.LogInformation(
+                "The message was sent with id: {SentMessageId}",
+                sentMessage.MessageId
+            );
         }
     }
 
@@ -121,7 +158,12 @@ public class UpdateHandler : IUpdateHandler
         return Task.CompletedTask;
     }
 
-    public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+    public Task HandleErrorAsync(
+        ITelegramBotClient botClient,
+        Exception exception,
+        HandleErrorSource source,
+        CancellationToken cancellationToken
+    )
     {
         _logger.LogException(exception);
         return Task.CompletedTask;

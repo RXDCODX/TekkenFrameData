@@ -5,6 +5,7 @@ using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client.Events;
@@ -144,11 +145,13 @@ public class TwitchFramedateChannelConnecter(
         }
     }
 
-    private async void FrameDateMessage(object? sender, OnMessageReceivedArgs args)
+    private async void FrameDateCommand(object? sender, OnChatCommandReceivedArgs args)
     {
-        var message = args.ChatMessage.Message;
+        var message = args.Command.ChatMessage.Message;
+        var userName = args.Command.ChatMessage.Message;
+        var command = args.Command.CommandText;
 
-        if (message.StartsWith("!fd ", StringComparison.OrdinalIgnoreCase))
+        if (command.Equals("fd", StringComparison.OrdinalIgnoreCase))
         {
             await Task.Factory.StartNew(async () =>
             {
@@ -158,10 +161,19 @@ public class TwitchFramedateChannelConnecter(
                 {
                     var bb = split.Skip(1).ToArray();
                     var move = await frameData.GetMoveAsync(bb);
-                    var channel = args.ChatMessage.Channel;
+                    var channel = args.Command.ChatMessage.Channel;
 
                     if (move is not null)
                     {
+                        if (CrossChannelManager.MovesInVictorina.Values.Contains(move))
+                        {
+                            client.SendMessage(
+                                channel,
+                                $"@{userName}, этот удар находиться в теккен виткорине, пока что не могу подсказать!"
+                            );
+                            return;
+                        }
+
                         var teges = await frameData.GetMoveTags(move);
 
                         message =
@@ -205,7 +217,7 @@ public class TwitchFramedateChannelConnecter(
 
                     const string tempLate = @"@{0}, кривые параметры запроса фреймдаты";
 
-                    message = string.Format(tempLate, args.ChatMessage.Username);
+                    message = string.Format(tempLate, userName);
 
                     if (
                         !client.JoinedChannels.Any(e =>
@@ -230,7 +242,7 @@ public class TwitchFramedateChannelConnecter(
 
         _timer.Start();
 
-        client.OnMessageReceived += FrameDateMessage;
+        client.OnChatCommandReceived += FrameDateCommand;
         client.OnConnected += (sender, args) => logger.LogInformation("Твич подключился!");
         client.OnReconnected += (sender, args) => logger.LogInformation("Твич подключился!");
         client.OnDisconnected += (sender, args) => logger.LogInformation("Твич отключился(");

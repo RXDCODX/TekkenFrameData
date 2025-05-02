@@ -146,9 +146,6 @@ public class Program
         services.AddSingleton<CrossChannelManager>();
         services.AddHostedService(sp => sp.GetRequiredService<CrossChannelManager>());
 
-        services.AddSingleton<TekkenVictorina>();
-        services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorina>());
-
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 

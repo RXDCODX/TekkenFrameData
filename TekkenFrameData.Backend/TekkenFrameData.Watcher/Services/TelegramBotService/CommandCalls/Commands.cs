@@ -3,7 +3,6 @@ using TekkenFrameData.Watcher.Services.Framedata;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 

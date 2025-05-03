@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
@@ -24,6 +25,7 @@ public class TwitchFramedateChannelConnecter(
 ) : IHostedService
 {
     private Timer? _timer;
+    private static readonly Regex Regex = new Regex(@"\p{C}+");
 
     public async Task ConnectToStreams()
     {
@@ -148,14 +150,14 @@ public class TwitchFramedateChannelConnecter(
     private async void FrameDateCommand(object? sender, OnChatCommandReceivedArgs args)
     {
         var message = args.Command.ChatMessage.Message;
-        var userName = args.Command.ChatMessage.Message;
+        var userName = args.Command.ChatMessage.DisplayName;
         var command = args.Command.CommandText;
 
         if (command.Equals("fd", StringComparison.OrdinalIgnoreCase))
         {
             await Task.Factory.StartNew(async () =>
             {
-                var split = message.Split(' ');
+                var split = Regex.Replace(message, "").Trim().Split(' ');
 
                 if (split.Length > 2)
                 {
@@ -249,7 +251,7 @@ public class TwitchFramedateChannelConnecter(
         client.OnConnectionError += (sender, args) =>
             logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
         client.OnLog += (sender, args) => logger.LogInformation("{Data}", args.Data);
-
+        client.AutoReListenOnException = true;
         return Task.CompletedTask;
     }
 

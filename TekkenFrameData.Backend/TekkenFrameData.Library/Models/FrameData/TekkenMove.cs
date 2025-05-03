@@ -25,23 +25,23 @@ public class TekkenMove
     public bool HeatBurst { get; set; }
     public bool RequiresHeat { get; set; }
 
-    [MaxLength(30)]
+    [MaxLength(100)]
     [Required]
     public required string Command { get; init; }
 
-    [MaxLength(20)]
+    [MaxLength(100)]
     public string? HitLevel { get; set; }
 
-    [MaxLength(20)]
+    [MaxLength(100)]
     public string? Damage { get; set; }
 
-    [MaxLength(30)]
+    [MaxLength(100)]
     public string? StartUpFrame { get; set; }
 
-    [MaxLength(20)]
+    [MaxLength(100)]
     public string? BlockFrame { get; set; }
 
-    [MaxLength(20)]
+    [MaxLength(100)]
     public string? HitFrame { get; set; }
 
     [MaxLength(100)]

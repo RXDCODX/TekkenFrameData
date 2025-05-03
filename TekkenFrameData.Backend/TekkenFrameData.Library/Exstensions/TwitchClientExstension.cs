@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using TwitchLib.Client.Interfaces;
-using TwitchLib.Client.Models;
 
 namespace TekkenFrameData.Library.Exstensions;
 
 public static class TwitchClientExstension
 {
-    public const string Channel = "higemus";
+    public const string Channel = "neutralbackkorobka";
 
     public static async Task SendMessageToMainTwitchAsync<T>(
         this ITwitchClient client,
@@ -72,14 +71,14 @@ public static class TwitchClientExstension
 
             if (message.Contains('.'))
             {
-                var splits = message.Split('.');
+                var splits = message.Split('.', StringSplitOptions.TrimEntries);
                 var isPass = splits.All(e => e.Length < 450);
 
                 if (isPass)
                 {
                     foreach (var split in splits)
                     {
-                        await Task.Delay(750);
+                        await Task.Delay(3000);
 
                         client.SendMessage(channel, split);
                     }
@@ -96,7 +95,7 @@ public static class TwitchClientExstension
                     var newmessage = message.Skip(450);
                     message = string.Join(null, newmessage);
 
-                    await Task.Delay(1000);
+                    await Task.Delay(3000);
 
                     client.SendMessage(channel, message);
                 }

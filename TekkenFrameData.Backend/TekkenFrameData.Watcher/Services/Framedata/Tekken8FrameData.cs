@@ -19,12 +19,13 @@ public partial class Tekken8FrameData(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(stoppingToken);
-        var list = dbContext.TekkenCharacters.AsNoTracking().ToList();
-        var character = list.FirstOrDefault();
+        var character = await dbContext.TekkenCharacters.FirstOrDefaultAsync(
+            cancellationToken: stoppingToken
+        );
         var isDateInCurrentWeek = await IsDateInCurrentWeek(
             character?.LastUpdateTime ?? DateTime.UnixEpoch
         );
-        if (character == null || isDateInCurrentWeek)
+        if (character == null || !isDateInCurrentWeek)
         {
             await Task.Factory.StartNew(() => StartScrupFrameData(), stoppingToken);
         }

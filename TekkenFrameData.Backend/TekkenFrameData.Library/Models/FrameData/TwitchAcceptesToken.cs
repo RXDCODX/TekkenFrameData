@@ -10,8 +10,8 @@ public class TwitchAcceptesToken(string twitchId)
     [Required]
     public string TwitchId { get; init; } = twitchId;
     public string Token { get; set; } = Guid.NewGuid().ToString();
-    public DateTimeOffset WhenCreated { get; set; } = DateTimeOffset.Now;
+    public DateTime WhenCreated { get; set; } = DateTime.Now;
 
     [NotMapped]
-    public TimeSpan TimePassedSinceCreated => DateTimeOffset.Now - WhenCreated;
+    public TimeSpan TimePassedSinceCreated => DateTime.Now - WhenCreated;
 }

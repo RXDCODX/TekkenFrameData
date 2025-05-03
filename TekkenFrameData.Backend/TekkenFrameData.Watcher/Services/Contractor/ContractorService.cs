@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -11,11 +12,12 @@ namespace TekkenFrameData.Watcher.Services.Contractor;
 public class ContractorService(
     IHostApplicationLifetime lifetime,
     ITwitchClient client,
-    IDbContextFactory<AppDbContext> factory
+    IDbContextFactory<AppDbContext> factory,
+    TwitchFramedateChannelConnecter connector
 ) : BackgroundService
 {
     private CancellationToken CancellationToken => lifetime.ApplicationStopping;
-    private readonly ConcurrentDictionary<string, DateTimeOffset> CoolDowns = [];
+    private readonly ConcurrentDictionary<string, DateTime> CoolDowns = [];
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -35,34 +37,48 @@ public class ContractorService(
 
         if (channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase))
         {
-            await Task.Factory.StartNew(
-                () =>
-                {
-                    return command switch
+            await Task
+                .Factory.StartNew(
+                    () =>
                     {
-                        "start" => ContractorHelper.StartTask(
-                            factory,
-                            client,
-                            e,
-                            CancellationToken
-                        ),
-                        "accept" => ContractorHelper.AcceptTask(
-                            factory,
-                            client,
-                            e,
-                            CancellationToken
-                        ),
-                        "cancel" => ContractorHelper.CancelTask(
-                            factory,
-                            client,
-                            e,
-                            CancellationToken
-                        ),
-                        _ => Task.CompletedTask,
-                    };
-                },
-                CancellationToken
-            );
+                        return command switch
+                        {
+                            "start" => ContractorHelper.StartTask(
+                                factory,
+                                client,
+                                e,
+                                CancellationToken
+                            ),
+                            "accept" => ContractorHelper.AcceptTask(
+                                factory,
+                                client,
+                                e,
+                                CancellationToken
+                            ),
+                            "cancel" => ContractorHelper.CancelTask(
+                                factory,
+                                client,
+                                e,
+                                CancellationToken
+                            ),
+                            "reject" => ContractorHelper.RejectTask(
+                                factory,
+                                client,
+                                e,
+                                CancellationToken
+                            ),
+                            _ => Task.CompletedTask,
+                        };
+                    },
+                    CancellationToken
+                )
+                .ContinueWith(
+                    async (_) =>
+                    {
+                        await connector.ConnectToStreams();
+                    },
+                    TaskContinuationOptions.AttachedToParent
+                );
         }
     }
 
@@ -72,7 +88,7 @@ public class ContractorService(
         var userName = e.ChatMessage.DisplayName;
         var userId = e.ChatMessage.UserId;
 
-        if (channel.Equals("higemus", StringComparison.OrdinalIgnoreCase))
+        if (channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase))
         {
             if (CoolDowns.Count > 50)
             {
@@ -93,15 +109,11 @@ public class ContractorService(
                     },
                     CancellationToken
                 );
-                CoolDowns.AddOrUpdate(
-                    userId,
-                    (s => DateTimeOffset.Now),
-                    (_, __) => DateTimeOffset.Now
-                );
+                CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
             }
             else
             {
-                if (DateTimeOffset.Now - value < TimeSpan.FromMinutes(5))
+                if (DateTime.Now - value < TimeSpan.FromMinutes(5))
                     return;
                 await Task.Factory.StartNew(
                     async () =>
@@ -112,11 +124,7 @@ public class ContractorService(
                     },
                     CancellationToken
                 );
-                CoolDowns.AddOrUpdate(
-                    userId,
-                    (s => DateTimeOffset.Now),
-                    (_, __) => DateTimeOffset.Now
-                );
+                CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
             }
         }
     }

@@ -12,96 +12,109 @@ public partial class Tekken8FrameData
 {
     internal async Task StartScrupFrameData(Chat? chat = default)
     {
-        var docW = new HtmlWeb();
-        var doc = await docW.LoadFromWebAsync(BasePath.AbsoluteUri, _cancellationToken);
+        try
+        {
+            var docW = new HtmlWeb();
+            var doc = await docW.LoadFromWebAsync(BasePath.AbsoluteUri, _cancellationToken);
 
-        var ulNode = doc.DocumentNode.SelectSingleNode("//ul");
+            var ulNode = doc.DocumentNode.SelectSingleNode("//ul");
 
-        var liNodes = ulNode?.SelectNodes(".//li[@class='cursor-pointer']");
+            var liNodes = ulNode?.SelectNodes(".//li[@class='cursor-pointer']");
 
-        if (liNodes != null)
-            foreach (HtmlNode liNode in liNodes)
-            {
-                var aNode = liNode.SelectSingleNode(".//a[@class='cursor-pointer']");
-                var href = aNode?.GetAttributeValue("href", string.Empty);
-
-                var nameNode = liNode.SelectSingleNode(".//div[contains(@class, 'text-center')]");
-                var name = nameNode?.InnerText.Trim();
-
-                if (
-                    name is null
-                    || (name?.Equals("mokujin", StringComparison.OrdinalIgnoreCase) ?? false)
-                )
+            if (liNodes != null)
+                foreach (HtmlNode liNode in liNodes)
                 {
-                    continue;
-                }
+                    var aNode = liNode.SelectSingleNode(".//a[@class='cursor-pointer']");
+                    var href = aNode?.GetAttributeValue("href", string.Empty);
 
-                var imgNode = liNode.SelectSingleNode(".//img");
-                var imageUrl = imgNode?.GetAttributeValue("src", "");
-                var imagePath = new Uri(BasePath, imageUrl);
+                    var nameNode = liNode.SelectSingleNode(
+                        ".//div[contains(@class, 'text-center')]"
+                    );
+                    var name = nameNode?.InnerText.Trim();
 
-                if (name != null)
-                {
-                    var character = new TekkenCharacter
+                    if (
+                        name is null
+                        || (name?.Equals("mokujin", StringComparison.OrdinalIgnoreCase) ?? false)
+                    )
                     {
-                        LinkToImage = imagePath.AbsoluteUri,
-                        Name = name,
-                    };
+                        continue;
+                    }
 
-                    try
+                    var imgNode = liNode.SelectSingleNode(".//img");
+                    var imageUrl = imgNode?.GetAttributeValue("src", "");
+                    var imagePath = new Uri(BasePath, imageUrl);
+
+                    if (name != null)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
-                        var movelist = await GetMoveList(
-                            character,
-                            "https://tekkendocs.com" + href
-                        );
-
-                        var sortedMovelist = await ConsolidateMoveGroups(movelist, character);
-
-                        await using AppDbContext dbContext =
-                            await dbContextFactory.CreateDbContextAsync(_cancellationToken);
-                        foreach (TekkenMove move in sortedMovelist)
+                        var character = new TekkenCharacter
                         {
-                            if (
-                                dbContext.TekkenMoves.Any(e =>
-                                    e.CharacterName == move.CharacterName
-                                    && e.Command == move.Command
-                                )
-                            )
+                            LinkToImage = imagePath.AbsoluteUri,
+                            Name = name,
+                            LastUpdateTime = DateTime.Now,
+                        };
+
+                        try
+                        {
+                            await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
+                            var movelist = await GetMoveList(
+                                character,
+                                BasePath.AbsoluteUri + href
+                            );
+
+                            var sortedMovelist = await ConsolidateMoveGroups(movelist, character);
+
+                            await using AppDbContext dbContext =
+                                await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+                            foreach (TekkenMove move in sortedMovelist)
                             {
-                                dbContext.TekkenMoves.Update(move);
+                                if (
+                                    dbContext.TekkenMoves.Any(e =>
+                                        e.CharacterName == move.CharacterName
+                                        && e.Command == move.Command
+                                    )
+                                )
+                                {
+                                    dbContext.TekkenMoves.Update(move);
+                                }
+                                else
+                                {
+                                    dbContext.TekkenMoves.Add(move);
+                                }
+
+                                await dbContext.SaveChangesAsync(_cancellationToken);
+                            }
+
+                            if (dbContext.TekkenCharacters.Any(e => e.Equals(character)))
+                            {
+                                dbContext.TekkenCharacters.Update(character);
                             }
                             else
                             {
-                                dbContext.TekkenMoves.Add(move);
+                                dbContext.TekkenCharacters.Add(character);
                             }
-                        }
 
-                        if (dbContext.TekkenCharacters.Any(e => e.Equals(character)))
-                        {
-                            dbContext.TekkenCharacters.Update(character);
+                            await dbContext.SaveChangesAsync(_cancellationToken);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            dbContext.TekkenCharacters.Add(character);
+                            logger.LogException(ex);
                         }
-
-                        await dbContext.SaveChangesAsync(_cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogException(ex);
                     }
                 }
-            }
 
-        await UpdateMovesForVictorina();
-        if (chat != null)
-            await client.SendMessage(
-                chat,
-                "Парсинг теккен фрейм даты закончено!",
-                cancellationToken: _cancellationToken
-            );
+            await UpdateMovesForVictorina();
+            if (chat != null)
+                await client.SendMessage(
+                    chat,
+                    "Парсинг теккен фрейм даты закончено!",
+                    cancellationToken: _cancellationToken
+                );
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public static Task<TekkenMove[]> ConsolidateMoveGroups(

@@ -51,18 +51,15 @@ public class UpdateHandler : IUpdateHandler
             _logger.LogException(e);
         }
 
-        if (AdminLongs.Any(e => e.Equals(update.Message?.Chat.Id)))
+        var handler = update switch
         {
-            var handler = update switch
-            {
-                { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
-                _ => UnknownUpdateHandlerAsync(update),
-            };
+            { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
+            _ => UnknownUpdateHandlerAsync(update),
+        };
 
-            await handler;
+        await handler;
 
-            await _telegramDelegate.Invoke(_, update);
-        }
+        await _telegramDelegate.Invoke(_, update);
     }
 
     private async void ResendMessage(Update update)
@@ -99,37 +96,85 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
+            var chatId = message.Chat.Id;
+
             if (message.Text is not { } messageText)
                 return;
 
             if (!messageText.StartsWith('/'))
                 return;
 
-            var action = messageText.Split(' ')[0] switch
+            Task<Message> action;
+
+            if (AdminLongs.Contains(chatId))
             {
-                "/help" => _commands.OnHelpCommandReceived(_botClient, message, cancellationToken),
-                "/framedate" => _commands.OnFramedataCommandReceived(
-                    _botClient,
-                    message,
-                    cancellationToken
-                ),
-                "/fd" => _commands.OnFramedataCommandReceived(
-                    _botClient,
-                    message,
-                    cancellationToken
-                ),
-                "/commands" => Commands.OnUsageCommandReceived(
-                    _botClient,
-                    message,
-                    cancellationToken
-                ),
-                "/start" => _commands.OnStartCommandReceived(
-                    _botClient,
-                    message,
-                    cancellationToken
-                ),
-                _ => ErrorCommand(_botClient, message, cancellationToken),
-            };
+                action = messageText.Split(' ')[0] switch
+                {
+                    "/help" => _commands.OnHelpCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/framedate" => _commands.OnFramedataCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/fd" => _commands.OnFramedataCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/commands" => Commands.OnUsageCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/start" => _commands.OnStartCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/scrup" => _commands.OnScrupCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    _ => ErrorCommand(_botClient, message, cancellationToken),
+                };
+            }
+            else
+            {
+                action = messageText.Split(' ')[0] switch
+                {
+                    "/help" => _commands.OnHelpCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/framedate" => _commands.OnFramedataCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/fd" => _commands.OnFramedataCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/commands" => Commands.OnUsageCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/start" => _commands.OnStartCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    _ => ErrorCommand(_botClient, message, cancellationToken),
+                };
+            }
 
             static Task<Message> ErrorCommand(
                 ITelegramBotClient client,

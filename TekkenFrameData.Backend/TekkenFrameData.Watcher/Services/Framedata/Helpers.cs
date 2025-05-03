@@ -5,9 +5,9 @@ namespace TekkenFrameData.Watcher.Services.Framedata;
 
 public partial class Tekken8FrameData
 {
-    private static Task<bool> IsDateInCurrentWeek(DateTimeOffset date)
+    private static Task<bool> IsDateInCurrentWeek(DateTime date)
     {
-        DateTimeOffset currentDate = DateTimeOffset.Now;
+        var currentDate = DateTime.Now;
 
         // Определяем первый день текущей недели (предполагается, что неделя начинается с понедельника)
         var daysToSubtract = (int)currentDate.DayOfWeek - (int)DayOfWeek.Monday;

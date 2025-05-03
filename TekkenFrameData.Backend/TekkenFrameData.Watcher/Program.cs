@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Net.Http;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
+using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
@@ -17,8 +20,11 @@ using TwitchLib.Api;
 using TwitchLib.Api.Core.Enums;
 using TwitchLib.Api.Interfaces;
 using TwitchLib.Client;
+using TwitchLib.Client.Enums;
 using TwitchLib.Client.Interfaces;
 using TwitchLib.Client.Models;
+using TwitchLib.Communication.Clients;
+using TwitchLib.Communication.Models;
 using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;
 using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
@@ -32,92 +38,79 @@ public class Program
 
         var services = builder.Services;
 
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Trace);
+        }
+        else
+        {
+            builder.Logging.AddConsole();
+            builder.Logging.SetMinimumLevel(LogLevel.Warning);
+        }
+
+        var contextBuilder = new DbContextOptionsBuilder<AppDbContext>();
+        ConfigureBuilder(contextBuilder, builder.Environment, builder.Configuration);
+
+        var dbContext = new AppDbContext(contextBuilder.Options);
+        var configuration = dbContext.Configuration.Single();
+        var token = configuration.BotToken;
+        var tclient = new TelegramBotClient(token, new HttpClient());
+        builder.Logging.AddTelegramLogger(
+            new TelegramLoggerOptionsBase
+            {
+                SourceName = TwitchClientExstension.Channel,
+                MinimumLevel = LogLevel.Warning,
+                ChatId = configuration.AdminIdsArray,
+            },
+            () => tclient,
+            (s, level) => true
+        );
+
         services
             .AddHttpClient("telegram_bot_client")
-            .AddTypedClient<ITelegramBotClient>(
-                (client, sp) =>
-                {
-                    var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
-
-                    var dbContext = factory.CreateDbContext();
-
-                    var configuration = dbContext.Configuration.Single();
-
-                    var token = configuration.BotToken;
-
-                    var tclient = new TelegramBotClient(token, client);
-
-                    builder.Logging.AddConsole();
-                    builder.Logging.AddDebug();
-                    builder.Logging.SetMinimumLevel(LogLevel.Trace);
-
-                    builder.Logging.AddTelegramLogger(
-                        new TelegramLoggerOptionsBase()
-                        {
-                            SourceName = "Higemus",
-                            MinimumLevel = LogLevel.Warning,
-                            ChatId = configuration.AdminIdsArray,
-                        },
-                        () => tclient,
-                        (s, level) => true
-                    );
-
-                    return tclient;
-                }
-            );
+            .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-        {
-            if (builder.Environment.IsDevelopment())
-            {
-                optionsBuilder.EnableDetailedErrors();
-                optionsBuilder.EnableThreadSafetyChecks();
-                optionsBuilder
-                    .UseNpgsql(builder.Configuration.GetConnectionString("DB"))
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
-            }
-            else
-            {
-                var constring = new NpgsqlConnectionStringBuilder
-                {
-                    { "Host", Environment.GetEnvironmentVariable("DB_HOST")! },
-                    { "Port", Environment.GetEnvironmentVariable("DB_PORT")! },
-                    { "Database", Environment.GetEnvironmentVariable("DB_NAME")! },
-                    { "Username", Environment.GetEnvironmentVariable("DB_USER")! },
-                    { "Password", Environment.GetEnvironmentVariable("DB_PASSWORD")! },
-                };
-
-                optionsBuilder.EnableDetailedErrors();
-                optionsBuilder.EnableThreadSafetyChecks();
-                optionsBuilder
-                    .UseNpgsql(constring.ToString())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
-            }
-        });
+            ConfigureBuilder(optionsBuilder, builder.Environment, builder.Configuration)
+        );
 
         services.AddSingleton<ITwitchClient>(sp =>
         {
-            var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
+            // Add robust reconnection settings
+            var clientOptions = new ClientOptions
+            {
+                MessagesAllowedInPeriod = 750,
+                ThrottlingPeriod = TimeSpan.FromSeconds(30),
+            };
 
-            var dbContext = factory.CreateDbContext();
+            var client = new TwitchClient(
+                new WebSocketClient(clientOptions),
+                ClientProtocol.WebSocket,
+                sp.GetRequiredService<ILogger<TwitchClient>>()
+            );
+            var tokenService = sp.GetRequiredService<TokenService>();
+            var twitchTokenInfo =
+                tokenService.GetTokenAsync(CancellationToken.None).GetAwaiter().GetResult()
+                ?? throw new NullReferenceException();
+            tokenService.RefreshTokenAsync(twitchTokenInfo).GetAwaiter().GetResult();
 
-            var configuration = dbContext.Configuration.Single();
-
-            var client = new TwitchClient(default, default);
-            client.Initialize(new ConnectionCredentials("higemus", configuration.ClientOAuthToken));
+            client.Initialize(
+                new ConnectionCredentials(
+                    TwitchClientExstension.Channel,
+                    tokenService.Token!.AccessToken
+                ),
+                TwitchClientExstension.Channel
+            );
             client.AddChatCommandIdentifier('!');
             client.AddChatCommandIdentifier('/');
+            client.Connect();
             return client;
         });
 
         services.AddSingleton<ITwitchAPI>(sp =>
         {
-            var factory = sp.GetRequiredService<IDbContextFactory<AppDbContext>>();
-
-            var dbContext = factory.CreateDbContext();
-
-            var configuration = dbContext.Configuration.Single();
-
             var twitchApi = new TwitchAPI { Settings = { ClientId = configuration.ApiClientId } };
             twitchApi.Settings.AccessToken = twitchApi.Auth.GetAccessTokenAsync().Result;
             twitchApi.Settings.Secret = configuration.ApiClientSecret;
@@ -160,6 +153,39 @@ public class Program
 
         app.UseStatusCodePages();
 
-        app.RunAsync();
+        app.Run();
+    }
+
+    private static void ConfigureBuilder(
+        DbContextOptionsBuilder builder,
+        IWebHostEnvironment environment,
+        IConfiguration configuration
+    )
+    {
+        if (environment.IsDevelopment())
+        {
+            builder.EnableDetailedErrors();
+            builder.EnableThreadSafetyChecks();
+            builder
+                .UseNpgsql(configuration.GetConnectionString("DB"))
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+        }
+        else
+        {
+            var constring = new NpgsqlConnectionStringBuilder
+            {
+                { "Host", Environment.GetEnvironmentVariable("DB_HOST")! },
+                { "Port", Environment.GetEnvironmentVariable("DB_PORT")! },
+                { "Database", Environment.GetEnvironmentVariable("DB_NAME")! },
+                { "Username", Environment.GetEnvironmentVariable("DB_USER")! },
+                { "Password", Environment.GetEnvironmentVariable("DB_PASSWORD")! },
+            };
+
+            builder.EnableDetailedErrors();
+            builder.EnableThreadSafetyChecks();
+            builder
+                .UseNpgsql(constring.ToString())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+        }
     }
 }

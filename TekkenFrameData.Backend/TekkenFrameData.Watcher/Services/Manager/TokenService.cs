@@ -55,13 +55,13 @@ public class TokenService(
             token.AccessToken = result.AccessToken;
             token.ExpiresIn = TimeSpan.FromSeconds(result.ExpiresIn);
             token.RefreshToken = result.RefreshToken;
-            token.WhenCreated = DateTimeOffset.Now.AddSeconds(-30);
+            token.WhenCreated = DateTime.Now.AddSeconds(-30);
             dbContext.TwitchToken.Update(token);
 
             refreshToken.AccessToken = result.AccessToken;
             refreshToken.ExpiresIn = TimeSpan.FromSeconds(result.ExpiresIn);
             refreshToken.RefreshToken = result.RefreshToken;
-            refreshToken.WhenCreated = DateTimeOffset.Now.AddSeconds(-30);
+            refreshToken.WhenCreated = DateTime.Now.AddSeconds(-30);
 
             Token = refreshToken;
 

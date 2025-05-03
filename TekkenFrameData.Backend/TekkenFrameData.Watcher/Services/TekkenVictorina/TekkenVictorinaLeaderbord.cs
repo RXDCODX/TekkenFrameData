@@ -16,7 +16,7 @@ public class TekkenVictorinaLeaderbord(
 ) : BackgroundService
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
-    private static readonly ConcurrentDictionary<string, DateTimeOffset> cooldownDictionary = [];
+    private static readonly ConcurrentDictionary<string, DateTime> cooldownDictionary = [];
 
     public async Task<TwitchLeaderboardUser[]> GetTopFiveGlobal()
     {
@@ -211,8 +211,8 @@ public class TekkenVictorinaLeaderbord(
             {
                 cooldownDictionary.AddOrUpdate(
                     channelId,
-                    static _ => DateTimeOffset.Now,
-                    static (_, __) => DateTimeOffset.Now
+                    static _ => DateTime.Now,
+                    static (_, __) => DateTime.Now
                 );
                 return true;
             }
@@ -224,8 +224,8 @@ public class TekkenVictorinaLeaderbord(
                 {
                     cooldownDictionary.AddOrUpdate(
                         channelId,
-                        static _ => DateTimeOffset.Now,
-                        static (_, __) => DateTimeOffset.Now
+                        static _ => DateTime.Now,
+                        static (_, __) => DateTime.Now
                     );
                     return true;
                 }

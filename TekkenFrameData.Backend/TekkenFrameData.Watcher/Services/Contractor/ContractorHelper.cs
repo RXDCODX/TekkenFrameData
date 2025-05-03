@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
@@ -11,15 +12,15 @@ namespace TekkenFrameData.Watcher.Services.Contractor;
 
 public static class ContractorHelper
 {
-    private static DateTimeOffset LastPost { get; set; }
+    private static DateTime LastPost { get; set; }
 
     private static async Task AwaitRpsLimit()
     {
-        if (DateTimeOffset.Now - LastPost < TimeSpan.FromSeconds(1))
+        if (DateTime.Now - LastPost < TimeSpan.FromSeconds(1))
         {
             await Task.Delay(1000);
         }
-        LastPost = DateTimeOffset.Now;
+        LastPost = DateTime.Now;
     }
 
     private const string HelloMessage =
@@ -29,11 +30,11 @@ public static class ContractorHelper
         + "Запуск викторины - !tekken_victorina, доступна только стримеру и модераторам. "
         + "Лидерборд - глобальный: !tekken_leaders_global, канала: !tekken_leaders_channel, личная стата - !tekken_me. "
         + "Если у вас на канале стоит фоловер мод - то боту нужно выдать VIP или права модератора чтобы обойти это ограничение. "
-        + "Все данные берутся с http://tekkendocs.com/, автор не несет отвественности за недостоверно предоставленную информацию. "
+        + "Все данные берутся с http://tekkendocs,com/, автор не несет отвественности за недостоверно предоставленную информацию. "
         + "Бот в любой момент может быть отключен по любым причинам. "
         + "Бот предоставляется по схеме \"Как есть\". "
         + "Бот все еще находится на стадии тестирования. "
-        + "Автор бота - http://twitch.tv/rxdcodx. "
+        + "Автор бота - twitchtv/rxdcodx. "
         + "Спасибо @doshipanda за мотивацию и помощь по проекту. "
         + "Если захочешь в будущем отключить - !cancel."
         + "Если хочешь добавить бота с фреймдатой и викториной по теккен фреймдате на свой канал, то напиши - !accept {1}. ";
@@ -50,7 +51,10 @@ public static class ContractorHelper
         var userName = e.Command.ChatMessage.DisplayName;
         var userId = e.Command.ChatMessage.UserId;
 
-        var channel = await dbContext.TekkenChannels.FindAsync(userId, cancellationToken);
+        var channel = await dbContext.TekkenChannels.FirstOrDefaultAsync(
+            e => e.TwitchId == userId,
+            cancellationToken
+        );
 
         if (channel is null)
         {
@@ -122,7 +126,10 @@ public static class ContractorHelper
         var userId = e.Command.ChatMessage.UserId;
         var message = e.Command.ArgumentsAsString;
 
-        var channel = await dbContext.TekkenChannels.FindAsync(userId, cancellationToken);
+        var channel = await dbContext.TekkenChannels.FirstOrDefaultAsync(
+            e => e.TwitchId == userId,
+            cancellationToken
+        );
 
         if (channel is null)
         {
@@ -211,7 +218,10 @@ public static class ContractorHelper
         var userId = e.Command.ChatMessage.UserId;
         var message = e.Command.ArgumentsAsString;
 
-        var channel = await dbContext.TekkenChannels.FindAsync(userId, cancellationToken);
+        var channel = await dbContext.TekkenChannels.FirstOrDefaultAsync(
+            e => e.TwitchId == userId,
+            cancellationToken
+        );
 
         if (channel is null)
         {
@@ -270,6 +280,40 @@ public static class ContractorHelper
                         $"@{userName}, готово, подпискака отменена, бот скоро свалит! Примерно 5 минут!"
                     );
                     break;
+            }
+        }
+    }
+
+    public static async Task RejectTask(
+        IDbContextFactory<AppDbContext> factory,
+        ITwitchClient client,
+        OnChatCommandReceivedArgs e,
+        CancellationToken cancellationToken
+    )
+    {
+        var userName = e.Command.ChatMessage.DisplayName;
+        var isAdmin = userName.Equals("rxdcodx", StringComparison.OrdinalIgnoreCase);
+
+        if (isAdmin)
+        {
+            await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
+            var userId = e.Command.ChatMessage.UserId;
+            var message = e.Command.ArgumentsAsList;
+
+            foreach (var variable in message)
+            {
+                await dbContext
+                    .TekkenChannels.Where(e => e.Name == variable)
+                    .ExecuteUpdateAsync(
+                        e => e.SetProperty(t => t.FramedataStatus, TekkenFramedataStatus.Rejected),
+                        cancellationToken: cancellationToken
+                    );
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+
+                await client.SendMessageToMainTwitchAsync(
+                    $@"{userName}, канал {variable} был режекнут"
+                );
             }
         }
     }

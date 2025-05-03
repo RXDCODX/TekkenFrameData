@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TekkenFrameData.Library.DB;
 
@@ -36,5 +37,18 @@ public sealed partial class AppDbContext : DbContext
         AppDbContext.OnFrameDataModelCreatingPartial(modelBuilder);
         AppDbContext.OnConfigurationModelCreatingPartial(modelBuilder);
         AppDbContext.OnFrameDataModelCreatingPartial(modelBuilder);
+    }
+
+    public class DateTimeToDateTimeUtc()
+        : ValueConverter<DateTime, DateTime>(
+            c => DateTime.SpecifyKind(c, DateTimeKind.Utc),
+            c => c
+        );
+
+    protected sealed override void ConfigureConventions(
+        ModelConfigurationBuilder configurationBuilder
+    )
+    {
+        configurationBuilder.Properties<DateTime>().HaveConversion(typeof(DateTimeToDateTimeUtc));
     }
 }

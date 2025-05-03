@@ -41,7 +41,7 @@ public class ContractorService(
                 .Factory.StartNew(
                     () =>
                     {
-                        return command switch
+                        var taskResult = command switch
                         {
                             "start" => ContractorHelper.StartTask(
                                 factory,
@@ -69,15 +69,26 @@ public class ContractorService(
                             ),
                             _ => Task.CompletedTask,
                         };
+
+                        if (taskResult != Task.CompletedTask)
+                        {
+                            return true;
+                        }
+
+                        return false;
                     },
                     CancellationToken
                 )
                 .ContinueWith(
-                    async (_) =>
+                    async (t) =>
                     {
-                        await connector.ConnectToStreams();
+                        if (await t)
+                        {
+                            await connector.ConnectToStreams();
+                        }
                     },
                     TaskContinuationOptions.AttachedToParent
+                        | TaskContinuationOptions.RunContinuationsAsynchronously
                 );
         }
     }
@@ -90,41 +101,44 @@ public class ContractorService(
 
         if (channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase))
         {
-            if (CoolDowns.Count > 50)
+            if (!e.ChatMessage.Message.StartsWith('!'))
             {
-                while (CoolDowns.TryRemove(CoolDowns.First()))
+                if (CoolDowns.Count > 50)
                 {
-                    await Task.Delay(500, CancellationToken);
+                    while (!CoolDowns.TryRemove(CoolDowns.First()))
+                    {
+                        await Task.Delay(500, CancellationToken);
+                    }
                 }
-            }
 
-            if (!CoolDowns.TryGetValue(userId, out var value))
-            {
-                await Task.Factory.StartNew(
-                    async () =>
-                    {
-                        await client.SendMessageToMainTwitchAsync(
-                            $"@{userName}, для начала - команда !start"
-                        );
-                    },
-                    CancellationToken
-                );
-                CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
-            }
-            else
-            {
-                if (DateTime.Now - value < TimeSpan.FromMinutes(5))
-                    return;
-                await Task.Factory.StartNew(
-                    async () =>
-                    {
-                        await client.SendMessageToMainTwitchAsync(
-                            $"@{userName}, для начала - команда !start"
-                        );
-                    },
-                    CancellationToken
-                );
-                CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
+                if (!CoolDowns.TryGetValue(userId, out var value))
+                {
+                    await Task.Factory.StartNew(
+                        async () =>
+                        {
+                            await client.SendMessageToMainTwitchAsync(
+                                $"@{userName}, для начала - команда !start"
+                            );
+                        },
+                        CancellationToken
+                    );
+                    CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
+                }
+                else
+                {
+                    if (DateTime.Now - value < TimeSpan.FromMinutes(5))
+                        return;
+                    await Task.Factory.StartNew(
+                        async () =>
+                        {
+                            await client.SendMessageToMainTwitchAsync(
+                                $"@{userName}, для начала - команда !start"
+                            );
+                        },
+                        CancellationToken
+                    );
+                    CoolDowns.AddOrUpdate(userId, (s => DateTime.Now), (_, __) => DateTime.Now);
+                }
             }
         }
     }

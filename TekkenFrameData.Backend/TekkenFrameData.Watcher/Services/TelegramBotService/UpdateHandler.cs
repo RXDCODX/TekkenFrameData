@@ -31,7 +31,8 @@ public class UpdateHandler : IUpdateHandler
         _botClient = botClient;
         _logger = logger;
         _commands = commands;
-        AdminLongs = [402763435, 1917524881];
+        AdminLongs = [402763435, 1917524881, 1098373148];
+        //chenge here
 
         _telegramDelegate += frameData.HandAlert;
     }

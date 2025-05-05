@@ -58,13 +58,24 @@ public partial class Tekken8FrameData
                             await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
                             var movelist = await GetMoveList(
                                 character,
-                                BasePath.AbsoluteUri + href
+                                BasePath.AbsoluteUri + href?.Substring(1)
                             );
 
                             var sortedMovelist = await ConsolidateMoveGroups(movelist, character);
 
                             await using AppDbContext dbContext =
                                 await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+                            if (dbContext.TekkenCharacters.Any(e => e.Name == character.Name))
+                            {
+                                dbContext.TekkenCharacters.Update(character);
+                            }
+                            else
+                            {
+                                dbContext.TekkenCharacters.Add(character);
+                            }
+
+                            await dbContext.SaveChangesAsync(_cancellationToken);
+
                             foreach (TekkenMove move in sortedMovelist)
                             {
                                 if (
@@ -84,16 +95,7 @@ public partial class Tekken8FrameData
                                 await dbContext.SaveChangesAsync(_cancellationToken);
                             }
 
-                            if (dbContext.TekkenCharacters.Any(e => e.Equals(character)))
-                            {
-                                dbContext.TekkenCharacters.Update(character);
-                            }
-                            else
-                            {
-                                dbContext.TekkenCharacters.Add(character);
-                            }
-
-                            await dbContext.SaveChangesAsync(_cancellationToken);
+                            
                         }
                         catch (Exception ex)
                         {

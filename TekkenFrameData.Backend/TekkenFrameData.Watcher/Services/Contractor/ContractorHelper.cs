@@ -177,7 +177,7 @@ public static class ContractorHelper
                             await dbContext.SaveChangesAsync(cancellationToken);
 
                             await client.SendMessageToMainTwitchAsync(
-                                $"@{userName}, все готово! Скоро бот подключиться, возможна задержка."
+                                $"@{userName}, все готово! Скоро бот подключится, возможна задержка."
                             );
                             break;
                         }

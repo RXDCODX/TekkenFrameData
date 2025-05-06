@@ -46,6 +46,17 @@ public class UpdateHandler : IUpdateHandler
                 botClient.SendMessage(admins, "Приложение запустилось").GetAwaiter().GetResult();
             }
         });
+
+        lifetime.ApplicationStopping.Register(() =>
+        {
+            foreach (var admins in AdminLongs)
+            {
+                botClient
+                    .SendMessage(admins, "Приложение было отключено через graceful shutdown")
+                    .GetAwaiter()
+                    .GetResult();
+            }
+        });
     }
 
     public async Task HandleUpdateAsync(

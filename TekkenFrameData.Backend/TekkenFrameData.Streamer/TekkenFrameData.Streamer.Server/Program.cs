@@ -1,3 +1,4 @@
+﻿using LiveStreamingServerNet.Rtmp.Client;
 
 namespace TekkenFrameData.Streamer.Server;
 
@@ -13,6 +14,13 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
+        var bulder = RtmpClientBuilder.Create();
+        bulder.ConfigureRtmpClient(t => t.Configure(a => a.));
+        bulder.ConfigureClient(rr => rr);
+        bulder.
+        var client = bulder.Build();
+        
+
         var app = builder.Build();
 
         app.UseDefaultFiles();
@@ -27,7 +35,6 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
-
 
         app.MapControllers();
 

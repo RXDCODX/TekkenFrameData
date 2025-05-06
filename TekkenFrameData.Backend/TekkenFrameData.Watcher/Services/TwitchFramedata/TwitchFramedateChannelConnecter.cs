@@ -124,7 +124,7 @@ public class TwitchFramedateChannelConnecter(
             );
 
             return clipsResponse
-                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.Id))
+                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.UserId))
                 .ToArray();
         }
         catch (Exception e)

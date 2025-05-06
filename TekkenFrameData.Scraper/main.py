@@ -2,6 +2,7 @@ from scraper.scraper import Scraper
 from scraper.utils import load_page
 import psycopg2
 import sys
+import sqlite3
 
 # Проверка версии Python
 MIN_PYTHON_VERSION = (3, 11)
@@ -31,28 +32,33 @@ def connect_to_db():
 # Функция для сохранения персонажей в базу данных
 def save_characters_to_db(conn, characters):
     try:
-        with conn.cursor() as cursor:
-            for character in characters:
-                # Вставляем персонажа, если он ещё не существует
-                cursor.execute("""
-                    INSERT INTO tekken_characters (name, image_url, href)
-                    VALUES (%s, %s, %s)
-                    ON CONFLICT (name) DO NOTHING;
-                """, (character.name, character.image_url, character.href))
+        curs = conn.cursor() 
+        curs.execute("""
+                        CREATE TABLE  if not exists tekken_characters (name text, image_url text, href text)
+                        """)
+        curs.execute("""
+                        CREATE TABLE  if not exists tekken_moves (
+                        character_name text, command text, hit_level text, damage text, start_up_frame text, block_frame text, hit_frame text, counter_hit_frame text, notes text,
+                        power_crush text , heat_burst text , heat_engage text, heat_smash text, requires_heat text, tornado text, homing text, throw text, stance_code text, stance_name text)
+                        """)
+        for character in characters:
+            # Вставляем персонажа, если он ещё не существует
+            curs.execute("INSERT INTO tekken_characters (name, image_url, href) VALUES (?, ?, ?)", (character.name, character.image_url, character.href))
+            #ON CONFLICT (name) DO NOTHING;
 
-                # Вставляем движения персонажа
-                for move in character.movelist:
-                    cursor.execute("""
-                        INSERT INTO tekken_moves (
-                            character_name, command, hit_level, damage, start_up_frame, block_frame, hit_frame, counter_hit_frame, notes,
-                            power_crush, heat_burst, heat_engage, heat_smash, requires_heat, tornado, homing, throw, stance_code, stance_name
-                        )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                        ON CONFLICT (character_name, command) DO NOTHING;
-                    """, (
-                        move.character_name, move.command, move.hit_level, move.damage, move.start_up_frame, move.block_frame, move.hit_frame, move.counter_hit_frame, move.notes,
-                        move.power_crush, move.heat_burst, move.heat_engage, move.heat_smash, move.requires_heat, move.tornado, move.homing, move.throw, move.stance_code, move.stance_name
-                    ))
+            # Вставляем движения персонажа
+            for move in character.movelist:
+                curs.execute("""
+                    INSERT INTO tekken_moves 
+                            (character_name, command, hit_level, damage, start_up_frame, block_frame, hit_frame, counter_hit_frame, notes,
+                            power_crush, heat_burst  , heat_engage , heat_smash , requires_heat , tornado , homing , throw)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, #character.movelist
+                    #VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    #move.character_name, move.command, move.hit_level, move.damage, move.start_up_frame, move.block_frame, move.hit_frame, move.counter_hit_frame, move.notes,
+                    #power_crush, move.heat_burst, move.heat_engage, move.heat_smash, move.requires_heat, move.tornado, move.homing, move.throw, move.stance_code, move.stance_name
+                    (move.character_name,  move.command, move.hit_level, move.damage, move.start_up_frame, move.block_frame, move.hit_frame, move.counter_hit_frame, move.notes,
+                     move.power_crush, move.heat_burst, move.heat_engage, move.heat_smash, move.requires_heat, move.tornado, move.homing, move.throw))
 
         conn.commit()
         print("Данные успешно сохранены в базу данных.")

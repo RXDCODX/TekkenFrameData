@@ -58,7 +58,7 @@ public partial class Tekken8FrameData
                             await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
                             var movelist = await GetMoveList(
                                 character,
-                                BasePath.AbsoluteUri + href
+                                BasePath.AbsoluteUri + href?.Substring(1)
                             );
 
                             var sortedMovelist = await ConsolidateMoveGroups(movelist, character);

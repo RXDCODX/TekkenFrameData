@@ -65,6 +65,7 @@ public partial class Tekken8FrameData
 
                             await using AppDbContext dbContext =
                                 await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+
                             if (dbContext.TekkenCharacters.Any(e => e.Name == character.Name))
                             {
                                 dbContext.TekkenCharacters.Update(character);
@@ -76,7 +77,7 @@ public partial class Tekken8FrameData
 
                             await dbContext.SaveChangesAsync(_cancellationToken);
 
-                            foreach (TekkenMove move in sortedMovelist)
+                            foreach (var move in sortedMovelist)
                             {
                                 if (
                                     dbContext.TekkenMoves.Any(e =>
@@ -94,8 +95,6 @@ public partial class Tekken8FrameData
 
                                 await dbContext.SaveChangesAsync(_cancellationToken);
                             }
-
-                            
                         }
                         catch (Exception ex)
                         {

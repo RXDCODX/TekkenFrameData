@@ -14,7 +14,7 @@ public class TekkenVictorina(
     Action removeVictorina
 ) : ITekkenVictorina
 {
-    private const string? CommandForStop = "!стопвикторина";
+    private const string? CommandForStop = "!tekken_victorina_stop";
     private TekkenVictorinaGame? _currentGame;
     private static readonly TimeSpan _awaitTime = TimeSpan.FromSeconds(20);
 

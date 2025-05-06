@@ -16,6 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "TekkenFrameData.Streamer.Client", "TekkenFrameData.Backend\TekkenFrameData.Streamer\TekkenFrameData.Streamer.Client\TekkenFrameData.Streamer.Client.esproj", "{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Streamer.Server", "TekkenFrameData.Backend\TekkenFrameData.Streamer\TekkenFrameData.Streamer.Server\TekkenFrameData.Streamer.Server.csproj", "{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TekkenFrameData.Streamer", "TekkenFrameData.Backend\TekkenFrameData.Streamer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,9 +44,23 @@ Global
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDF5EBE5-68ED-477C-904D-D2869C4145D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {89950E48-17E5-43D3-9116-7F8A79AD2E17}

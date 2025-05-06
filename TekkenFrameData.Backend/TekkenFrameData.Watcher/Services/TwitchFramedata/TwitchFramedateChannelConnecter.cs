@@ -29,9 +29,6 @@ public class TwitchFramedateChannelConnecter(
 
     public async Task ConnectToStreams()
     {
-        if (!client.IsConnected)
-            return;
-
         var streams = await GetStreamsFromRuTekken();
         var joined = client.JoinedChannels;
         var newStreams = streams.Where(e =>
@@ -42,6 +39,7 @@ public class TwitchFramedateChannelConnecter(
         var streamsToLeave = joined.Where(e =>
             !streams.Any(stream =>
                 stream.UserLogin.Equals(e.Channel, StringComparison.OrdinalIgnoreCase)
+                && stream.UserId != TwitchClientExstension.ChannelId.ToString()
             )
         );
 
@@ -67,6 +65,15 @@ public class TwitchFramedateChannelConnecter(
             }
 
             await Task.Delay(500);
+        }
+
+        if (
+            !client.JoinedChannels.Any(e =>
+                e.Channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase)
+            )
+        )
+        {
+            client.JoinChannel(TwitchClientExstension.Channel);
         }
     }
 
@@ -239,7 +246,7 @@ public class TwitchFramedateChannelConnecter(
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timer = new Timer(TimeSpan.FromMinutes(5)) { AutoReset = true };
+        _timer = new Timer(TimeSpan.FromMinutes(2)) { AutoReset = true };
         _timer.Elapsed += async (sender, args) => await ConnectToStreams();
 
         _timer.Start();
@@ -251,7 +258,6 @@ public class TwitchFramedateChannelConnecter(
         client.OnConnectionError += (sender, args) =>
             logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
         client.OnLog += (sender, args) => logger.LogInformation("{Data}", args.Data);
-        client.AutoReListenOnException = true;
         return Task.CompletedTask;
     }
 

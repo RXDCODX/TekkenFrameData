@@ -147,6 +147,16 @@ public class UpdateHandler : IUpdateHandler
                         message,
                         cancellationToken
                     ),
+                    "/joined" => _commands.OnJoinedCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
+                    "/shutdown" => _commands.OnShutdownCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
                     _ => ErrorCommand(_botClient, message, cancellationToken),
                 };
             }

@@ -103,6 +103,7 @@ public class Program
                 ),
                 TwitchClientExstension.Channel
             );
+            client.AutoReListenOnException = true;
             client.AddChatCommandIdentifier('!');
             client.AddChatCommandIdentifier('/');
             client.Connect();

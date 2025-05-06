@@ -11,11 +11,15 @@ public partial class Commands
         CancellationToken token
     )
     {
-        var text = twitchClient.JoinedChannels.ToArray();
+        var channels = twitchClient.JoinedChannels.ToArray();
+        var text = string.Join(
+            Environment.NewLine,
+            channels.Select(e => $"{e.Channel} | {e.ChannelState}")
+        );
 
         return await client.SendMessage(
             update.Chat,
-            string.Join(Environment.NewLine, text.Select(e => $"{e.Channel} | {e.ChannelState}")),
+            string.IsNullOrWhiteSpace(text) ? "Null" : text,
             cancellationToken: token
         );
     }

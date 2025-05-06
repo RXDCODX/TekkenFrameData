@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
@@ -18,23 +21,26 @@ public class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private long[] AdminLongs { get; init; }
 
-    private readonly TelegramUpdateDelegate _telegramDelegate = (client, update) =>
-        Task.CompletedTask;
+    private TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
 
     public UpdateHandler(
         ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
         Commands commands,
-        Tekken8FrameData frameData
+        Tekken8FrameData frameData,
+        IHostApplicationLifetime lifetime,
+        IDbContextFactory<AppDbContext> factory
     )
     {
         _botClient = botClient;
         _logger = logger;
         _commands = commands;
-        AdminLongs = [402763435, 1917524881, 1098373148];
-        //chenge here
+        AdminLongs = factory.CreateDbContext().Configuration.Single().AdminIdsArray;
 
-        _telegramDelegate += frameData.HandAlert;
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            _telegramDelegate += frameData.HandAlert;
+        });
     }
 
     public async Task HandleUpdateAsync(

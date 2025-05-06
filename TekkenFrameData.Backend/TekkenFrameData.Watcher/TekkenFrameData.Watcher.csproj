@@ -34,7 +34,6 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-		<PackageReference Include="System.Formats.Asn1" />
 		<PackageReference Include="Telegram.Bot" />
 		<PackageReference Include="TwitchLib.Api" />
 		<PackageReference Include="TwitchLib.Api.Helix" />

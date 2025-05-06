@@ -40,6 +40,11 @@ public class UpdateHandler : IUpdateHandler
         lifetime.ApplicationStarted.Register(() =>
         {
             _telegramDelegate += frameData.HandAlert;
+
+            foreach (var admins in AdminLongs)
+            {
+                botClient.SendMessage(admins, "Приложение запустилось").GetAwaiter().GetResult();
+            }
         });
     }
 

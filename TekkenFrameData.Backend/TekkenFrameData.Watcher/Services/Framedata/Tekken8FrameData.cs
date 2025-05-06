@@ -52,14 +52,14 @@ public partial class Tekken8FrameData(
             return null;
 
         var charnameOut = await FindCharacterByNameAsync(command);
-        var skipl = 1;
+        var skipChars = 1;
 
-        if (command.Length <= skipl || charnameOut is null)
+        if (command.Length <= skipChars || charnameOut is null)
         {
             return null;
         }
 
-        var input = string.Join(" ", command.Skip(skipl)).ToLower();
+        var input = string.Join(" ", command.Skip(skipChars)).ToLower();
 
         if (string.IsNullOrWhiteSpace(charnameOut.Name) || string.IsNullOrWhiteSpace(input))
         {

@@ -6,6 +6,7 @@ namespace TekkenFrameData.Library.Exstensions;
 public static class TwitchClientExstension
 {
     public const string Channel = "neutralbackkorobka";
+    public const int ChannelId = 1305814373;
 
     public static async Task SendMessageToMainTwitchAsync<T>(
         this ITwitchClient client,

@@ -166,9 +166,7 @@ public class TekkenVictorinaLeaderbord(
                                         $"[@{leaderboardUser.DisplayName}, Order: {index + 1}, Wins: {leaderboardUser.TekkenVictorinaWins}]"
                                 )
                             );
-                            await client.SendMessageToMainTwitchAsync(
-                                $"@{user}, Global leaders: " + globalText
-                            );
+                            client.SendMessage(channel, $"@{user}, Global leaders: " + globalText);
                             break;
                         case "tekken_leaders_channel":
                             var channelLeaders = await GetTopFiveChannel(channelId);
@@ -179,7 +177,8 @@ public class TekkenVictorinaLeaderbord(
                                         $"[@{leaderboardUser.DisplayName}, Order: {index + 1}, Wins: {leaderboardUser.TekkenVictorinaWins}]"
                                 )
                             );
-                            await client.SendMessageToMainTwitchAsync(
+                            client.SendMessage(
+                                channel,
                                 $"@{user}, Channel leaders: " + channelText
                             );
                             break;
@@ -187,14 +186,16 @@ public class TekkenVictorinaLeaderbord(
                             var userStats = await GetUserStat(channelId, twitchId);
                             if (userStats.HasValue)
                             {
-                                await client.SendMessageToMainTwitchAsync(
+                                client.SendMessage(
+                                    channel,
                                     $"@{user}, твое место [Global: {userStats.Value.globalOrder} | {channel}: {userStats.Value.channelOrder}] "
                                         + $"с [Global: {userStats.Value.globalPoints} | {channel}: {userStats.Value.channelPoints}] побед!"
                                 );
                             }
                             else
                             {
-                                await client.SendMessageToMainTwitchAsync(
+                                client.SendMessage(
+                                    channel,
                                     $"@{user}, нету информации о твоих победах в теккен викторине."
                                 );
                             }

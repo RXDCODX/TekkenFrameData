@@ -32,14 +32,25 @@ public class TwitchFramedateChannelConnecter(
         var streams = await GetStreamsFromRuTekken();
         var joined = client.JoinedChannels;
         var newStreams = streams.Where(e =>
-            !joined.Any(joinedChannel =>
-                joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
+            joined.All(joinedChannel =>
+                !joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
             ) && !e.Id.Equals("40792090693", StringComparison.OrdinalIgnoreCase)
         );
-        var streamsToLeave = joined.Where(e =>
+        var streamsToLeave = joined.Where(joinedChannel =>
+            // Канал не найден в текущих стримах
             !streams.Any(stream =>
-                stream.UserLogin.Equals(e.Channel, StringComparison.OrdinalIgnoreCase)
-                && stream.UserId != TwitchClientExstension.ChannelId.ToString()
+                string.Equals(
+                    stream.UserLogin,
+                    joinedChannel.Channel,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            )
+            &&
+            // И это не основной канал
+            !string.Equals(
+                joinedChannel.Channel,
+                TwitchClientExstension.Channel,
+                StringComparison.OrdinalIgnoreCase
             )
         );
 
@@ -113,7 +124,7 @@ public class TwitchFramedateChannelConnecter(
             );
 
             return clipsResponse
-                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.Id))
+                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.UserId))
                 .ToArray();
         }
         catch (Exception e)
@@ -258,7 +269,7 @@ public class TwitchFramedateChannelConnecter(
         client.OnConnectionError += (sender, args) =>
             logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
         client.OnLog += (sender, args) => logger.LogInformation("{Data}", args.Data);
-        return Task.CompletedTask;
+        return Task.Factory.StartNew(ConnectToStreams, cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

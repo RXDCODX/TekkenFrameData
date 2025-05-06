@@ -87,8 +87,7 @@ public class ContractorService(
                             await connector.ConnectToStreams();
                         }
                     },
-                    TaskContinuationOptions.AttachedToParent
-                        | TaskContinuationOptions.RunContinuationsAsynchronously
+                    CancellationToken
                 );
         }
     }

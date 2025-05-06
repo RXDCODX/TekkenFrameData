@@ -17,14 +17,13 @@ print("Всё в порядке, скрипт запущен на Python 3.11 и
 # Функция для подключения к базе данных
 def connect_to_db():
     try:
-        # conn = psycopg2.connect(
-        #     dbname="tekken_db",
-        #     user="postgres",
-        #     password="postgres",
-        #     host="tekken_db",
-        #     port="5432"
-        # )
-        conn = sqlite3.connect("tfd.db")
+        conn = psycopg2.connect(
+            dbname="tekken_db",
+            user="postgres",
+            password="postgres",
+            host="tekken_db",
+            port="5432"
+        )
         return conn
     except Exception as e:
         print(f"Ошибка подключения к базе данных: {e}")

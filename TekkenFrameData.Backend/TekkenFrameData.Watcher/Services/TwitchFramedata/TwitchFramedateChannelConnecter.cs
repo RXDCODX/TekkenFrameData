@@ -66,6 +66,15 @@ public class TwitchFramedateChannelConnecter(
 
             await Task.Delay(500);
         }
+
+        if (
+            !client.JoinedChannels.Any(e =>
+                e.Channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase)
+            )
+        )
+        {
+            client.JoinChannel(TwitchClientExstension.Channel);
+        }
     }
 
     private async Task<ChatSettingsResponseModel> GetStreamInfo(string id)

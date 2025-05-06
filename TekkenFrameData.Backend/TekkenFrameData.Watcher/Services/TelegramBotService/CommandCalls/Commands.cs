@@ -1,12 +1,18 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.Hosting;
 using TekkenFrameData.Watcher.Services.Framedata;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
-public partial class Commands(Tekken8FrameData frameData)
+public partial class Commands(
+    Tekken8FrameData frameData,
+    ITwitchClient twitchClient,
+    IHostApplicationLifetime lifetime
+)
 {
     public const string Template =
         "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";

@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решен
 		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "TekkenFrameData.Streamer.Client", "TekkenFrameData.Backend\TekkenFrameData.Streamer\TekkenFrameData.Streamer.Client\TekkenFrameData.Streamer.Client.esproj", "{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "TekkenFrameData.Streamer.Client", "TekkenFrameData.Backend\TekkenFrameData.Streamer\tekkenframeData.streamer.client\tekkenframedata.streamer.client.esproj", "{0E6FEC90-3BE4-EAAB-1563-D02DA23F3CBB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TekkenFrameData.Streamer.Server", "TekkenFrameData.Backend\TekkenFrameData.Streamer\TekkenFrameData.Streamer.Server\TekkenFrameData.Streamer.Server.csproj", "{E5C44D4F-60F5-4CCF-82F2-C21DC0638FA4}"
 EndProject

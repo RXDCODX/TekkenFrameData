@@ -5,30 +5,24 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileContext>..\..\TekkenFrameData</DockerfileContext>
+    <DockerfileContext>..\..\..</DockerfileContext>
     <SpaRoot>..\tekkenframedata.streamer.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:65215</SpaProxyServerUrl>
+    <UserSecretsId>542e2eae-f6a1-415f-8158-49643caaac88</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiveStreamingServerNet" />
-    <PackageReference Include="LiveStreamingServerNet.AdminPanelUI" />
-    <PackageReference Include="LiveStreamingServerNet.Rtmp" />
-    <PackageReference Include="LiveStreamingServerNet.Rtmp.Client" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+    <PackageReference Include="obs-websocket-dotnet" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\tekkenframedata.streamer.client\TekkenFrameData.Streamer.Client.esproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
   </ItemGroup>
 
 </Project>

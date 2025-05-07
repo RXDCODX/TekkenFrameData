@@ -1,4 +1,6 @@
-﻿using LiveStreamingServerNet.Rtmp.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using TekkenFrameData.Library.Models.SignalRInterfaces;
+using TekkenFrameData.Streamer.Server.Services.StreamControl;
 
 namespace TekkenFrameData.Streamer.Server;
 
@@ -14,12 +16,41 @@ public class Program
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
 
-        var bulder = RtmpClientBuilder.Create();
-        bulder.ConfigureRtmpClient(t => t.Configure(a => a.));
-        bulder.ConfigureClient(rr => rr);
-        bulder.
-        var client = bulder.Build();
-        
+        builder.Services.AddSingleton<HubConnection>(sp =>
+        {
+            var _connection = new HubConnectionBuilder()
+                .WithAutomaticReconnect()
+                .WithStatefulReconnect()
+                .WithUrl(
+                    Environment.GetEnvironmentVariable("SIGNALR_URL")
+                        ?? throw new NullReferenceException()
+                )
+                .Build();
+
+            _connection.On(
+                nameof(IMainHubCommands.StartStream),
+                () =>
+                {
+                    var control = sp.GetRequiredService<StreamControlService>();
+
+                    control.StartStream();
+                }
+            );
+
+            _connection.On(
+                nameof(IMainHubCommands.StopStream),
+                () =>
+                {
+                    var control = sp.GetRequiredService<StreamControlService>();
+
+                    control.StopStream();
+                }
+            );
+
+            _connection.StartAsync();
+
+            return _connection;
+        });
 
         var app = builder.Build();
 

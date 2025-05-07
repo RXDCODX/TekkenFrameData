@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
@@ -24,21 +22,8 @@ public static class ContractorHelper
     }
 
     private const string HelloMessage =
-        "@{0}, привет! Перед тем как добавить бота на свой канал прочти несколько нюансов о его работе. "
-        + "У бота есть режим фреймдаты, режим теккен викторины. "
-        + "Чтобы узнать фреймдату нужно написать !fd \"charname\" \"move input\". "
-        + "Запуск викторины - !tekken_victorina, доступна только стримеру и модераторам. "
-        + "Лидерборд - глобальный: !tekken_leaders_global, канала: !tekken_leaders_channel, личная стата - !tekken_me. "
-        + "Если у вас на канале стоит фоловер мод - то боту нужно выдать VIP или права модератора чтобы обойти это ограничение. "
-        + "Все данные берутся с http://tekkendocs,com/, автор не несет отвественности за недостоверно предоставленную информацию. "
-        + "Бот в любой момент может быть отключен по любым причинам. "
-        + "Правила использования бота могут измениться в любой момент без уведомления. "
-        + "Бот предоставляется по схеме \"Как есть\". "
-        + "Бот все еще находится на стадии тестирования. "
-        + "Автор бота - twitchtv/rxdcodx. "
-        + "Спасибо @doshipanda за мотивацию и помощь по проекту. "
-        + "Если захочешь в будущем отключить - !cancel."
-        + "Если хочешь добавить бота с фреймдатой и викториной по теккен фреймдате на свой канал, то напиши - !accept {1}. ";
+        "@{0}, привет! Перед тем как добавить бота на свой канал прочти несколько нюансов о его работе в описании под каналом. "
+        + "Как только закончишь прочтение описания бота и если все еще хочешь добавить бота с фреймдатой и викториной по теккен фреймдате на свой канал, то напиши - !accept {1}. ";
 
     public static async Task StartTask(
         IDbContextFactory<AppDbContext> factory,

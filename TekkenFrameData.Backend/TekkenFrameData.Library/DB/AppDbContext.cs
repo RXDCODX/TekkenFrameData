@@ -1,5 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
+using TekkenFrameData.Library.Models.Configuration;
+using Telegram.Bot;
+using TwitchLib.Api.Core;
 
 namespace TekkenFrameData.Library.DB;
 
@@ -33,11 +37,15 @@ public sealed partial class AppDbContext : DbContext
         if (!_isInitDataChecked)
         {
             var data = this.Configuration.SingleOrDefault();
-
+            
             if (data is null)
             {
-                // read data from ini file
-                // new Configuration{}
+                // Читаем конфигурацию из файла
+                var jsonString = File.ReadAllText("def_conf.json");
+                var conf = JsonSerializer.Deserialize<Configuration>(jsonString);
+                // Добавляем Configuration В бд
+                Configuration.Add(conf);
+                
             }
 
             _isInitDataChecked = true;

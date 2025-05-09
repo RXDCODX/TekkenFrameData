@@ -61,10 +61,12 @@ services:
       SIGNALR_URL: http://watcher
       AUTOSTART : true
       WS_PORT : 4455
-      WS_URL : ws://172.17.0.1
+      WS_URL : ws://host.docker.internal
       WS_PASSWORD : UZSy6ORCzknlTtzS
     links:
       - "watcher:watcher"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # автоматически получит IP хоста
     ports:
       - "7180:8080"
       - "7181:8081"

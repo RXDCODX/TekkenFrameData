@@ -24,7 +24,9 @@ public class StreamControlService(HubConnection connection) : BackgroundService
         var pass = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("AUTOSTART"));
         var port = Environment.GetEnvironmentVariable("WS_PORT") ?? "9992";
         var hostname = Environment.GetEnvironmentVariable("WS_URL") + ":" + port;
-        var url = !string.IsNullOrWhiteSpace(hostname) ? hostname : "ws://172.17.0.1:" + port;
+        var url = !string.IsNullOrWhiteSpace(hostname)
+            ? hostname
+            : "ws://host.docker.internal:" + port;
         var password =
             Environment.GetEnvironmentVariable("WS_PASSWORD") ?? throw new NullReferenceException();
 

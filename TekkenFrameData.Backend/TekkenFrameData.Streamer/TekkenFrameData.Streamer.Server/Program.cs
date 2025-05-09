@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.SignalR.Client;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Streamer.Server.Services.StreamControl;
 

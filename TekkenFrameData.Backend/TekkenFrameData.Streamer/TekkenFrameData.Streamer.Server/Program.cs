@@ -12,7 +12,9 @@ public class Program
         var builder = WebApplication.CreateSlimBuilder(args);
 
         // Add services to the container.
-        builder.Logging.SetMinimumLevel(LogLevel.Trace);
+        var logBuilder = builder.Environment.IsDevelopment()
+            ? builder.Logging.SetMinimumLevel(LogLevel.Trace)
+            : builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

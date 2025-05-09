@@ -7,6 +7,7 @@ public sealed partial class AppDbContext : DbContext
 {
     private static readonly object Locker = new();
     private static bool _isMigrated;
+    private static bool _isInitDataChecked;
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -27,6 +28,19 @@ public sealed partial class AppDbContext : DbContext
                     _isMigrated = true;
                 }
             }
+        }
+
+        if (!_isInitDataChecked)
+        {
+            var data = this.Configuration.SingleOrDefault();
+
+            if (data is null)
+            {
+                // read data from ini file
+                // new Configuration{}
+            }
+
+            _isInitDataChecked = true;
         }
     }
 

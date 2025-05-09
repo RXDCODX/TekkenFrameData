@@ -1,6 +1,8 @@
 ﻿using System.Net.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
@@ -37,6 +40,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var services = builder.Services;
+        services.AddHealthChecks();
 
         if (builder.Environment.IsDevelopment())
         {
@@ -143,12 +147,17 @@ public class Program
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
+        services.AddSignalR();
+
         var app = builder.Build();
+
+        app.MapHub<MainHub>("/mainhub");
 
         app.UseDeveloperExceptionPage();
         app.UseExceptionHandler("/Error");
         app.UseHsts();
         app.UseHttpsRedirection();
+        app.MapHealthChecks("/health");
         app.UseRouting();
         app.UseStaticFiles();
 

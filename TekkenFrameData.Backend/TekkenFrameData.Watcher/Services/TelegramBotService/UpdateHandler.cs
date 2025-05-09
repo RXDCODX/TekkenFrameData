@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
@@ -29,7 +30,8 @@ public class UpdateHandler : IUpdateHandler
         Commands commands,
         Tekken8FrameData frameData,
         IHostApplicationLifetime lifetime,
-        IDbContextFactory<AppDbContext> factory
+        IDbContextFactory<AppDbContext> factory,
+        IWebHostEnvironment environment
     )
     {
         _botClient = botClient;
@@ -37,26 +39,32 @@ public class UpdateHandler : IUpdateHandler
         _commands = commands;
         AdminLongs = factory.CreateDbContext().Configuration.Single().AdminIdsArray;
 
-        lifetime.ApplicationStarted.Register(() =>
+        if (environment.IsProduction())
         {
-            _telegramDelegate += frameData.HandAlert;
-
-            foreach (var admins in AdminLongs)
+            lifetime.ApplicationStarted.Register(() =>
             {
-                botClient.SendMessage(admins, "Приложение запустилось").GetAwaiter().GetResult();
-            }
-        });
+                _telegramDelegate += frameData.HandAlert;
 
-        lifetime.ApplicationStopping.Register(() =>
-        {
-            foreach (var admins in AdminLongs)
+                foreach (var admins in AdminLongs)
+                {
+                    botClient
+                        .SendMessage(admins, "Приложение запустилось")
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            });
+
+            lifetime.ApplicationStopping.Register(() =>
             {
-                botClient
-                    .SendMessage(admins, "Приложение было отключено через graceful shutdown")
-                    .GetAwaiter()
-                    .GetResult();
-            }
-        });
+                foreach (var admins in AdminLongs)
+                {
+                    botClient
+                        .SendMessage(admins, "Приложение было отключено через graceful shutdown")
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            });
+        }
     }
 
     public async Task HandleUpdateAsync(

@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:latest
-    container_name: only_watcher_tekken_db
+    container_name: tfd_short_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -25,8 +25,7 @@ services:
     build:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
-    container_name: only_watcher_tekken_watcher
-    command: ["dotnet", "ef", "database update"]
+    container_name: tfd_short_watcher
     depends_on:
       db:
         condition: service_healthy
@@ -48,8 +47,33 @@ services:
       - "7081:8081"
     networks:
       - default
-
-
+      
+  streamer:
+    image: tekken_frame_data.streamer:dev
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Streamer/TekkenFrameData.Streamer.Server/Dockerfile
+    container_name: tfd_short_streamer
+    depends_on:
+      watcher: 
+        condition: service_healthy
+    environment:
+      SIGNALR_URL: http://watcher
+      AUTOSTART : true
+      WS_PORT : 4455
+      WS_URL : ws://host.docker.internal
+      WS_PASSWORD : UZSy6ORCzknlTtzS
+    links:
+      - "watcher:watcher"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # автоматически получит IP хоста
+    ports:
+      - "7180:8080"
+      - "7181:8081"
+    networks:
+      - default
+       
+    
 volumes:
   postgres_data:
     

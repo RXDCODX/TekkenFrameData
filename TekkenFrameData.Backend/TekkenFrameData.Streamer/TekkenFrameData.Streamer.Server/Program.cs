@@ -1,4 +1,7 @@
-﻿using LiveStreamingServerNet.Rtmp.Client;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.SignalR.Client;
+using TekkenFrameData.Library.Models.SignalRInterfaces;
+using TekkenFrameData.Streamer.Server.Services.StreamControl;
 
 namespace TekkenFrameData.Streamer.Server;
 
@@ -6,20 +9,58 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateSlimBuilder(args);
 
         // Add services to the container.
+        var logBuilder = builder.Environment.IsDevelopment()
+            ? builder.Logging.SetMinimumLevel(LogLevel.Trace)
+            : builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+        builder.Services.AddHealthChecks();
 
-        var bulder = RtmpClientBuilder.Create();
-        bulder.ConfigureRtmpClient(t => t.Configure(a => a.));
-        bulder.ConfigureClient(rr => rr);
-        bulder.
-        var client = bulder.Build();
-        
+        builder.Services.AddSingleton<HubConnection>(sp =>
+        {
+            var _connection = new HubConnectionBuilder()
+                .WithAutomaticReconnect()
+                .WithStatefulReconnect()
+                .WithUrl(
+                    Environment.GetEnvironmentVariable("SIGNALR_URL") + "/mainhub"
+                        ?? throw new NullReferenceException()
+                )
+                .Build();
+
+            _connection.On(
+                nameof(IMainHubCommands.StartStream),
+                () =>
+                {
+                    var control = sp.GetRequiredService<StreamControlService>();
+
+                    control.StartStream();
+                }
+            );
+
+            _connection.On(
+                nameof(IMainHubCommands.StopStream),
+                () =>
+                {
+                    var control = sp.GetRequiredService<StreamControlService>();
+
+                    control.StopStream();
+                }
+            );
+
+            _connection.StartAsync();
+
+            return _connection;
+        });
+
+        builder.Services.AddSingleton<MoscowDailyTimer>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<MoscowDailyTimer>());
+        builder.Services.AddSingleton<StreamControlService>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<StreamControlService>());
 
         var app = builder.Build();
 
@@ -39,6 +80,7 @@ public class Program
         app.MapControllers();
 
         app.MapFallbackToFile("/index.html");
+        app.UseHealthChecks("/health");
 
         app.Run();
     }

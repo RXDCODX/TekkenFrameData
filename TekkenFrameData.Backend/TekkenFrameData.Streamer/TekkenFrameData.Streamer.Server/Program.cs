@@ -8,13 +8,15 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateSlimBuilder(args);
 
         // Add services to the container.
+        builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+        builder.Services.AddHealthChecks();
 
         builder.Services.AddSingleton<HubConnection>(sp =>
         {
@@ -22,7 +24,7 @@ public class Program
                 .WithAutomaticReconnect()
                 .WithStatefulReconnect()
                 .WithUrl(
-                    Environment.GetEnvironmentVariable("SIGNALR_URL")
+                    Environment.GetEnvironmentVariable("SIGNALR_URL") + "/mainhub"
                         ?? throw new NullReferenceException()
                 )
                 .Build();
@@ -52,6 +54,11 @@ public class Program
             return _connection;
         });
 
+        builder.Services.AddSingleton<MoscowDailyTimer>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<MoscowDailyTimer>());
+        builder.Services.AddSingleton<StreamControlService>();
+        builder.Services.AddHostedService(sp => sp.GetRequiredService<StreamControlService>());
+
         var app = builder.Build();
 
         app.UseDefaultFiles();
@@ -70,6 +77,7 @@ public class Program
         app.MapControllers();
 
         app.MapFallbackToFile("/index.html");
+        app.UseHealthChecks("/health");
 
         app.Run();
     }

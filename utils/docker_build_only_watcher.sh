@@ -6,18 +6,23 @@ echo "Собираем и запускаем только TekkenFrameData.Watche
 # Сборка образа Watcher
 echo
 echo "[1/3] Сборка образа TekkenFrameData.Watcher..."
-docker build -f ../TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile -t tekken_frame_data.watcher:dev ..
+docker build -f "../TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile" -t tekken_frame_data.watcher:dev ".."
 
 if [ $? -ne 0 ]; then
     echo "Ошибка при сборке Watcher!"
-    read -p "Нажмите Enter для продолжения..." # Аналог pause
+    read -p "Нажмите Enter для продолжения..."
     exit 1
 fi
 
+# Очистка dangling-образов перед запуском
+echo
+echo "[2/3] Очистка неиспользуемых образов (dangling)..."
+docker image prune -f
+
 # Запуск сервисов через docker-compose
 echo
-echo "[2/3] Запуск PostgreSQL и Watcher..."
-docker-compose -f ../docker-compose.watcher.yml up -d
+echo "[3/3] Запуск PostgreSQL и Watcher..."
+docker-compose -f "../docker-compose.short.yml" up -d
 
 if [ $? -ne 0 ]; then
     echo "Ошибка при запуске сервисов!"
@@ -26,8 +31,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # Проверка статуса
-echo
-echo "[3/3] Проверяем работу сервисов..."
 echo
 echo "Состояние контейнеров:"
 docker ps --filter "name=tekken_"

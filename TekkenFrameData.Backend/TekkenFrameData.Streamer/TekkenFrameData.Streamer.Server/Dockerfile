@@ -1,7 +1,10 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+﻿# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+USER root
+RUN apt-get update 
+RUN apt-get --yes install curl
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -29,4 +32,5 @@ RUN dotnet publish "./TekkenFrameData.Streamer.Server.csproj" -c $BUILD_CONFIGUR
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl --silent --fail http://localhost:8080/health || exit 1
 ENTRYPOINT ["dotnet", "TekkenFrameData.Streamer.Server.dll"]

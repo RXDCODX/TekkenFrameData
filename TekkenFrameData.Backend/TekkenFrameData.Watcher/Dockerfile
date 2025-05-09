@@ -1,7 +1,10 @@
-# См. статью по ссылке https://aka.ms/customizecontainer, чтобы узнать как настроить контейнер отладки и как Visual Studio использует этот Dockerfile для создания образов для ускорения отладки.
+﻿# См. статью по ссылке https://aka.ms/customizecontainer, чтобы узнать как настроить контейнер отладки и как Visual Studio использует этот Dockerfile для создания образов для ускорения отладки.
 
 # Этот этап используется при запуске из VS в быстром режиме (по умолчанию для конфигурации отладки)
 FROM mcr.microsoft.com/dotnet/aspnet:latest AS base
+USER root
+RUN apt-get update 
+RUN apt-get --yes install curl
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -32,4 +35,5 @@ RUN dotnet publish "./TekkenFrameData.Watcher.csproj" -c $BUILD_CONFIGURATION -o
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl --silent --fail http://localhost:8080/health || exit 1
 ENTRYPOINT ["dotnet", "TekkenFrameData.Watcher.dll"]

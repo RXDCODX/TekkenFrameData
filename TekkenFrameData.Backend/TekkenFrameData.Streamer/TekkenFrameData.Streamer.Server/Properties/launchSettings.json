@@ -3,29 +3,16 @@
     "http": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SIGNALR_URL": "http://localhost:5196",
+        "AUTOSTART": "true",
+        "WS_PORT": "4455",
+        "WS_URL": "ws://localhost",
+        "WS_PASSWORD": "UZSy6ORCzknlTtzS"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5066"
     },
-    "https": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7114;http://localhost:5066"
-    },
-    "Container (Dockerfile)": {
-      "commandName": "Docker",
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "8080"
-      },
-      "publishAllPorts": true,
-      "useSSL": true
-    }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"
 }

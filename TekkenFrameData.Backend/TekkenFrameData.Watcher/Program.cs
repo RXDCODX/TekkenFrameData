@@ -40,6 +40,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         var services = builder.Services;
+        services.AddHealthChecks();
 
         if (builder.Environment.IsDevelopment())
         {
@@ -146,6 +147,8 @@ public class Program
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
+        services.AddSignalR();
+
         var app = builder.Build();
 
         app.MapHub<MainHub>("/mainhub");
@@ -154,6 +157,7 @@ public class Program
         app.UseExceptionHandler("/Error");
         app.UseHsts();
         app.UseHttpsRedirection();
+        app.MapHealthChecks("/health");
         app.UseRouting();
         app.UseStaticFiles();
 

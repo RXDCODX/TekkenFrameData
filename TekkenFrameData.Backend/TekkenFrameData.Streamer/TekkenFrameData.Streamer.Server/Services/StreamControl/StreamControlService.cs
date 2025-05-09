@@ -4,9 +4,10 @@ using TekkenFrameData.Library.Models.SignalRInterfaces;
 
 namespace TekkenFrameData.Streamer.Server.Services.StreamControl;
 
-public class StreamControlService(HubConnection connection, OBSWebsocket webSocket)
-    : BackgroundService
+public class StreamControlService(HubConnection connection) : BackgroundService
 {
+    private readonly OBSWebsocket webSocket = new();
+
     private Task SendTwitch(string message) =>
         connection.InvokeAsync(nameof(IMainHubCommands.SendToMainTwitchMessage), message);
 
@@ -20,11 +21,17 @@ public class StreamControlService(HubConnection connection, OBSWebsocket webSock
 
         webSocket.Connected += (sender, args) => SendTelegram($"Streamer wesocket connected!");
 
-        webSocket.ConnectAsync(
-            Environment.GetEnvironmentVariable("https://172.17.0.1:9992")
-                ?? throw new NullReferenceException(),
-            Environment.GetEnvironmentVariable("WS_PASSWORD") ?? throw new NullReferenceException()
-        );
+        var pass = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("AUTOSTART"));
+        var port = Environment.GetEnvironmentVariable("WS_PORT") ?? "9992";
+        var hostname = Environment.GetEnvironmentVariable("WS_URL") + ":" + port;
+        var url = !string.IsNullOrWhiteSpace(hostname) ? hostname : "ws://172.17.0.1:" + port;
+        var password =
+            Environment.GetEnvironmentVariable("WS_PASSWORD") ?? throw new NullReferenceException();
+
+        if (pass)
+        {
+            webSocket.ConnectAsync(url, password);
+        }
 
         return Task.CompletedTask;
     }

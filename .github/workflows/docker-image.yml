@@ -1,4 +1,4 @@
-name: Docker Image CI
+﻿name: Docker Image CI
 
 on:
   push:
@@ -29,12 +29,12 @@ jobs:
     # Шаг 3: Сборка Docker-образов
     - name: Build Docker images
       run: |
-        docker-compose -f docker-compose.yml build
+        docker-compose -f docker-compose.short.yml build
 
     # Шаг 4: Запуск контейнеров с помощью docker-compose
     - name: Run Docker containers
       run: |
-        docker-compose -f docker-compose.yml up -d
+        docker-compose -f docker-compose.short.yml up -d
 
     # Шаг 5: Проверка состояния контейнеров
     - name: Check container status

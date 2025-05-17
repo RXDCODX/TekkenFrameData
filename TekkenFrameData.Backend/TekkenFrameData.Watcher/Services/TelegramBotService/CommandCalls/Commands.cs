@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using TekkenFrameData.Library.DB;
 using TekkenFrameData.Watcher.Services.Framedata;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,7 +13,8 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 public partial class Commands(
     Tekken8FrameData frameData,
     ITwitchClient twitchClient,
-    IHostApplicationLifetime lifetime
+    IHostApplicationLifetime lifetime,
+    IDbContextFactory<AppDbContext> dbContextFactory
 )
 {
     public const string Template =

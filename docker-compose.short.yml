@@ -28,7 +28,7 @@ services:
     container_name: tfd_short_watcher
     depends_on:
       db:
-        condition: service_healthy 
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -72,9 +72,6 @@ services:
       - "7181:8081"
     networks:
       - default
-    healthcheck:
-      test: ["NONE"]
-       
     
 volumes:
   postgres_data:

@@ -90,9 +90,9 @@ public class Program
             };
 
             var client = new TwitchClient(
-                new WebSocketClient(clientOptions),
-                ClientProtocol.WebSocket,
-                sp.GetRequiredService<ILogger<TwitchClient>>()
+                client: new WebSocketClient(clientOptions),
+                protocol: ClientProtocol.WebSocket,
+                logger: sp.GetRequiredService<ILogger<TwitchClient>>()
             );
             var tokenService = sp.GetRequiredService<TokenService>();
             var twitchTokenInfo =
@@ -130,6 +130,7 @@ public class Program
         services.AddHostedService<PollingService>();
         services.AddSingleton<TwitchFramedateChannelConnecter>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
+
         services.AddSingleton<Tekken8FrameData>();
         services.AddHostedService(sp => sp.GetRequiredService<Tekken8FrameData>());
 
@@ -143,6 +144,8 @@ public class Program
 
         services.AddSingleton<CrossChannelManager>();
         services.AddHostedService(sp => sp.GetRequiredService<CrossChannelManager>());
+        services.AddSingleton<TwitchFramedate>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedate>());
 
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());

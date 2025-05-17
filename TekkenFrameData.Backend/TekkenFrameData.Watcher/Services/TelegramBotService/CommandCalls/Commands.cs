@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
+using TekkenFrameData.Library.Models.SignalRInterfaces;
+using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Framedata;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,7 +14,8 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 public partial class Commands(
     Tekken8FrameData frameData,
     ITwitchClient twitchClient,
-    IHostApplicationLifetime lifetime
+    IHostApplicationLifetime lifetime,
+    IHubContext<MainHub, IMainHubCommands> hubContext
 )
 {
     public const string Template =

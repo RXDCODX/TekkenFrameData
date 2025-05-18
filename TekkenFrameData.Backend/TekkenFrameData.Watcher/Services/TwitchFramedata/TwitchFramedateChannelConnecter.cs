@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,11 +22,14 @@ public class TwitchFramedateChannelConnecter(
     ITwitchClient client,
     Tekken8FrameData frameData,
     ITwitchAPI api,
-    IDbContextFactory<AppDbContext> factory
+    IDbContextFactory<AppDbContext> factory,
+    IHostApplicationLifetime lifetime
 ) : IHostedService
 {
     private Timer? _timer;
     private static readonly Regex Regex = new Regex(@"\p{C}+");
+    private static readonly List<string> ChannelAllowedIds = [];
+    private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
 
     public async Task ConnectToStreams()
     {
@@ -112,20 +116,13 @@ public class TwitchFramedateChannelConnecter(
     {
         try
         {
-            await using var dbContext = await factory.CreateDbContextAsync();
-            var allowedChannels = await dbContext
-                .TekkenChannels.Where(e => e.FramedataStatus == TekkenFramedataStatus.Accepted)
-                .ToArrayAsync();
-
             var clipsResponse = await api.Helix.Streams.GetStreamsAsync(
                 first: 100,
                 gameIds: ["538054672"],
                 languages: ["ru"]
             );
 
-            return clipsResponse
-                .Streams.Where(e => allowedChannels.Any(t => t.TwitchId == e.UserId))
-                .ToArray();
+            return clipsResponse.Streams.ToArray();
         }
         catch (Exception e)
             when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))
@@ -169,89 +166,142 @@ public class TwitchFramedateChannelConnecter(
     {
         var message = args.Command.ChatMessage.Message;
         var userName = args.Command.ChatMessage.DisplayName;
+        var userId = args.Command.ChatMessage.UserId;
         var command = args.Command.CommandText;
+        var channelId = args.Command.ChatMessage.RoomId;
+        var channelName = args.Command.ChatMessage.Channel;
+        var pass = userId.Trim().Equals(TwitchClientExstension.AuthorId.ToString());
+        var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
 
         if (command.Equals("fd", StringComparison.OrdinalIgnoreCase))
         {
-            await Task.Factory.StartNew(async () =>
+            if (!pass)
             {
-                var split = Regex.Replace(message, "").Trim().Split(' ');
-
-                if (split.Length > 2)
+                if (!ChannelAllowedIds.Contains(channelId))
                 {
-                    var bb = split.Skip(1).ToArray();
-                    var move = await frameData.GetMoveAsync(bb);
-                    var channel = args.Command.ChatMessage.Channel;
-
-                    if (move is not null)
-                    {
-                        if (CrossChannelManager.MovesInVictorina.Values.Contains(move))
+                    await Task.Factory.StartNew(
+                        async () =>
                         {
-                            client.SendMessage(
-                                channel,
-                                $"@{userName}, этот удар находиться в теккен виткорине, пока что не могу подсказать!"
+                            await using var dbContext = await factory.CreateDbContextAsync(
+                                _cancellationToken
                             );
-                            return;
-                        }
+                            pass = await dbContext.TekkenChannels.AnyAsync(
+                                e =>
+                                    e.FramedataStatus == TekkenFramedataStatus.Accepted
+                                    && e.TwitchId == channelId,
+                                cancellationToken: _cancellationToken
+                            );
 
-                        var teges = await frameData.GetMoveTags(move);
-
-                        message =
-                            "✅ "
-                            + move.Character.Name
-                            + " > "
-                            + move.Command
-                            + " ✅  "
-                            + "Block: "
-                            + move.BlockFrame
-                            + " | Dmg: "
-                            + move.Damage
-                            + " | Hit: "
-                            + move.HitFrame
-                            + " | HitLvl: "
-                            + move.HitLevel
-                            + " | StartUp: "
-                            + move.StartUpFrame
-                            + (string.IsNullOrEmpty(teges) ? "" : " | Tags: " + teges);
-
-                        try
-                        {
-                            if (
-                                !client.JoinedChannels.Any(e =>
-                                    e.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
-                                )
-                            )
+                            if (pass)
                             {
-                                client.JoinChannel(channel);
+                                ChannelAllowedIds.Add(channelId);
+                            }
+                            else
+                            {
+                                if (isBroadcaster)
+                                {
+                                    client.SendMessage(
+                                        channelName,
+                                        $"@{channelName}, перед пользованием тебе нужно согласиться на использование! Посмотри описание моего канала для подробностей!"
+                                    );
+                                }
+                            }
+                        },
+                        _cancellationToken
+                    );
+                }
+
+                if (!pass)
+                {
+                    return;
+                }
+            }
+
+            await Task.Factory.StartNew(
+                async () =>
+                {
+                    var split = Regex.Replace(message, "").Trim().Split(' ');
+
+                    if (split.Length > 2)
+                    {
+                        var bb = split.Skip(1).ToArray();
+                        var move = await frameData.GetMoveAsync(bb);
+                        var channel = args.Command.ChatMessage.Channel;
+
+                        if (move is not null)
+                        {
+                            if (CrossChannelManager.MovesInVictorina.Values.Contains(move))
+                            {
+                                client.SendMessage(
+                                    channel,
+                                    $"@{userName}, этот удар находиться в теккен виткорине, пока что не могу подсказать!"
+                                );
+                                return;
                             }
 
-                            var joinedChannel = client.GetJoinedChannel(channel);
-                            client.SendMessage(joinedChannel, message);
-                            return;
+                            var teges = await frameData.GetMoveTags(move);
+
+                            message =
+                                "✅ "
+                                + move.Character.Name
+                                + " > "
+                                + move.Command
+                                + " ✅  "
+                                + "Block: "
+                                + move.BlockFrame
+                                + " | Dmg: "
+                                + move.Damage
+                                + " | Hit: "
+                                + move.HitFrame
+                                + " | HitLvl: "
+                                + move.HitLevel
+                                + " | StartUp: "
+                                + move.StartUpFrame
+                                + (string.IsNullOrEmpty(teges) ? "" : " | Tags: " + teges);
+
+                            try
+                            {
+                                if (
+                                    !client.JoinedChannels.Any(e =>
+                                        e.Channel.Equals(
+                                            channel,
+                                            StringComparison.OrdinalIgnoreCase
+                                        )
+                                    )
+                                )
+                                {
+                                    client.JoinChannel(channel);
+                                }
+
+                                var joinedChannel = client.GetJoinedChannel(channel);
+                                client.SendMessage(joinedChannel, message);
+                                return;
+                            }
+                            catch (Exception e)
+                            {
+                                logger.LogException(e);
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            logger.LogException(e);
-                        }
-                    }
 
-                    const string tempLate = @"@{0}, кривые параметры запроса фреймдаты";
+                        const string tempLate = @"@{0}, кривые параметры запроса фреймдаты";
 
-                    message = string.Format(tempLate, userName);
+                        message = string.Format(tempLate, userName);
 
-                    if (
-                        !client.JoinedChannels.Any(e =>
-                            e.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
+                        if (
+                            !client.JoinedChannels.Any(e =>
+                                e.Channel.Equals(channel, StringComparison.OrdinalIgnoreCase)
+                            )
                         )
-                    )
-                    {
-                        client.JoinChannel(channel);
-                    }
+                        {
+                            client.JoinChannel(channel);
+                        }
 
-                    var joined = client.GetJoinedChannel(channel);
-                    client.SendMessage(joined, message);
-                }
-            });
+                        var joined = client.GetJoinedChannel(channel);
+                        client.SendMessage(joined, message);
+                    }
+                },
+                _cancellationToken
+            );
         }
     }
 

@@ -12,10 +12,6 @@ using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TwitchFramedata;
-/* TODO
- * 
- */
-
 
 public class TwitchFramedate(
     ILogger<TwitchFramedate> logger,
@@ -31,7 +27,7 @@ public class TwitchFramedate(
 
     public async void FrameDateMessage(object? sender, OnMessageReceivedArgs args)
     {
-        var channel = args.ChatMessage.Channel;
+        var channel = args.ChatMessage.RoomId;
 
         if (IsChannelApproved(channel))
         {
@@ -84,11 +80,7 @@ public class TwitchFramedate(
             );
         }
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="channelId">ChannelName</param>
-    /// <returns></returns>
+
     private bool IsChannelApproved(string channelId)
     {
         if (ApprovedChannels.Contains(channelId))
@@ -112,9 +104,7 @@ public class TwitchFramedate(
                 return false;
             }
         }
-
     }
-
 
     private async Task<string?> HandleTagMoves(string[] keyWords)
     {
@@ -218,9 +208,6 @@ public class TwitchFramedate(
 
     private Task SendResponse(string channel, string message, string username)
     {
-        //message = AnswersForTwitchRewards.ReplaceKeywordsInAnswer(username, message);
-        /*TODO*/
-
         try
         {
             if (

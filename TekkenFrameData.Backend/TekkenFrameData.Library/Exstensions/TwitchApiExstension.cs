@@ -19,12 +19,7 @@ public static class TwitchApiExstension
                 token ?? api.Settings.AccessToken
             );
 
-            if (response == null)
-            {
-                return false;
-            }
-
-            return true;
+            return response != null;
         }
         catch (Exception e)
             when (e.Message.Contains("invalid access token", StringComparison.OrdinalIgnoreCase))

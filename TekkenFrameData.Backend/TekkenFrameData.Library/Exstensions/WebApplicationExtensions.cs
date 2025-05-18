@@ -40,7 +40,7 @@ public static class WebApplicationExtensions
         return logger;
     }
 
-    private static DbContext GetAppDbContext(IServiceProvider appApplicationServices)
+    private static AppDbContext GetAppDbContext(IServiceProvider appApplicationServices)
     {
         var scopeFactory = appApplicationServices.GetRequiredService<IServiceScopeFactory>();
         var serviceScope = scopeFactory.CreateScope();

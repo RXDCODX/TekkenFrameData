@@ -84,8 +84,7 @@ public class Aliases
         { "*+", "*" },
         { "hold", "*" },
     };
-
-    public static Dictionary<string, string> Stances = new()
+    private static readonly Dictionary<string, string> dictionary = new()
     {
         { "bkp", "Backup" },
         { "sbt", "Boot" },
@@ -176,4 +175,6 @@ public class Aliases
         { "cjm", "Chaos Judgement" },
         { "ham", "Hammer Chance" },
     };
+
+    public static Dictionary<string, string> Stances { get; } = dictionary;
 }

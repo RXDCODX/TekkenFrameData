@@ -28,7 +28,7 @@ services:
     container_name: tfd_short_watcher
     depends_on:
       db:
-        condition: service_started
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432

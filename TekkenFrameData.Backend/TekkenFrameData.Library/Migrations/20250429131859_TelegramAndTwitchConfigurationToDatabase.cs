@@ -16,7 +16,7 @@ public partial class TelegramAndTwitchConfigurationToDatabase : Migration
             table: "Configuration",
             type: "bigint[]",
             nullable: false,
-            defaultValue: new long[0]
+            defaultValue: Array.Empty<long>()
         );
 
         migrationBuilder.AddColumn<string>(

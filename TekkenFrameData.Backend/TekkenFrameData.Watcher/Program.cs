@@ -117,7 +117,10 @@ public class Program
         services.AddSingleton<ITwitchAPI>(sp =>
         {
             var twitchApi = new TwitchAPI { Settings = { ClientId = configuration.ApiClientId } };
-            twitchApi.Settings.AccessToken = twitchApi.Auth.GetAccessTokenAsync().Result;
+            twitchApi.Settings.AccessToken = twitchApi
+                .Auth.GetAccessTokenAsync()
+                .GetAwaiter()
+                .GetResult();
             twitchApi.Settings.Secret = configuration.ApiClientSecret;
             twitchApi.Settings.Scopes = [AuthScopes.Any];
 

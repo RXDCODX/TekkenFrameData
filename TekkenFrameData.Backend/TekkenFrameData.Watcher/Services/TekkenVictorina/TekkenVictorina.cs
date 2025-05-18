@@ -18,8 +18,8 @@ public class TekkenVictorina(
     private TekkenVictorinaGame? _currentGame;
     private static readonly TimeSpan _awaitTime = TimeSpan.FromSeconds(20);
 
-    public string channelName { get; init; } = channelName;
-    public string channelId { get; init; } = channelId;
+    public string ChannelName { get; init; } = channelName;
+    public string ChannelId { get; init; } = channelId;
 
     public async void TwitchClientOnMessageReceived(object? sender, OnMessageReceivedArgs args)
     {
@@ -32,7 +32,7 @@ public class TekkenVictorina(
 
             if (
                 name.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase)
-                || !channel.Equals(channelName, StringComparison.OrdinalIgnoreCase)
+                || !channel.Equals(ChannelName, StringComparison.OrdinalIgnoreCase)
             )
             {
                 return;
@@ -100,7 +100,7 @@ public class TekkenVictorina(
                     $"У нас есть победитель в теккен викторине! Поздравляем {rightAnswer.displayName} с ответом {rightAnswer.answer}."
                 );
                 await tekkenVictorinaLeaderbord.AddOrUpdateUserLeaderBoard(
-                    channelId,
+                    ChannelId,
                     userId,
                     userName
                 );
@@ -152,7 +152,7 @@ public class TekkenVictorina(
         removeVictorina();
     }
 
-    private IntRange GetAnswer(TekkenMove tekkenMove)
+    private static IntRange GetAnswer(TekkenMove tekkenMove)
     {
         if (int.TryParse(tekkenMove.BlockFrame, out var answer))
         {
@@ -229,7 +229,7 @@ public class TekkenVictorina(
         return Task.CompletedTask;
 
         // Парсит строку в IntRange (число или диапазон)
-        IntRange? TryParseInput(string str)
+        static IntRange? TryParseInput(string str)
         {
             str = str.Trim();
 
@@ -255,7 +255,7 @@ public class TekkenVictorina(
     }
 
     // Вычисляет минимальное расстояние между диапазонами
-    private int CalculateDistance(IntRange a, IntRange b)
+    private static int CalculateDistance(IntRange a, IntRange b)
     {
         if (a.Start > b.End)
         {

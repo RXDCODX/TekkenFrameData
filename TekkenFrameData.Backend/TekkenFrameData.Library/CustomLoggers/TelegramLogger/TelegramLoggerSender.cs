@@ -42,12 +42,14 @@ public class TelegramLoggerSender : IDisposable
     public void EnqueueMessage(string message)
     {
         if (!_messageQueue.IsAddingCompleted)
+        {
             try
             {
                 _messageQueue.Add(message);
                 return;
             }
             catch (InvalidOperationException) { }
+        }
 
         // Adding is completed so just log the message
         WriteMessage(message);

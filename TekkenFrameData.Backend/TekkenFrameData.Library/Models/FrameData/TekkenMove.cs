@@ -51,13 +51,9 @@ public class TekkenMove
 
     public override bool Equals(object? obj)
     {
-        if (obj is TekkenMove move)
-        {
-            return Command.Equals(move.Command, StringComparison.OrdinalIgnoreCase)
-                && CharacterName.Equals(move.CharacterName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        return false;
+        return obj is TekkenMove move
+            && Command.Equals(move.Command, StringComparison.OrdinalIgnoreCase)
+            && CharacterName.Equals(move.CharacterName, StringComparison.OrdinalIgnoreCase);
     }
 
     public override int GetHashCode()

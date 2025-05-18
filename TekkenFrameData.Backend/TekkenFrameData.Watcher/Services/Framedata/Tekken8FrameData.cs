@@ -49,7 +49,9 @@ public partial class Tekken8FrameData(
     public async Task<TekkenMove?> GetMoveAsync(string[]? command)
     {
         if (command == null || command.Length == 0)
+        {
             return null;
+        }
 
         var charnameOut = await FindCharacterByNameAsync(command);
         var skipChars = 1;
@@ -97,7 +99,9 @@ public partial class Tekken8FrameData(
         var character = await FindCharacterInDatabaseAsync(charname, dbContext);
 
         if (character != null)
+        {
             return character;
+        }
 
         // Если не нашли, пробуем по одному слову
         charname = string.Join(" ", commandParts.Take(1));

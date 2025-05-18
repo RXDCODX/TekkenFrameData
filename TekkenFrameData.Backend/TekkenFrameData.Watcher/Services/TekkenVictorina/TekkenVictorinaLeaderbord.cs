@@ -61,7 +61,9 @@ public class TekkenVictorinaLeaderbord(
             );
 
         if (user == null)
+        {
             return null;
+        }
 
         // 2. Глобальный рейтинг через COUNT
         int globalOrder =

@@ -41,7 +41,9 @@ public partial class Commands(
             usage = string.Join(Environment.NewLine, names);
         }
         else
+        {
             usage = Template;
+        }
 
         return await botClient.SendMessage(
             message.Chat.Id,

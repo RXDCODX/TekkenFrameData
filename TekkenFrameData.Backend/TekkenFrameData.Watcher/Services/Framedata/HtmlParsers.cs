@@ -22,6 +22,7 @@ public partial class Tekken8FrameData
             var liNodes = ulNode?.SelectNodes(".//li[@class='cursor-pointer']");
 
             if (liNodes != null)
+            {
                 foreach (HtmlNode liNode in liNodes)
                 {
                     var aNode = liNode.SelectSingleNode(".//a[@class='cursor-pointer']");
@@ -58,7 +59,7 @@ public partial class Tekken8FrameData
                             await Task.Delay(TimeSpan.FromSeconds(5), _cancellationToken);
                             var movelist = await GetMoveList(
                                 character,
-                                BasePath.AbsoluteUri + href?.Substring(1)
+                                BasePath.AbsoluteUri + href?[1..]
                             );
 
                             var sortedMovelist = await ConsolidateMoveGroups(movelist, character);
@@ -102,14 +103,17 @@ public partial class Tekken8FrameData
                         }
                     }
                 }
+            }
 
             await UpdateMovesForVictorina();
             if (chat != null)
+            {
                 await client.SendMessage(
                     chat,
                     "Парсинг теккен фрейм даты закончено!",
                     cancellationToken: _cancellationToken
                 );
+            }
         }
         catch (Exception e)
         {
@@ -189,6 +193,7 @@ public partial class Tekken8FrameData
 
         // Проверяем, что строки таблицы найдены
         if (rowNodes != null)
+        {
             foreach (var rowNode in rowNodes)
             {
                 //character.Movelist = movelist; !important
@@ -295,6 +300,7 @@ public partial class Tekken8FrameData
                     movelist.Add(move);
                 }
             }
+        }
 
         return movelist;
     }

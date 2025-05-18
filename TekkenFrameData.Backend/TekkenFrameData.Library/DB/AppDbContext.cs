@@ -5,7 +5,7 @@ namespace TekkenFrameData.Library.DB;
 
 public sealed partial class AppDbContext : DbContext
 {
-    private static readonly object Locker = new();
+    private static readonly Lock Locker = new();
     private static bool _isMigrated;
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
@@ -49,6 +49,6 @@ public sealed partial class AppDbContext : DbContext
         ModelConfigurationBuilder configurationBuilder
     )
     {
-        configurationBuilder.Properties<DateTime>().HaveConversion(typeof(DateTimeToDateTimeUtc));
+        configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeToDateTimeUtc>();
     }
 }

@@ -279,7 +279,7 @@ public static class ContractorHelper
     {
         var userName = e.Command.ChatMessage.DisplayName;
 
-        userName = userName.StartsWith('@') ? userName.Substring(1) : userName;
+        userName = userName.StartsWith('@') ? userName[1..] : userName;
 
         var userId = e.Command.ChatMessage.UserId;
         var isAdmin = userId.Equals(

@@ -26,7 +26,7 @@ public partial class changed_tables_names : Migration
         migrationBuilder.AddPrimaryKey(
             name: "PK_tekken_moves",
             table: "tekken_moves",
-            columns: new[] { "CharacterName", "Command" }
+            columns: ["CharacterName", "Command"]
         );
 
         migrationBuilder.AddPrimaryKey(
@@ -63,7 +63,7 @@ public partial class changed_tables_names : Migration
         migrationBuilder.AddPrimaryKey(
             name: "PK_TekkenMoves",
             table: "TekkenMoves",
-            columns: new[] { "CharacterName", "Command" }
+            columns: ["CharacterName", "Command"]
         );
 
         migrationBuilder.AddPrimaryKey(

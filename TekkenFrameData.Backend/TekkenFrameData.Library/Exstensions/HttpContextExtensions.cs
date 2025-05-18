@@ -14,11 +14,16 @@ public static class HttpContextExtensions
 
         var schemes = context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
 
-        return (
-            from scheme in await schemes.GetAllSchemesAsync()
-            where !string.IsNullOrEmpty(scheme.DisplayName)
-            select scheme
-        ).ToArray();
+        var list = new List<AuthenticationScheme>();
+        foreach (AuthenticationScheme scheme in (await schemes.GetAllSchemesAsync()))
+        {
+            if (!string.IsNullOrEmpty(scheme.DisplayName))
+            {
+                list.Add(scheme);
+            }
+        }
+
+        return [.. list];
     }
 
     public static async Task<bool> IsProviderSupportedAsync(

@@ -22,7 +22,10 @@ public partial class Commands
         {
             var split = msg.Split(" ");
 
-            if (split.Length < 3) { text = "Не указан персонаж и(или) инпут!"; }
+            if (split.Length < 3)
+            {
+                text = "Не указан персонаж и(или) инпут!";
+            }
             else if (split.Length >= 3)
             {
                 var bb = split.Skip(1).ToArray();
@@ -145,11 +148,15 @@ public partial class Commands
                     markup = new InlineKeyboardMarkup(buttons);
                 }
                 else
+                {
                     text = "Плохие параметры запроса фреймдаты. Не удалось определить приём.";
+                }
             }
         }
         else
+        {
             text = "Плохие параметры запроса фреймдаты.";
+        }
 
         return await botClient.SendMessage(
             message.Chat.Id,

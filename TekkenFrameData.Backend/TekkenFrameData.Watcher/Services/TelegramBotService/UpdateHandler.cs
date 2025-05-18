@@ -104,7 +104,9 @@ public class UpdateHandler : IUpdateHandler
                     var chatId = update.Message.Chat.Id;
 
                     if (update.Message.HasProtectedContent != true)
+                    {
                         await _botClient.ForwardMessage(id, chatId, messageId);
+                    }
 
                     break;
                 case UpdateType.ChannelPost:
@@ -112,7 +114,9 @@ public class UpdateHandler : IUpdateHandler
                     chatId = update.ChannelPost.Chat.Id;
 
                     if (update.ChannelPost.HasProtectedContent != true)
+                    {
                         await _botClient.ForwardMessage(id, chatId, messageId);
+                    }
 
                     //if (_environment.IsDevelopment())
                     //    _logger.LogCritical(update.ChannelPost.Text);
@@ -130,10 +134,14 @@ public class UpdateHandler : IUpdateHandler
             var chatId = message.Chat.Id;
 
             if (message.Text is not { } messageText)
+            {
                 return;
+            }
 
             if (!messageText.StartsWith('/'))
+            {
                 return;
+            }
 
             Task<Message> action;
 

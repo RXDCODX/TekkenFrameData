@@ -70,10 +70,13 @@ public class CrossChannelManager(
                         var joinedChannel = client.GetJoinedChannel(channel);
 
                         if (joinedChannel != null)
+                        {
                             client.SendMessage(
                                 joinedChannel,
                                 $"@{userName}, другая викторина уже запущенна!"
                             );
+                        }
+
                         return;
                     }
                     await using var dbContext = await factory.CreateDbContextAsync(

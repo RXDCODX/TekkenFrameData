@@ -17,7 +17,7 @@ using Timer = System.Timers.Timer;
 
 namespace TekkenFrameData.Watcher.Services.TwitchFramedata;
 
-public class TwitchFramedateChannelConnecter(
+public partial class TwitchFramedateChannelConnecter(
     ILogger<TwitchFramedateChannelConnecter> logger,
     ITwitchClient client,
     Tekken8FrameData frameData,
@@ -27,7 +27,7 @@ public class TwitchFramedateChannelConnecter(
 ) : IHostedService
 {
     private Timer? _timer;
-    private static readonly Regex Regex = new Regex(@"\p{C}+");
+    private static readonly Regex Regex = new(@"\p{C}+");
     private static readonly List<string> ChannelAllowedIds = [];
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
 
@@ -79,7 +79,7 @@ public class TwitchFramedateChannelConnecter(
                 client.JoinChannel(stream.UserLogin);
             }
 
-            await Task.Delay(500);
+            await Task.Delay(500, _cancellationToken);
         }
 
         if (
@@ -122,7 +122,7 @@ public class TwitchFramedateChannelConnecter(
                 languages: ["ru"]
             );
 
-            return clipsResponse.Streams.ToArray();
+            return [.. clipsResponse.Streams];
         }
         catch (Exception e)
             when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))

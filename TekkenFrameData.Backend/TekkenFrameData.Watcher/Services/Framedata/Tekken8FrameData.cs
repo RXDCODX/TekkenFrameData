@@ -108,7 +108,7 @@ public partial class Tekken8FrameData(
         return await FindCharacterInDatabaseAsync(charname, dbContext);
     }
 
-    private async Task<TekkenCharacter?> FindCharacterInDatabaseAsync(
+    private static async Task<TekkenCharacter?> FindCharacterInDatabaseAsync(
         string charname,
         AppDbContext dbContext
     )

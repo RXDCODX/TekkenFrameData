@@ -210,7 +210,7 @@ public class TekkenVictorinaLeaderbord(
 
         bool CheckCooldownPass()
         {
-            if (!cooldownDictionary.ContainsKey(channelId))
+            if (!cooldownDictionary.TryGetValue(channelId, out DateTime value))
             {
                 cooldownDictionary.AddOrUpdate(
                     channelId,
@@ -221,8 +221,6 @@ public class TekkenVictorinaLeaderbord(
             }
             else
             {
-                var value = cooldownDictionary[channelId];
-
                 if (DateTimeOffset.Now - value >= TimeSpan.FromSeconds(30))
                 {
                     cooldownDictionary.AddOrUpdate(

@@ -256,6 +256,7 @@ public partial class Tekken8FrameData(
 
         VictorinaMoves = list;
     }
+
     public async Task<(TekkenMoveTag Tag, TekkenMove[] Moves)?> GetMultipleMovesByTags(string input)
     {
         var split = input.Split(
@@ -384,9 +385,9 @@ public partial class Tekken8FrameData(
     }
 
     private static Task<(TekkenMoveTag tag, TekkenMove[])?> GetMultipleMovesFromMovelistByTagAsync(
-    string input,
-    ICollection<TekkenMove> movelist
-)
+        string input,
+        ICollection<TekkenMove> movelist
+    )
     {
         TekkenMove[] moves = [];
 
@@ -399,7 +400,9 @@ public partial class Tekken8FrameData(
         if (typeWithoutStance == TekkenMoveTag.None)
         {
             moves = movelist
-                .Where(e => (e.StanceName?.Equals(input) ?? false) || (e.StanceCode?.Equals(input)??false))
+                .Where(e =>
+                    (e.StanceName?.Equals(input) ?? false) || (e.StanceCode?.Equals(input) ?? false)
+                )
                 .ToArray();
 
             return Task.FromResult<(TekkenMoveTag tag, TekkenMove[])?>((TekkenMoveTag.None, moves));

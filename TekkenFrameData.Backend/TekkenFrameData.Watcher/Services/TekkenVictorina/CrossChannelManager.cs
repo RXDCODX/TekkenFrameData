@@ -60,7 +60,10 @@ public class CrossChannelManager(
         var userName = e.Command.ChatMessage.DisplayName;
         var userId = e.Command.ChatMessage.UserId;
 
-        if (command == "tekken_victorina")
+        if (
+            command == "tekken_victorina"
+            && (e.Command.ChatMessage.IsBroadcaster || e.Command.ChatMessage.IsModerator)
+        )
         {
             await Task.Factory.StartNew(
                 async () =>

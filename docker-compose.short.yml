@@ -4,6 +4,11 @@ services:
   db:
     image: postgres:latest
     container_name: tfd_short_db
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -26,6 +31,11 @@ services:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tfd_short_watcher
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
     depends_on:
       db:
         condition: service_healthy
@@ -54,19 +64,24 @@ services:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Streamer/TekkenFrameData.Streamer.Server/Dockerfile
     container_name: tfd_short_streamer
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
     depends_on:
       watcher: 
         condition: service_started
     environment:
       SIGNALR_URL: http://watcher
-      AUTOSTART : true
+      AUTOSTART : "true"
       WS_PORT : 4455
       WS_URL : ws://host.docker.internal
       WS_PASSWORD : UZSy6ORCzknlTtzS
     links:
       - "watcher:watcher"
     extra_hosts:
-      - "host.docker.internal:host-gateway"  # автоматически получит IP хоста
+      - "host.docker.internal:host-gateway"
     ports:
       - "7180:8080"
       - "7181:8081"

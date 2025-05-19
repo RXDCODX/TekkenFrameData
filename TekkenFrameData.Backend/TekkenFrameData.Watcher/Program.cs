@@ -117,13 +117,14 @@ public class Program
         services.AddSingleton<ITwitchAPI>(sp =>
         {
             var twitchApi = new TwitchAPI { Settings = { ClientId = configuration.ApiClientId } };
+#pragma warning disable CA2012
             twitchApi.Settings.AccessToken = twitchApi
                 .Auth.GetAccessTokenAsync()
                 .GetAwaiter()
                 .GetResult();
             twitchApi.Settings.Secret = configuration.ApiClientSecret;
             twitchApi.Settings.Scopes = [AuthScopes.Any];
-
+#pragma warning restore CA2012
             return twitchApi;
         });
 

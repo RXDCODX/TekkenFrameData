@@ -27,9 +27,15 @@ public partial class TwitchFramedateChannelConnecter(
 ) : IHostedService
 {
     private Timer? _timer;
-    private static readonly Regex Regex = new(@"\p{C}+");
-    private static readonly List<string> ChannelAllowedIds = [];
+    private static readonly Regex Regex;
+    private static readonly List<string> ChannelAllowedIds;
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
+
+    static TwitchFramedateChannelConnecter()
+    {
+        Regex = new Regex(@"\p{C}+");
+        ChannelAllowedIds = [];
+    }
 
     public async Task ConnectToStreams()
     {

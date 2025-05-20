@@ -31,11 +31,12 @@ services:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tfd_short_watcher
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
-      window: 120s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     depends_on:
       db:
         condition: service_healthy
@@ -64,11 +65,12 @@ services:
       context: .
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Streamer/TekkenFrameData.Streamer.Server/Dockerfile
     container_name: tfd_short_streamer
-    restart_policy:
-      condition: on-failure
-      delay: 5s
-      max_attempts: 3
-      window: 120s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     depends_on:
       watcher: 
         condition: service_started

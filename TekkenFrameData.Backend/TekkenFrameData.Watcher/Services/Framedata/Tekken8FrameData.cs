@@ -53,15 +53,16 @@ public partial class Tekken8FrameData(
             return null;
         }
 
-        var charnameOut = await FindCharacterByNameAsync(command);
-        var skipChars = 1;
+        var result = await FindCharacterByNameAsync(command);
+        var charnameOut = result.character;
+        var length = result.length;
 
-        if (command.Length <= skipChars || charnameOut is null)
+        if (command.Length <= 1 || charnameOut is null)
         {
             return null;
         }
 
-        var input = string.Join(" ", command.Skip(skipChars)).ToLower();
+        var input = string.Join(" ", command.TakeLast(command.Length - length)).ToLower();
 
         if (string.IsNullOrWhiteSpace(charnameOut.Name) || string.IsNullOrWhiteSpace(input))
         {
@@ -88,24 +89,27 @@ public partial class Tekken8FrameData(
         return null;
     }
 
-    private async Task<TekkenCharacter?> FindCharacterByNameAsync(string[] commandParts)
+    private async Task<(TekkenCharacter? character, int length)> FindCharacterByNameAsync(
+        string[]? commandParts
+    )
     {
         await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
             _cancellationToken
         );
 
         // Сначала пробуем найти по двум словам
-        var charname = string.Join(" ", commandParts.Take(2));
+        var charname = string.Join(" ", commandParts?.Take(2) ?? []);
         var character = await FindCharacterInDatabaseAsync(charname, dbContext);
 
         if (character != null)
         {
-            return character;
+            return (character, 2);
         }
 
         // Если не нашли, пробуем по одному слову
-        charname = string.Join(" ", commandParts.Take(1));
-        return await FindCharacterInDatabaseAsync(charname, dbContext);
+        charname = string.Join(" ", commandParts?.Take(1) ?? []);
+        character = await FindCharacterInDatabaseAsync(charname, dbContext);
+        return (character, 1);
     }
 
     private static async Task<TekkenCharacter?> FindCharacterInDatabaseAsync(

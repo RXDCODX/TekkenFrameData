@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Diagnostics.Eventing.Reader;
+using System.Net.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -36,7 +37,7 @@ namespace TekkenFrameData.Watcher;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -167,7 +168,15 @@ public class Program
 
         app.UseStatusCodePages();
 
-        app.Run();
+        try
+        {
+            await app.RunAsync();
+        }
+        catch (Exception e)
+        {
+            var logger = app.Services.GetService<ILogger<Program>>();
+            logger?.LogException(e);
+        }
     }
 
     private static Configuration GetAppConfiguration(

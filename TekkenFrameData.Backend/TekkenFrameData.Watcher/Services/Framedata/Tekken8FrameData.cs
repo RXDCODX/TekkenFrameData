@@ -113,7 +113,7 @@ public partial class Tekken8FrameData(
         return (character, 1);
     }
 
-    private static async Task<TekkenCharacter?> FindCharacterInDatabaseAsync(
+    public async Task<TekkenCharacter?> FindCharacterInDatabaseAsync(
         string charname,
         AppDbContext dbContext
     )
@@ -290,11 +290,14 @@ public partial class Tekken8FrameData(
         }
         else
         {
-            var result = await GetMoveFromMovelistByTagAsync(lastSplit, characterMovelist);
+            var (tekkenMoveTag, move) = await GetMoveFromMovelistByTagAsync(
+                lastSplit,
+                characterMovelist
+            );
 
-            if (result.move != null)
+            if (move != null)
             {
-                return (result.tag, [result.move]);
+                return (Tag: tekkenMoveTag, [move]);
             }
         }
 
@@ -306,7 +309,7 @@ public partial class Tekken8FrameData(
         CancellationToken? stoppingToken
     )
     {
-        stoppingToken = stoppingToken ?? _cancellationToken;
+        stoppingToken ??= _cancellationToken;
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(
             stoppingToken.Value
         );
@@ -337,7 +340,7 @@ public partial class Tekken8FrameData(
         CancellationToken? stoppingToken
     )
     {
-        stoppingToken = stoppingToken ?? _cancellationToken;
+        stoppingToken ??= _cancellationToken;
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(
             stoppingToken.Value
         );
@@ -407,11 +410,16 @@ public partial class Tekken8FrameData(
 
         if (typeWithoutStance == TekkenMoveTag.None)
         {
-            moves = movelist
-                .Where(e =>
+            var list = new List<TekkenMove>();
+            foreach (var e in movelist)
+            {
+                if (
                     (e.StanceName?.Equals(input) ?? false) || (e.StanceCode?.Equals(input) ?? false)
                 )
-                .ToArray();
+                    list.Add(e);
+            }
+
+            moves = [.. list];
 
             return Task.FromResult<(TekkenMoveTag tag, TekkenMove[])?>((TekkenMoveTag.None, moves));
         }
@@ -419,25 +427,25 @@ public partial class Tekken8FrameData(
         switch (typeWithoutStance)
         {
             case TekkenMoveTag.HeatBurst:
-                moves = movelist.Where(e => e is { HeatBurst: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { HeatBurst: true })];
                 break;
             case TekkenMoveTag.HeatEngage:
-                moves = movelist.Where(e => e is { HeatEngage: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { HeatEngage: true })];
                 break;
             case TekkenMoveTag.HeatSmash:
-                moves = movelist.Where(e => e is { HeatSmash: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { HeatSmash: true })];
                 break;
             case TekkenMoveTag.Homing:
-                moves = movelist.Where(e => e is { Homing: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { Homing: true })];
                 break;
             case TekkenMoveTag.PowerCrush:
-                moves = movelist.Where(e => e is { PowerCrush: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { PowerCrush: true })];
                 break;
             case TekkenMoveTag.Throw:
-                moves = movelist.Where(e => e is { Throw: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { Throw: true })];
                 break;
             case TekkenMoveTag.Tornado:
-                moves = movelist.Where(e => e is { Tornado: true }).ToArray();
+                moves = [.. movelist.Where(e => e is { Tornado: true })];
                 break;
         }
 

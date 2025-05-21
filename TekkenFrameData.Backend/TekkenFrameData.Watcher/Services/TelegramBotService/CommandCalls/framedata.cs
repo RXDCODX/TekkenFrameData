@@ -1,17 +1,14 @@
 ﻿using System.Collections.Generic;
 using Telegram.Bot;
-using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using TwitchLib.EventSub.Websockets.Handler.Channel.Ads;
 using Message = Telegram.Bot.Types.Message;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {
-    
     public async Task<Message> OnFramedataCommandReceived(
         ITelegramBotClient botClient,
         Message message,
@@ -70,7 +67,9 @@ public partial class Commands
                 return null;
             }
 
-            await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+            await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                cancellationToken
+            );
             var character = await frameData.FindCharacterInDatabaseAsync(charName, dbContext);
             if (character == null)
             {
@@ -219,26 +218,16 @@ public partial class Commands
         {
             string mss = "Плохие параметры запроса";
 
-            switch (cs)
+            mss += cs switch
             {
-                case 1:
-                    mss += ": не указан инпут!";
-                    break;
-                default:
-                    mss += ".";
-                    break;
-
-
-
-            }
+                1 => ": не указан инпут!",
+                _ => ".",
+            };
             return await botClient.SendMessage(
-                    message.Chat.Id,
-                    mss,
-                    cancellationToken: cancellationToken
+                message.Chat.Id,
+                mss,
+                cancellationToken: cancellationToken
             );
-
         }
-
-        
     }
 }

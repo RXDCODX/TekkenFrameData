@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
-using TwitchLib.Api.Helix;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -22,8 +20,8 @@ public class TwitchFramedate(
 ) : BackgroundService
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
-    private static readonly Regex Regex = new Regex(@"\p{C}+");
-    private List<string> ApprovedChannels = new List<string>();
+    private static readonly Regex Regex = new(@"\p{C}+");
+    private readonly List<string> _approvedChannels = [];
 
     public async void FrameDateMessage(object? sender, OnMessageReceivedArgs args)
     {
@@ -52,8 +50,7 @@ public class TwitchFramedate(
                         {
                             await SendResponse(
                                 channel,
-                                "@{user}, плохие параметры запроса фреймдаты",
-                                args.ChatMessage.DisplayName
+                                "@{user}, плохие параметры запроса фреймдаты"
                             );
                             return;
                         }
@@ -64,14 +61,13 @@ public class TwitchFramedate(
                             ?? await HandleSingleMove(keyWords);
                         if (response != null)
                         {
-                            await SendResponse(channel, response, args.ChatMessage.DisplayName);
+                            await SendResponse(channel, response);
                         }
                         else
                         {
                             await SendResponse(
                                 channel,
-                                "@{user}, ничего не найдено по вашему запросу",
-                                args.ChatMessage.DisplayName
+                                "@{user}, ничего не найдено по вашему запросу"
                             );
                         }
                     }
@@ -83,7 +79,7 @@ public class TwitchFramedate(
 
     private bool IsChannelApproved(string channelId)
     {
-        if (ApprovedChannels.Contains(channelId))
+        if (_approvedChannels.Contains(channelId))
         {
             return true;
         }
@@ -96,7 +92,7 @@ public class TwitchFramedate(
             );
             if (IsApproved)
             {
-                ApprovedChannels.Add(channelId);
+                _approvedChannels.Add(channelId);
                 return true;
             }
             else
@@ -206,7 +202,7 @@ public class TwitchFramedate(
             + tagsInfo;
     }
 
-    private Task SendResponse(string channel, string message, string username)
+    private Task SendResponse(string channel, string message)
     {
         try
         {

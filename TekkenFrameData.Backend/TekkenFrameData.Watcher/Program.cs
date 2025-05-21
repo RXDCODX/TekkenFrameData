@@ -1,9 +1,6 @@
-﻿using System.Diagnostics.Eventing.Reader;
-using System.Net.Http;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

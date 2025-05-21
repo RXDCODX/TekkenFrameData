@@ -1,7 +1,4 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +18,8 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
 
     internal PollingServiceBase(
         IServiceProvider serviceProvider,
-        ILogger<PollingServiceBase<TReceiverService>> logger)
+        ILogger<PollingServiceBase<TReceiverService>> logger
+    )
     {
         _serviceProvider = serviceProvider;
         _logger = logger;

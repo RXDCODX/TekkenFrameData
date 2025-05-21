@@ -1,10 +1,6 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
-using Telegram.Bot.Types.Enums;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.Abstract;
 
@@ -22,7 +18,8 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
     internal ReceiverServiceBase(
         ITelegramBotClient botClient,
         TUpdateHandler updateHandler,
-        ILogger<ReceiverServiceBase<TUpdateHandler>> logger)
+        ILogger<ReceiverServiceBase<TUpdateHandler>> logger
+    )
     {
         _botClient = botClient;
         _updateHandler = updateHandler;
@@ -40,16 +37,16 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
         var receiverOptions = new ReceiverOptions
         {
             AllowedUpdates = [],
-            DropPendingUpdates = true
+            DropPendingUpdates = true,
         };
 
         var me = await _botClient.GetMe(stoppingToken);
-        _logger.LogInformation("Start receiving updates for {BotName}", me.Username ?? "My Awesome Bot");
+        _logger.LogInformation(
+            "Start receiving updates for {BotName}",
+            me.Username ?? "My Awesome Bot"
+        );
 
         // Start receiving updates
-        await _botClient.ReceiveAsync(
-            _updateHandler,
-            receiverOptions,
-            stoppingToken);
+        await _botClient.ReceiveAsync(_updateHandler, receiverOptions, stoppingToken);
     }
 }

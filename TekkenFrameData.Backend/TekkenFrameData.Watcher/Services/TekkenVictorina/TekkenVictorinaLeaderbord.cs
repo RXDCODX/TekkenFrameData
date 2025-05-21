@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using TekkenFrameData.Library.DB;
-using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
@@ -17,8 +17,7 @@ public partial class Commands(
     Tekken8FrameData frameData,
     ITwitchClient twitchClient,
     IHostApplicationLifetime lifetime,
-    IDbContextFactory<AppDbContext> dbContextFactory
-    IHostApplicationLifetime lifetime,
+    IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext
 )
 {

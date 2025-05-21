@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   db:
@@ -33,6 +33,8 @@ services:
       dockerfile: TekkenFrameData.Backend/TekkenFrameData.Watcher/Dockerfile
     container_name: tfd_short_watcher
     deploy:
+      labels:
+        - docker
       restart_policy:
         condition: on-failure
         delay: 5s

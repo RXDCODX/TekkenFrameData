@@ -189,6 +189,11 @@ public class UpdateHandler : IUpdateHandler
                         message,
                         cancellationToken
                     ),
+                    "/reboot" => _commands.OnRebootCommandReceived(
+                        _botClient,
+                        message,
+                        cancellationToken
+                    ),
                     _ => ErrorCommand(_botClient, message, cancellationToken),
                 };
             }

@@ -18,7 +18,8 @@ public partial class Commands(
     ITwitchClient twitchClient,
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
-    IHubContext<MainHub, IMainHubCommands> hubContext
+    IHubContext<MainHub, IMainHubCommands> hubContext,
+    RebootService.RebootService rebootService
 )
 {
     public const string Template =

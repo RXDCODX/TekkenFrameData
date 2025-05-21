@@ -10,4 +10,6 @@
 public partial class Configuration
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    public string SSH_Login { get; set; } = null!;
+    public string SSH_Password { get; set; } = null!;
 }

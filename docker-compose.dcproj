@@ -10,7 +10,7 @@
     <DockerServiceName>TekkenFrameData</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose.watcher.yml" />
+    <None Include="docker-compose.short.yml" />
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
   </ItemGroup>

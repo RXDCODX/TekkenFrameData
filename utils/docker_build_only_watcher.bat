@@ -27,7 +27,7 @@ docker image prune -f
 :: Запуск сервисов через docker-compose
 echo.
 echo [4/4] Запуск PostgreSQL и Watcher...
-docker-compose -f "..\docker-compose.short.yml" up -d
+docker compose -f "..\docker-compose.short.yml" up -d
 
 if %errorlevel% neq 0 (
     echo Ошибка при запуске сервисов!

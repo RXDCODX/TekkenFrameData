@@ -14,6 +14,7 @@ using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
+using TekkenFrameData.Watcher.Services.RebootService;
 using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
@@ -151,6 +152,8 @@ public class Program
 
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
+
+        services.AddScoped<RebootService>();
 
         services.AddSignalR();
 

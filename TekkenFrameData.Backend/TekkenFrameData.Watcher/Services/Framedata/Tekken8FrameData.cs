@@ -212,9 +212,7 @@ public partial class Tekken8FrameData(
             currentMove = movelist.FirstOrDefault(
                 move =>
                     move != null
-                    && Tekken8FrameData
-                        .ReplaceCommandCharacters(move.Command.ToLower())
-                        .StartsWith(replaced),
+                    && ReplaceCommandCharacters(move.Command.ToLower()).StartsWith(replaced),
                 null
             );
 

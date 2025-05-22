@@ -13,7 +13,7 @@ public partial class Commands
     {
         try
         {
-            await Task.Factory.StartNew(rebootService.UpdateService, token);
+            await rebootService.UpdateService();
             return await client.SendMessage(
                 message.Chat,
                 "Попытался запустить скрипт",

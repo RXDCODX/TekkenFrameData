@@ -7,35 +7,16 @@ using TekkenFrameData.Library.Exstensions;
 
 namespace TekkenFrameData.Watcher.Services.RebootService;
 
-public class RebootService(
-    IDbContextFactory<AppDbContext> factory,
-    ILogger<RebootService> logger,
-    IHostApplicationLifetime lifetime
-) : BackgroundService
+public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<RebootService> logger)
 {
     public const string RebootScript = """
-        #!/bin/bash
-
-        REPO_DIR="$HOME/Загрузки/git/TekkenFrameData"
-        REPO_URL="https://github.com/user/project"
-
-        # Проверяем существование директории
-        if [ -d "$REPO_DIR" ]; then
-            echo "Директория существует, обновляю репозиторий..."
-            cd "$REPO_DIR"
-            git pull
-        else
-            echo "Директория не найдена, клонирую репозиторий..."
-            gh repo clone "$REPO_URL" "$REPO_DIR"
-        fi
+        sh ~/Загрузки/update_build_repo.sh
         """;
 
     public async Task UpdateService()
     {
-        Console.WriteLine("123asd");
         await using var dbContext = await factory.CreateDbContextAsync();
         var config = dbContext.Configuration.Single();
-        Console.WriteLine("1234asd");
 
         // Параметры подключения
         using var client = new SshClient(
@@ -44,25 +25,17 @@ public class RebootService(
             config.SSH_Login,
             config.SSH_Password
         );
-        Console.WriteLine("1235asd");
 
         // Подключаемся к серверу
         client.Connect();
-        Console.WriteLine("1236asd");
 
         try
         {
-            Console.WriteLine("1237asd");
-
             // Создаем команду для выполнения скрипта через bash
-            var command = client.CreateCommand(
-                $"echo \"{RebootScript.Replace("\"", "\\\"")}\" | bash"
-            );
-            Console.WriteLine("1238asd");
+            var command = client.CreateCommand(RebootScript);
 
             // Выполняем команду
             var result = command.Execute();
-            Console.WriteLine("1239asd");
 
             // Выводим результат выполнения
             logger.LogInformation("Результат выполнения: {result}", result);
@@ -80,15 +53,5 @@ public class RebootService(
             // Отключаемся от сервера
             client.Disconnect();
         }
-    }
-
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        lifetime.ApplicationStarted.Register(() =>
-        {
-            Console.WriteLine("asdadsadsad");
-        });
-
-        return Task.CompletedTask;
     }
 }

@@ -14,8 +14,12 @@ public partial class Commands
     {
         try
         {
-            var result = await _rebootServiceWorker.UpdateService();
-            return await client.SendMessage(message.Chat, result, cancellationToken: token);
+            await Task.Factory.StartNew(rebootServiceWorker.UpdateService, token);
+            return await client.SendMessage(
+                message.Chat,
+                "Запустил перезапуск!",
+                cancellationToken: token
+            );
         }
         catch (Exception ex)
         {

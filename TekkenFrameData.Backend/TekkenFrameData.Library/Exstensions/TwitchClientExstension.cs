@@ -8,6 +8,7 @@ public static class TwitchClientExstension
     public const string Channel = "neutralbackkorobka";
     public const int ChannelId = 1305814373;
     public const int AuthorId = 785975641;
+    public const int AnubisaractId = 77322336;
 
     public static async Task SendMessageToMainTwitchAsync<T>(
         this ITwitchClient client,
@@ -73,7 +74,10 @@ public static class TwitchClientExstension
 
             if (message.Contains('.'))
             {
-                var splits = message.Split('.', StringSplitOptions.TrimEntries);
+                var splits = message.Split(
+                    '.',
+                    StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries
+                );
                 var isPass = splits.All(e => e.Length < 450);
 
                 if (isPass)
@@ -82,7 +86,7 @@ public static class TwitchClientExstension
                     {
                         await Task.Delay(3000);
 
-                        client.SendMessage(channel, split);
+                        client.SendMessage(channel, split + '.');
                     }
                 }
 

@@ -4,8 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
+using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -23,18 +26,25 @@ public class TwitchFramedate(
     private static readonly Regex Regex = new(@"\p{C}+");
     private readonly List<string> _approvedChannels = [];
 
-    public async void FrameDateMessage(object? sender, OnMessageReceivedArgs args)
+    public async void FrameDateMessage(object? sender, OnChatCommandReceivedArgs args)
     {
-        var channel = args.ChatMessage.RoomId;
+        var message = args.Command.ChatMessage.Message;
+        var userName = args.Command.ChatMessage.DisplayName;
+        var userId = args.Command.ChatMessage.UserId;
+        var command = args.Command.CommandText;
+        var channelId = args.Command.ChatMessage.RoomId;
+        var channelName = args.Command.ChatMessage.Channel;
+        var pass =
+            userId.Trim().Equals(TwitchClientExstension.AuthorId.ToString())
+            || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
+        var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
 
-        if (IsChannelApproved(channel))
+        if (!pass || IsChannelApproved(channelId))
         {
             await Task.Run(
                 async () =>
                 {
-                    var message = args.ChatMessage.Message;
-
-                    if (message.StartsWith("!fd ", StringComparison.OrdinalIgnoreCase))
+                    if (command.StartsWith("fd ", StringComparison.OrdinalIgnoreCase))
                     {
                         var keyWords = Regex
                             .Replace(message, "")
@@ -49,24 +59,41 @@ public class TwitchFramedate(
                         if (keyWords.Length < 2)
                         {
                             await SendResponse(
-                                channel,
+                                channelName,
                                 "@{user}, плохие параметры запроса фреймдаты"
                             );
                             return;
                         }
 
                         var response =
-                            await HandleTagMoves(keyWords)
-                            ?? await HandleStances(keyWords)
-                            ?? await HandleSingleMove(keyWords);
+                            await HandleTagMoves(keyWords) ?? await HandleStances(keyWords);
+
+                        if (response is null)
+                        {
+                            var result = await HandleSingleMove(keyWords);
+                            if (
+                                result.HasValue
+                                && CrossChannelManager.MovesInVictorina.Values.Contains(
+                                    result.Value.move
+                                )
+                            )
+                            {
+                                client.SendMessage(
+                                    channelName,
+                                    $"@{userName}, этот удар находиться в теккен виткорине, пока что не могу подсказать!"
+                                );
+                                return;
+                            }
+                        }
+
                         if (response != null)
                         {
-                            await SendResponse(channel, response);
+                            await SendResponse(channelName, response);
                         }
                         else
                         {
                             await SendResponse(
-                                channel,
+                                channelName,
                                 "@{user}, ничего не найдено по вашему запросу"
                             );
                         }
@@ -74,6 +101,16 @@ public class TwitchFramedate(
                 },
                 _cancellationToken
             );
+        }
+        else
+        {
+            if (isBroadcaster)
+            {
+                client.SendMessage(
+                    channelName,
+                    $"@{channelName}, перед пользованием тебе нужно согласиться на использование! Посмотри описание моего канала для подробностей!"
+                );
+            }
         }
     }
 
@@ -87,7 +124,7 @@ public class TwitchFramedate(
         {
             //проверяем наличие канала в бд
             using var dbContext = factory.CreateDbContext();
-            bool IsApproved = dbContext.TekkenChannels.Any(e =>
+            var IsApproved = dbContext.TekkenChannels.Any(e =>
                 e.TwitchId == channelId && e.FramedataStatus == TekkenFramedataStatus.Accepted
             );
             if (IsApproved)
@@ -145,7 +182,7 @@ public class TwitchFramedate(
             + string.Join(", ", stances.Select(e => $"{e.Key} - {e.Value}"));
     }
 
-    private async Task<string?> HandleSingleMove(string[] keyWords)
+    private async Task<(TekkenMove move, string response)?> HandleSingleMove(string[] keyWords)
     {
         var move = await frameData.GetMoveAsync(keyWords);
         if (move?.Character == null)
@@ -195,11 +232,14 @@ public class TwitchFramedate(
 
         var tagsInfo = tags.Count > 0 ? $" | Теги: {string.Join(", ", tags)}" : "";
 
-        return $"\u2705 {move.Character.Name} > {move.Command} \u2705 "
-            + $"Старт: {move.StartUpFrame} | Блок: {move.BlockFrame} | Хит: {move.HitFrame} | "
-            + $"CH: {move.CounterHitFrame} | Уровень: {move.HitLevel} | Урон: {move.Damage}"
-            + stanceInfo
-            + tagsInfo;
+        return (
+            move,
+            $"\u2705 {move.Character.Name} > {move.Command} \u2705 "
+                + $"Старт: {move.StartUpFrame} | Блок: {move.BlockFrame} | Хит: {move.HitFrame} | "
+                + $"CH: {move.CounterHitFrame} | Уровень: {move.HitLevel} | Урон: {move.Damage}"
+                + stanceInfo
+                + tagsInfo
+        );
     }
 
     private Task SendResponse(string channel, string message)
@@ -235,11 +275,6 @@ public class TwitchFramedate(
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        lifetime.ApplicationStarted.Register(() =>
-        {
-            client.OnMessageReceived += FrameDateMessage;
-        });
-
         return Task.CompletedTask;
     }
 }

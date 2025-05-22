@@ -154,6 +154,7 @@ public class Program
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
         services.AddSingleton<RebootService>();
+        services.AddHostedService(sp => sp.GetRequiredService<RebootService>());
 
         services.AddSignalR();
 

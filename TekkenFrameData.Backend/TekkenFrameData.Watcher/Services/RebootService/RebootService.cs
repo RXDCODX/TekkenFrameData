@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Renci.SshNet;
 using TekkenFrameData.Library.DB;
@@ -6,7 +7,11 @@ using TekkenFrameData.Library.Exstensions;
 
 namespace TekkenFrameData.Watcher.Services.RebootService;
 
-public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<RebootService> logger)
+public class RebootService(
+    IDbContextFactory<AppDbContext> factory,
+    ILogger<RebootService> logger,
+    IHostApplicationLifetime lifetime
+) : BackgroundService
 {
     public const string RebootScript = """
         #!/bin/bash
@@ -75,5 +80,15 @@ public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<Rebo
             // Отключаемся от сервера
             client.Disconnect();
         }
+    }
+
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            Console.WriteLine("asdadsadsad");
+        });
+
+        return Task.CompletedTask;
     }
 }

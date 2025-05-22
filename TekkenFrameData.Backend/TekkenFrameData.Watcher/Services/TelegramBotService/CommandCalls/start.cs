@@ -14,6 +14,7 @@ public partial class Commands
     {
         const string usage = """
             Создатель бота - https://www.twitch.tv/rxdcodx
+            FREAK
             /commands
             """;
 

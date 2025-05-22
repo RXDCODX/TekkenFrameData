@@ -16,12 +16,9 @@ public class RebootServiceWorker(
 
     public async Task<string> UpdateService()
     {
-        var message = "good";
         await using var dbContext = await factory.CreateDbContextAsync();
-        message = "asd1234";
-        var config = dbContext.Configuration.Single();
-        message = "asd1235";
 
+        var config = dbContext.Configuration.Single();
         // Параметры подключения
         using var client = new SshClient(
             "host.docker.internal",
@@ -29,33 +26,29 @@ public class RebootServiceWorker(
             config.SSH_Login,
             config.SSH_Password
         );
-        message = "asd1236";
 
         // Подключаемся к серверу
         client.Connect();
-        message = "asd1237";
 
         try
         {
             // Создаем команду для выполнения скрипта через bash
             var command = client.CreateCommand(RebootScript);
-            message = "asd1238";
 
             // Выполняем команду
             var result = command.Execute();
-            message = "asd1239";
 
             // Выводим результат выполнения
             client.Disconnect();
-            message = result;
-            return $"Результат выполнения: {message}";
+
+            return $"Результат выполнения: {result}";
         }
         catch (Exception ex)
         {
             logger.LogException(ex);
             client.Disconnect();
-            message = "asd12310";
-            return message;
+
+            return ex.Message;
         }
         finally
         {

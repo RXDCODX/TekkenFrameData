@@ -23,6 +23,8 @@ public partial class Commands(
     RebootServiceWorker rebootServiceWorker
 )
 {
+    private readonly RebootServiceWorker _rebootServiceWorker = rebootServiceWorker;
+
     public const string Template =
         "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";
 

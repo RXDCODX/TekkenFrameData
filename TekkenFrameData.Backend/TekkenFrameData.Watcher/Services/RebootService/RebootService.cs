@@ -32,7 +32,7 @@ public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<Rebo
         // Параметры подключения
         using var client = new SshClient(
             "host.docker.internal",
-            22,
+            27022,
             config.SSH_Login,
             config.SSH_Password
         );

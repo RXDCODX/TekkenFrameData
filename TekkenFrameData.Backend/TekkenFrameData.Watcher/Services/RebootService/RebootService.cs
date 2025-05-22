@@ -9,9 +9,7 @@ namespace TekkenFrameData.Watcher.Services.RebootService;
 
 public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<RebootService> logger)
 {
-    public const string RebootScript = """
-        sh ~/Загрузки/update_build_repo.sh
-        """;
+    public const string RebootScript = "sh ~/Загрузки/update_build_repo.sh";
 
     public async Task<string> UpdateService()
     {

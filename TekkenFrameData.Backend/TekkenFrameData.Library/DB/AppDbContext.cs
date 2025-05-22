@@ -21,7 +21,7 @@ public sealed partial class AppDbContext : DbContext
 
                     if (migrations.Any())
                     {
-                        //Database.Migrate();
+                        Database.Migrate();
                     }
 
                     _isMigrated = true;

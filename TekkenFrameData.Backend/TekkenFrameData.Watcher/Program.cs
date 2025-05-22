@@ -153,7 +153,7 @@ public class Program
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
-        services.AddSingleton<RebootService>();
+        services.AddSingleton<RebootServiceWorker>();
 
         services.AddSignalR();
 

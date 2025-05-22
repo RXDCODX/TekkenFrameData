@@ -9,11 +9,9 @@ namespace TekkenFrameData.Watcher.Services.RebootService;
 
 public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<RebootService> logger)
 {
-    public const string RebootScript = """
-        sh ~/Загрузки/update_build_repo.sh
-        """;
+    public const string RebootScript = "sh ~/Загрузки/update_repo.sh";
 
-    public async Task UpdateService()
+    public async Task<string> UpdateService()
     {
         await using var dbContext = await factory.CreateDbContextAsync();
         var config = dbContext.Configuration.Single();
@@ -38,15 +36,14 @@ public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<Rebo
             var result = command.Execute();
 
             // Выводим результат выполнения
-            logger.LogInformation("Результат выполнения: {result}", result);
-            if (!string.IsNullOrEmpty(command.Error))
-            {
-                logger.LogError("Ошибки: {command.Error}", command.Error);
-            }
+            client.Disconnect();
+            return $"Результат выполнения: {result}";
         }
         catch (Exception ex)
         {
             logger.LogException(ex);
+            client.Disconnect();
+            return ex.Message;
         }
         finally
         {

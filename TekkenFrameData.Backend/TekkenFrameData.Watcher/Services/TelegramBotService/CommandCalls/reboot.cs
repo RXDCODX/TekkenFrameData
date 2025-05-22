@@ -13,12 +13,8 @@ public partial class Commands
     {
         try
         {
-            await rebootService.UpdateService();
-            return await client.SendMessage(
-                message.Chat,
-                "Попытался запустить скрипт",
-                cancellationToken: token
-            );
+            var result = await rebootService.UpdateService();
+            return await client.SendMessage(message.Chat, result, cancellationToken: token);
         }
         catch (Exception e)
         {

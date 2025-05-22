@@ -7,7 +7,10 @@ using TekkenFrameData.Library.Exstensions;
 
 namespace TekkenFrameData.Watcher.Services.RebootService;
 
-public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<RebootService> logger)
+public class RebootServiceWorker(
+    IDbContextFactory<AppDbContext> factory,
+    ILogger<RebootServiceWorker> logger
+)
 {
     public const string RebootScript = "sh ~/Загрузки/update_repo.sh";
 

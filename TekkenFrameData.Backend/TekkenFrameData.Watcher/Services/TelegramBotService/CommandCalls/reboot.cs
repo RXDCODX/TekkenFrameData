@@ -13,7 +13,9 @@ public partial class Commands
     {
         try
         {
-            var result = await rebootService.UpdateService();
+            Console.WriteLine("zxc");
+            var result = await rebootServiceWorker.UpdateService();
+            Console.WriteLine("zxc123");
             return await client.SendMessage(message.Chat, result, cancellationToken: token);
         }
         catch (Exception e)

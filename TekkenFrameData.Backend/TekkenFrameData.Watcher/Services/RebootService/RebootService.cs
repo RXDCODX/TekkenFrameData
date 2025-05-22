@@ -27,8 +27,11 @@ public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<Rebo
 
     public async Task UpdateService()
     {
+        Console.WriteLine("123asd");
         await using var dbContext = await factory.CreateDbContextAsync();
         var config = dbContext.Configuration.Single();
+        Console.WriteLine("1234asd");
+
         // Параметры подключения
         using var client = new SshClient(
             "host.docker.internal",
@@ -36,19 +39,25 @@ public class RebootService(IDbContextFactory<AppDbContext> factory, ILogger<Rebo
             config.SSH_Login,
             config.SSH_Password
         );
+        Console.WriteLine("1235asd");
 
         // Подключаемся к серверу
         client.Connect();
+        Console.WriteLine("1236asd");
 
         try
         {
+            Console.WriteLine("1237asd");
+
             // Создаем команду для выполнения скрипта через bash
             var command = client.CreateCommand(
                 $"echo \"{RebootScript.Replace("\"", "\\\"")}\" | bash"
             );
+            Console.WriteLine("1238asd");
 
             // Выполняем команду
             var result = command.Execute();
+            Console.WriteLine("1239asd");
 
             // Выводим результат выполнения
             logger.LogInformation("Результат выполнения: {result}", result);

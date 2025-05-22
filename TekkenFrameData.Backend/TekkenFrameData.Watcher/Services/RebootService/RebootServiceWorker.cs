@@ -12,7 +12,7 @@ public class RebootServiceWorker(
     ILogger<RebootServiceWorker> logger
 )
 {
-    public const string RebootScript = "sh ~/Загрузки/update_repo.sh";
+    public const string RebootScript = "sh ~/Загрузки/update_build_repo.sh";
 
     public async Task<string> UpdateService()
     {

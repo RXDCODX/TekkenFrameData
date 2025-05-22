@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
@@ -20,7 +21,8 @@ public partial class Commands(
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext,
-    RebootServiceWorker rebootServiceWorker
+    RebootServiceWorker rebootServiceWorker,
+    ILogger<Commands> logger
 )
 {
     private readonly RebootServiceWorker _rebootServiceWorker = rebootServiceWorker;

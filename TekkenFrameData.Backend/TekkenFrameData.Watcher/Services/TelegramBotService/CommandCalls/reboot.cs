@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using TekkenFrameData.Library.Exstensions;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
@@ -11,7 +12,19 @@ public partial class Commands
         CancellationToken token
     )
     {
-        var result = await _rebootServiceWorker.UpdateService();
-        return await client.SendMessage(message.Chat, result, cancellationToken: token);
+        try
+        {
+            var result = await _rebootServiceWorker.UpdateService();
+            return await client.SendMessage(message.Chat, result, cancellationToken: token);
+        }
+        catch (Exception ex)
+        {
+            logger.LogException(ex);
+            return await client.SendMessage(
+                message.Chat,
+                ex.Message + "#" + ex.StackTrace,
+                cancellationToken: token
+            );
+        }
     }
 }

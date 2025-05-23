@@ -24,7 +24,7 @@ public class TwitchFramedate(
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
     private static readonly Regex Regex = new(@"\p{C}+");
-    private readonly List<string> _approvedChannels = [];
+    private static readonly List<string> _approvedChannels = [];
 
     public async void FrameDateMessage(object? sender, OnChatCommandReceivedArgs args)
     {
@@ -44,7 +44,7 @@ public class TwitchFramedate(
             await Task.Run(
                 async () =>
                 {
-                    if (command.StartsWith("fd ", StringComparison.OrdinalIgnoreCase))
+                    if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))
                     {
                         var keyWords = Regex
                             .Replace(message, "")
@@ -275,6 +275,11 @@ public class TwitchFramedate(
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            client.OnChatCommandReceived += FrameDateMessage;
+        });
+
         return Task.CompletedTask;
     }
 }

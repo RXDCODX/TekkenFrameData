@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-    <PackageReference Include="SSH.NET" Version="2025.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="SSH.NET" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TekkenFrameData\TekkenFrameData.Backend\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
+    <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
   </ItemGroup>
 
 </Project>

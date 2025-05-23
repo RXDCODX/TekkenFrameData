@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Primitives;
 using TekkenFrameData.Library.Exstensions;
 
 namespace TekkenFrameData.UpdateService;

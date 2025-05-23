@@ -39,12 +39,12 @@ public class TwitchFramedate(
             || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
         var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
 
-        if (!pass || IsChannelApproved(channelId))
+        if (pass || IsChannelApproved(channelId))
         {
-            await Task.Run(
-                async () =>
-                {
-                    if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))
+            if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))
+            {
+                await Task.Run(
+                    async () =>
                     {
                         var keyWords = Regex
                             .Replace(message, "")
@@ -60,7 +60,7 @@ public class TwitchFramedate(
                         {
                             await SendResponse(
                                 channelName,
-                                "@{user}, плохие параметры запроса фреймдаты"
+                                $"@{userName}, плохие параметры запроса фреймдаты"
                             );
                             return;
                         }
@@ -84,6 +84,11 @@ public class TwitchFramedate(
                                 );
                                 return;
                             }
+                            else if (result.HasValue)
+                            {
+                                await SendResponse(channelName, result.Value.response);
+                                return;
+                            }
                         }
 
                         if (response != null)
@@ -94,13 +99,13 @@ public class TwitchFramedate(
                         {
                             await SendResponse(
                                 channelName,
-                                "@{user}, ничего не найдено по вашему запросу"
+                                $"@{userName}, ничего не найдено по вашему запросу"
                             );
                         }
-                    }
-                },
-                _cancellationToken
-            );
+                    },
+                    _cancellationToken
+                );
+            }
         }
         else
         {

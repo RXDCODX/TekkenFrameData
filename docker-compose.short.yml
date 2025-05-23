@@ -49,6 +49,7 @@ services:
       DB_PASSWORD: postgres
     extra_hosts:
       - "irc.chat.twitch.tv:127.0.0.1"
+      - "host.docker.internal:host-gateway"
     dns:
       - 8.8.8.8
       - 8.8.4.4

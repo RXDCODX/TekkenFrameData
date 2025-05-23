@@ -24,7 +24,7 @@ public class TwitchFramedate(
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
     private static readonly Regex Regex = new(@"\p{C}+");
-    private readonly List<string> _approvedChannels = [];
+    public static readonly List<string> ApprovedChannels = [];
 
     public async void FrameDateMessage(object? sender, OnChatCommandReceivedArgs args)
     {
@@ -39,12 +39,12 @@ public class TwitchFramedate(
             || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
         var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
 
-        if (!pass || IsChannelApproved(channelId))
+        if (pass || IsChannelApproved(channelId))
         {
-            await Task.Run(
-                async () =>
-                {
-                    if (command.StartsWith("fd ", StringComparison.OrdinalIgnoreCase))
+            if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))
+            {
+                await Task.Run(
+                    async () =>
                     {
                         var keyWords = Regex
                             .Replace(message, "")
@@ -60,7 +60,7 @@ public class TwitchFramedate(
                         {
                             await SendResponse(
                                 channelName,
-                                "@{user}, плохие параметры запроса фреймдаты"
+                                $"@{userName}, плохие параметры запроса фреймдаты"
                             );
                             return;
                         }
@@ -84,6 +84,11 @@ public class TwitchFramedate(
                                 );
                                 return;
                             }
+                            else if (result.HasValue)
+                            {
+                                await SendResponse(channelName, result.Value.response);
+                                return;
+                            }
                         }
 
                         if (response != null)
@@ -94,13 +99,13 @@ public class TwitchFramedate(
                         {
                             await SendResponse(
                                 channelName,
-                                "@{user}, ничего не найдено по вашему запросу"
+                                $"@{userName}, ничего не найдено по вашему запросу"
                             );
                         }
-                    }
-                },
-                _cancellationToken
-            );
+                    },
+                    _cancellationToken
+                );
+            }
         }
         else
         {
@@ -116,7 +121,7 @@ public class TwitchFramedate(
 
     private bool IsChannelApproved(string channelId)
     {
-        if (_approvedChannels.Contains(channelId))
+        if (ApprovedChannels.Contains(channelId))
         {
             return true;
         }
@@ -129,7 +134,7 @@ public class TwitchFramedate(
             );
             if (IsApproved)
             {
-                _approvedChannels.Add(channelId);
+                ApprovedChannels.Add(channelId);
                 return true;
             }
             else
@@ -275,6 +280,11 @@ public class TwitchFramedate(
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        lifetime.ApplicationStarted.Register(() =>
+        {
+            client.OnChatCommandReceived += FrameDateMessage;
+        });
+
         return Task.CompletedTask;
     }
 }

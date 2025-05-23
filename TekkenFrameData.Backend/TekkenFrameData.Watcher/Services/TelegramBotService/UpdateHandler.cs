@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Collections.Generic;
+using System.Net.Http;
+using System.Runtime.InteropServices.ComTypes;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -24,6 +27,8 @@ public class UpdateHandler : IUpdateHandler
 
     private TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
 
+    private readonly IHttpClientFactory _factory;
+
     public UpdateHandler(
         ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
@@ -31,12 +36,14 @@ public class UpdateHandler : IUpdateHandler
         Tekken8FrameData frameData,
         IHostApplicationLifetime lifetime,
         IDbContextFactory<AppDbContext> factory,
-        IWebHostEnvironment environment
+        IWebHostEnvironment environment,
+        IHttpClientFactory factory1
     )
     {
         _botClient = botClient;
         _logger = logger;
         _commands = commands;
+        this._factory = factory1;
         AdminLongs = factory.CreateDbContext().Configuration.Single().AdminIdsArray;
 
         if (environment.IsProduction())
@@ -189,11 +196,7 @@ public class UpdateHandler : IUpdateHandler
                         message,
                         cancellationToken
                     ),
-                    "/reboot" => _commands.OnRebootCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
+                    "/cmd" => SendBashCommand(_factory, _botClient, message, cancellationToken),
                     _ => ErrorCommand(_botClient, message, cancellationToken),
                 };
             }
@@ -239,6 +242,34 @@ public class UpdateHandler : IUpdateHandler
                 return client.SendMessage(
                     message.Chat.Id,
                     Commands.Template,
+                    cancellationToken: cancellationToken
+                );
+            }
+
+            static async Task<Message> SendBashCommand(
+                IHttpClientFactory factory,
+                ITelegramBotClient telegramBotClient,
+                Message message,
+                CancellationToken cancellationToken
+            )
+            {
+                if (message.Text == null)
+                {
+                    throw new NullReferenceException();
+                }
+
+                var splits = message.Text.Split(' ');
+                var address = splits[1];
+                var cmd = string.Join(' ', message.Text.Split(' ').Skip(2));
+                using var client = factory.CreateClient();
+                var msg = new HttpRequestMessage(HttpMethod.Post, address);
+                msg.Content = new FormUrlEncodedContent(
+                    new Dictionary<string, string>() { { "cmd", cmd } }
+                );
+                var result = await client.SendAsync(msg, cancellationToken);
+                return await telegramBotClient.SendMessage(
+                    message.Chat.Id,
+                    await result.Content.ReadAsStringAsync(cancellationToken),
                     cancellationToken: cancellationToken
                 );
             }

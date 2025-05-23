@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
@@ -18,8 +19,7 @@ public partial class Commands(
     ITwitchClient twitchClient,
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
-    IHubContext<MainHub, IMainHubCommands> hubContext,
-    RebootService.RebootService rebootService
+    IHubContext<MainHub, IMainHubCommands> hubContext
 )
 {
     public const string Template =

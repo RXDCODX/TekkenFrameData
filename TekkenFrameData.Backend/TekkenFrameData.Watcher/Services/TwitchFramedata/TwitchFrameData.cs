@@ -24,7 +24,7 @@ public class TwitchFramedate(
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
     private static readonly Regex Regex = new(@"\p{C}+");
-    private static readonly List<string> _approvedChannels = [];
+    public static readonly List<string> ApprovedChannels = [];
 
     public async void FrameDateMessage(object? sender, OnChatCommandReceivedArgs args)
     {
@@ -116,7 +116,7 @@ public class TwitchFramedate(
 
     private bool IsChannelApproved(string channelId)
     {
-        if (_approvedChannels.Contains(channelId))
+        if (ApprovedChannels.Contains(channelId))
         {
             return true;
         }
@@ -129,7 +129,7 @@ public class TwitchFramedate(
             );
             if (IsApproved)
             {
-                _approvedChannels.Add(channelId);
+                ApprovedChannels.Add(channelId);
                 return true;
             }
             else

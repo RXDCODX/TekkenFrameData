@@ -45,6 +45,7 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageVersion Include="obs-websocket-dotnet" Version="5.0.1" />
     <PackageVersion Include="SSH.NET" Version="2025.0.0" />
+    <PackageVersion Include="SteamKit2" Version="3.2.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="9.0.5" />
     <PackageVersion Include="System.Text.Json" Version="9.0.5" />

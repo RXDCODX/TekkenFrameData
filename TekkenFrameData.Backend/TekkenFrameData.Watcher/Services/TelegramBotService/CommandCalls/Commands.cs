@@ -7,7 +7,6 @@ using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Framedata;
-using TekkenFrameData.Watcher.Services.RebootService;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -20,9 +19,7 @@ public partial class Commands(
     ITwitchClient twitchClient,
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
-    IHubContext<MainHub, IMainHubCommands> hubContext,
-    RebootServiceWorker rebootServiceWorker,
-    ILogger<Commands> logger
+    IHubContext<MainHub, IMainHubCommands> hubContext
 )
 {
     public const string Template =

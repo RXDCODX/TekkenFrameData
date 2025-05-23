@@ -13,7 +13,7 @@ public class Program
         var app = builder.Build();
 
         app.MapPost(
-            "*",
+            "/*",
             (HttpContext context) =>
             {
                 var request = context.Request.Query["cmd"];

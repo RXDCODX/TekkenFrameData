@@ -28,7 +28,6 @@ public class Program
                 return Results.Accepted(result);
             }
         );
-        app.MapControllers();
 
         var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 

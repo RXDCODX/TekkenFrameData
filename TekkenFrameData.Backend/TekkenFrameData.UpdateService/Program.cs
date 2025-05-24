@@ -18,7 +18,8 @@ public class Program
             builder.Environment,
             builder.Configuration
         );
-        var configuration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
+        var dbContext = new AppDbContext(contextBuilder.Options);
+        var configuration = dbContext.Configuration.SingleOrDefault();
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
             BuilderConfigurator.ConfigureBuilder(
@@ -32,7 +33,7 @@ public class Program
             .AddHttpClient("update_service_client")
             .AddTypedClient<ITelegramBotClient>(
                 (client, provider) =>
-                    new TelegramBotClient(configuration.UpdateServiceBotToken, client)
+                    new TelegramBotClient(configuration!.UpdateServiceBotToken, client)
             );
 
         var app = builder.Build();

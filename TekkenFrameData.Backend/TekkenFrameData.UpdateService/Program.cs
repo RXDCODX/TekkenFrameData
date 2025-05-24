@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting.Server;
+﻿using System.Text;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using TekkenFrameData.Library.Exstensions;
 
@@ -9,23 +10,30 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var app = builder.Build();
 
         app.MapPost(
             "/",
-            (HttpContext context) =>
+            async (HttpContext context) =>
             {
-                var request = context.Request.Query["cmd"];
-                var cmd = request[0];
-                if (string.IsNullOrWhiteSpace(cmd))
+                try
                 {
-                    context.Response.StatusCode = 404;
-                    return Results.NotFound();
-                }
+                    var request = context.Request.Query["cmd"];
+                    var cmd = request[0];
+                    if (string.IsNullOrWhiteSpace(cmd))
+                    {
+                        context.Response.StatusCode = 404;
+                        return Results.NotFound();
+                    }
 
-                var result = cmd.Bash();
-                return Results.Accepted(result);
+                    var result = await cmd.Bash();
+                    return Results.Accepted(null, result);
+                }
+                catch (Exception e)
+                {
+                    return Results.InternalServerError(e.Message + "#" + e.StackTrace);
+                }
             }
         );
 

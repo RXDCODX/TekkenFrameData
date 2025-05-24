@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.DB.Helpers;
@@ -13,6 +14,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var services = builder.Services;
         var configuration = builder.Configuration;
         var contextBuilder = new DbContextOptionsBuilder<AppDbContext>();

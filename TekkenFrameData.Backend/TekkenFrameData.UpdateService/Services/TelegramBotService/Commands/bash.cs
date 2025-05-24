@@ -23,7 +23,32 @@ public partial class Commands
             {
                 try
                 {
-                    var result = await text.Bash();
+                    var result = await string.Join(' ', splits.Skip(1)).Bash();
+                    if (result.Length > 4095)
+                    {
+                        var split = result.Take(4095).ToArray();
+                        var newmessage = result.Skip(4095).ToArray();
+                        result = new string(newmessage);
+
+                        await Task.Delay(3000, token);
+
+                        if (result.Length > 4095)
+                        {
+                            await client.SendMessage(
+                                message.Chat,
+                                result,
+                                cancellationToken: token
+                            );
+                        }
+                        else
+                        {
+                            return await client.SendMessage(
+                                message.Chat,
+                                result,
+                                cancellationToken: token
+                            );
+                        }
+                    }
                     return await client.SendMessage(message.Chat, result, cancellationToken: token);
                 }
                 catch (Exception e)

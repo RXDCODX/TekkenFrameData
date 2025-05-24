@@ -6,7 +6,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TekkenFrameData.UpdateService.Services.TelegramBotService.Commands;
 
-public partial class Commands(IWebHostEnvironment environment)
+public partial class Commands
 {
     public const string Template =
         "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";

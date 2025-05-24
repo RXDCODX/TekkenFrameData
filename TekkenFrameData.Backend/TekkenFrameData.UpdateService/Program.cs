@@ -24,7 +24,6 @@ public class Program
             true
         );
         var appConfiguration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
-
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
             BuilderConfigurator.ConfigureBuilder(
                 optionsBuilder,

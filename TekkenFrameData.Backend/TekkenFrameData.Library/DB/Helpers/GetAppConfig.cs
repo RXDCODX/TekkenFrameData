@@ -10,17 +10,17 @@ public static class GetAppConfig
         DbContextOptionsBuilder<AppDbContext> contextBuilder
     )
     {
-        var dbContext = new AppDbContext(contextBuilder.Options);
-        var configuration = dbContext.Configuration.SingleOrDefault();
-
-        if (configuration == null)
+        Configuration configuration = null!;
+        try
         {
-            configuration = builder.Configuration.GetSection("Configuration").Get<Configuration>();
-
-            if (configuration == default)
-            {
-                throw new NullReferenceException();
-            }
+            var dbContext = new AppDbContext(contextBuilder.Options);
+            configuration = dbContext.Configuration.Single();
+        }
+        catch (Exception ex)
+        {
+            configuration =
+                builder.Configuration.GetSection("Configuration").Get<Configuration>()
+                ?? throw new InvalidOperationException();
         }
 
         return configuration;

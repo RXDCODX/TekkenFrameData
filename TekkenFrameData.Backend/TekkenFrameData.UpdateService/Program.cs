@@ -12,13 +12,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         var services = builder.Services;
+        var configuration = builder.Configuration;
         var contextBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        BuilderConfigurator.ConfigureBuilder(
-            contextBuilder,
-            builder.Environment,
-            builder.Configuration
-        );
-        var configuration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
+        contextBuilder.EnableDetailedErrors();
+        contextBuilder.EnableThreadSafetyChecks();
+        contextBuilder
+            .UseNpgsql(configuration.GetConnectionString("DB"))
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+        var appConfiguration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
             BuilderConfigurator.ConfigureBuilder(
@@ -32,7 +33,7 @@ public class Program
             .AddHttpClient("update_service_client")
             .AddTypedClient<ITelegramBotClient>(
                 (client, provider) =>
-                    new TelegramBotClient(configuration.UpdateServiceBotToken, client)
+                    new TelegramBotClient(appConfiguration.UpdateServiceBotToken, client)
             );
 
         var app = builder.Build();

@@ -21,7 +21,9 @@ public class Program
         contextBuilder.EnableDetailedErrors();
         contextBuilder.EnableThreadSafetyChecks();
         contextBuilder
-            .UseNpgsql(configuration.GetConnectionString("DB"))
+            .UseNpgsql(
+                "Host=localhost;Port=5552;Database=tekken_db;Username=postgres;Password=postgres;"
+            )
             .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
         var appConfiguration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
 

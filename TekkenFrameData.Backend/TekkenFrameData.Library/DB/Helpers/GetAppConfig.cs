@@ -16,7 +16,7 @@ public static class GetAppConfig
             var dbContext = new AppDbContext(contextBuilder.Options);
             configuration = dbContext.Configuration.Single();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             configuration =
                 builder.Configuration.GetSection("Configuration").Get<Configuration>()

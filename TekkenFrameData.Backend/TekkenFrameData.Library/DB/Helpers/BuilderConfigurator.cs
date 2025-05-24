@@ -9,10 +9,11 @@ public static class BuilderConfigurator
     public static void ConfigureBuilder(
         DbContextOptionsBuilder builder,
         IWebHostEnvironment environment,
-        IConfiguration configuration
+        IConfiguration configuration,
+        bool forceUseAppsettings = false
     )
     {
-        if (environment.IsDevelopment())
+        if (environment.IsDevelopment() || forceUseAppsettings)
         {
             builder.EnableDetailedErrors();
             builder.EnableThreadSafetyChecks();

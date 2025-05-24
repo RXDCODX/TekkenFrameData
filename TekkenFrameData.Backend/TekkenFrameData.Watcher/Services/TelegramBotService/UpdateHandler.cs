@@ -196,7 +196,6 @@ public class UpdateHandler : IUpdateHandler
                         message,
                         cancellationToken
                     ),
-                    "/cmd" => SendBashCommand(_factory, _botClient, message, cancellationToken),
                     _ => ErrorCommand(_botClient, message, cancellationToken),
                 };
             }
@@ -242,63 +241,6 @@ public class UpdateHandler : IUpdateHandler
                 return client.SendMessage(
                     message.Chat.Id,
                     Commands.Template,
-                    cancellationToken: cancellationToken
-                );
-            }
-
-            static async Task<Message> SendBashCommand(
-                IHttpClientFactory factory,
-                ITelegramBotClient telegramBotClient,
-                Message message,
-                CancellationToken cancellationToken
-            )
-            {
-                if (message.Text == null)
-                {
-                    throw new NullReferenceException();
-                }
-
-                var splits = message.Text.Split(' ');
-                var address = splits[1];
-                var cmd = string.Join(' ', message.Text.Split(' ').Skip(2));
-                using var client = factory.CreateClient();
-                var msg = new HttpRequestMessage(HttpMethod.Post, address);
-                msg.Content = new FormUrlEncodedContent(
-                    new Dictionary<string, string>() { { "cmd", cmd } }
-                );
-                var result = await client.SendAsync(msg, cancellationToken);
-                var resultContent = await result.Content.ReadAsStringAsync(cancellationToken);
-                if (resultContent.Length > 4095)
-                {
-                    while (resultContent.Length > 450)
-                    {
-                        var split = resultContent.Take(4095).ToArray();
-                        var newmessage = resultContent.Skip(450).ToArray();
-                        resultContent = new string(newmessage);
-
-                        await Task.Delay(3000, cancellationToken);
-
-                        if (newmessage.Length <= 4095)
-                        {
-                            return await telegramBotClient.SendMessage(
-                                message.Chat.Id,
-                                new string(split),
-                                cancellationToken: cancellationToken
-                            );
-                        }
-                        else
-                        {
-                            await telegramBotClient.SendMessage(
-                                message.Chat.Id,
-                                new string(split),
-                                cancellationToken: cancellationToken
-                            );
-                        }
-                    }
-                }
-                return await telegramBotClient.SendMessage(
-                    message.Chat.Id,
-                    await result.Content.ReadAsStringAsync(cancellationToken),
                     cancellationToken: cancellationToken
                 );
             }

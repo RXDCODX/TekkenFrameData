@@ -23,16 +23,17 @@ public partial class Commands
             {
                 try
                 {
+                    var caption = 512;
                     var result = await string.Join(' ', splits.Skip(1)).Bash();
-                    if (result.Length > 4095)
+                    if (result.Length > caption)
                     {
-                        var split = result.Take(4095).ToArray();
-                        result = new string(result.Skip(4095).ToArray());
+                        var split = result.Take(caption).ToArray();
+                        result = new string(result.Skip(caption).ToArray());
                         var newMessage = new string(split);
 
                         await Task.Delay(3000, token);
 
-                        if (result.Length > 4095)
+                        if (result.Length > caption)
                         {
                             await client.SendMessage(
                                 message.Chat,

@@ -49,6 +49,6 @@ public sealed partial class AppDbContext : DbContext
         ModelConfigurationBuilder configurationBuilder
     )
     {
-        configurationBuilder.Properties<DateTime>().HaveConversion(typeof(DateTimeToDateTimeUtc));
+        configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeToDateTimeUtc>();
     }
 }

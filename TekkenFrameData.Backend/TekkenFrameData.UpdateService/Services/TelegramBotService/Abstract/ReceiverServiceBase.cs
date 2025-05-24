@@ -32,7 +32,7 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
     /// <param name="context"></param>
     /// <param name="stoppingToken"></param>
     /// <returns></returns>
-    public async Task ReceiveAsync(AppDbContext context, CancellationToken stoppingToken)
+    public async Task ReceiveAsync(CancellationToken stoppingToken)
     {
         // ToDo: we can inject ReceiverOptions through IOptions container
 

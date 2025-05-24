@@ -2,6 +2,8 @@
 using Npgsql;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.DB.Helpers;
+using TekkenFrameData.UpdateService.Services.TelegramBotService;
+using TekkenFrameData.UpdateService.Services.TelegramBotService.Commands;
 using Telegram.Bot;
 
 namespace TekkenFrameData.UpdateService;
@@ -35,6 +37,11 @@ public class Program
                 (client, provider) =>
                     new TelegramBotClient(appConfiguration.UpdateServiceBotToken, client)
             );
+
+        services.AddScoped<Commands>();
+        services.AddScoped<UpdateHandler>();
+        services.AddScoped<ReceiverService>();
+        services.AddHostedService<PollingService>();
 
         var app = builder.Build();
 

@@ -27,8 +27,8 @@ public partial class Commands
                     if (result.Length > 4095)
                     {
                         var split = result.Take(4095).ToArray();
-                        var newmessage = result.Skip(4095).ToArray();
-                        result = new string(newmessage);
+                        result = new string(result.Skip(4095).ToArray());
+                        var newMessage = new string(split);
 
                         await Task.Delay(3000, token);
 
@@ -36,7 +36,7 @@ public partial class Commands
                         {
                             await client.SendMessage(
                                 message.Chat,
-                                result,
+                                newMessage,
                                 cancellationToken: token
                             );
                         }
@@ -44,7 +44,7 @@ public partial class Commands
                         {
                             return await client.SendMessage(
                                 message.Chat,
-                                result,
+                                newMessage,
                                 cancellationToken: token
                             );
                         }

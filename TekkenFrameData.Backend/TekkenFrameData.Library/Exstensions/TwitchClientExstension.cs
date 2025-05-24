@@ -33,13 +33,13 @@ public static class TwitchClientExstension
             {
                 while (message.Length > 450)
                 {
-                    var split = message.Take(450);
-                    var newmessage = message.Skip(450);
-                    message = string.Join(null, newmessage);
+                    var split = message.Take(450).ToArray();
+                    var newmessage = message.Skip(450).ToArray();
+                    message = new string(newmessage);
 
                     await Task.Delay(750);
 
-                    client.SendMessage(channel, message);
+                    client.SendMessage(channel, new string(split));
                 }
             }
             else
@@ -97,13 +97,13 @@ public static class TwitchClientExstension
             {
                 while (message.Length > 450)
                 {
-                    var split = message.Take(450);
-                    var newmessage = message.Skip(450);
-                    message = string.Join(null, newmessage);
+                    var split = message.Take(450).ToArray();
+                    var newmessage = message.Skip(450).ToArray();
+                    message = new string(newmessage);
 
                     await Task.Delay(3000);
 
-                    client.SendMessage(channel, message);
+                    client.SendMessage(channel, new string(split));
                 }
             }
             else

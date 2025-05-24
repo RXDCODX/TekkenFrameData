@@ -1,29 +1,38 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Text;
+using CliWrap;
+using CliWrap.Buffered;
 
 namespace TekkenFrameData.Library.Exstensions;
 
 public static class ShellExstension
 {
-    public static string Bash(this string cmd)
+    public static async Task<string> Bash(this string cmd)
     {
         var escapedArgs = cmd.Replace("\"", "\\\"");
 
-        var process = new Process()
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "/bin/bash",
-                Arguments = $"-c \"{escapedArgs}\"",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            },
-        };
+        var splits = escapedArgs.Split(' ');
 
-        process.Start();
-        string result = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
+        var command = splits.First();
+        var args = splits.Skip(1).ToArray();
 
-        return result;
+        var sb = new MemoryStream();
+        var encoding = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+            ? Encoding.GetEncoding(866)
+            : Encoding.UTF8;
+
+        var result = await CliWrap
+            .Cli.Wrap(command)
+            .WithArguments(args)
+            .WithValidation(CommandResultValidation.None)
+            .WithStandardOutputPipe(PipeTarget.ToStream(sb))
+            .WithStandardErrorPipe(PipeTarget.ToStream(sb))
+            .ExecuteBufferedAsync(encoding, encoding);
+
+        var text = Encoding.Convert(encoding, Encoding.UTF8, sb.GetBuffer());
+
+        return Encoding.UTF8.GetString(text);
     }
 }

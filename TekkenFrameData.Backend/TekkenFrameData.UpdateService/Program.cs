@@ -16,22 +16,21 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         var services = builder.Services;
-        var configuration = builder.Configuration;
         var contextBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        contextBuilder.EnableDetailedErrors();
-        contextBuilder.EnableThreadSafetyChecks();
-        contextBuilder
-            .UseNpgsql(
-                "Host=localhost;Port=5552;Database=tekken_db;Username=postgres;Password=postgres;"
-            )
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+        BuilderConfigurator.ConfigureBuilder(
+            contextBuilder,
+            builder.Environment,
+            builder.Configuration,
+            true
+        );
         var appConfiguration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
             BuilderConfigurator.ConfigureBuilder(
                 optionsBuilder,
                 builder.Environment,
-                builder.Configuration
+                builder.Configuration,
+                true
             )
         );
 

@@ -13,18 +13,15 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
     where TReceiverService : IReceiverService
 {
     private readonly ILogger _logger;
-    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private readonly IServiceProvider _serviceProvider;
 
     internal PollingServiceBase(
         IServiceProvider serviceProvider,
-        ILogger<PollingServiceBase<TReceiverService>> logger,
-        IDbContextFactory<AppDbContext> dbContextFactory
+        ILogger<PollingServiceBase<TReceiverService>> logger
     )
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
-        _dbContextFactory = dbContextFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,9 +35,6 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
     {
         // Make sure we receive updates until Cancellation Requested,
         // no matter what errors our ReceiveAsync get
-
-        await using var dbContext = await _dbContextFactory.CreateDbContextAsync(stoppingToken);
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -51,7 +45,7 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
                 using var scope = _serviceProvider.CreateScope();
                 var receiver = scope.ServiceProvider.GetRequiredService<TReceiverService>();
 
-                await receiver.ReceiveAsync(dbContext, stoppingToken);
+                await receiver.ReceiveAsync(stoppingToken);
             }
             // Update Handler only captures exception inside update polling loop
             // We'll catch all other exceptions here

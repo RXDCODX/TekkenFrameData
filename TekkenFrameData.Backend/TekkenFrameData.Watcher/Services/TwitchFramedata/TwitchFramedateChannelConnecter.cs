@@ -26,7 +26,7 @@ public class TwitchFramedateChannelConnecter(
         var newStreams = streams.Where(e =>
             joined.All(joinedChannel =>
                 !joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
-            ) && !e.Id.Equals("785975641", StringComparison.OrdinalIgnoreCase)
+            ) && !e.UserId.Equals("785975641", StringComparison.OrdinalIgnoreCase)
         );
         var streamsToLeave = joined.Where(joinedChannel =>
             // Канал не найден в текущих стримах

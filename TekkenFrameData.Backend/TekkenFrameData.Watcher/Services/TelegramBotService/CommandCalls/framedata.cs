@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,6 +10,7 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {
+    [Description("узнать фреймдату")]
     public async Task<Message> OnFramedataCommandReceived(
         ITelegramBotClient botClient,
         Message message,

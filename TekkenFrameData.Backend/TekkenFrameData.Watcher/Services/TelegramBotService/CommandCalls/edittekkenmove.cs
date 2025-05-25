@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using TekkenFrameData.Library.Models.FrameData;
+﻿using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -7,13 +6,14 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {
-    public Task<Message> OnEditTekkenMoveCommandReceived(
+    [Admin]
+    public async Task<Message> OnEditTekkenMoveCommandReceived(
         ITelegramBotClient botClient,
         Message message,
         CancellationToken token
     )
     {
-        return botClient.SendMessage(message.Chat, "заглушка", cancellationToken: token);
+        return await botClient.SendMessage(message.Chat, "заглушка", cancellationToken: token);
 
         //var text = message.Text;
         //var splits = text?.Split(' ');
@@ -21,6 +21,20 @@ public partial class Commands
         //if (splits is { Length: 2 })
         //{
         //    var tekkenMove = JsonSerializer.Deserialize<TekkenMove>(splits[1]);
+
+        //    if (tekkenMove is not null)
+        //    {
+        //        await using var dbContext = await dbContextFactory.CreateDbContextAsync(token);
+        //        var isCharFound = await dbContext.TekkenCharacters.AnyAsync(
+        //            e => e.Name == tekkenMove.CharacterName,
+        //            cancellationToken: token
+        //        );
+
+        //        if (isCharFound)
+        //        {
+        //            var isMoveExists = await dbContext.TekkenMoves.AnyAsync();
+        //        }
+        //    }
         //}
 
         //var resultMessage =

@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Runtime.InteropServices.ComTypes;
+﻿using System.Net.Http;
+using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +8,7 @@ using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
+using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -27,8 +27,6 @@ public class UpdateHandler : IUpdateHandler
 
     private TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
 
-    private readonly IHttpClientFactory _factory;
-
     public UpdateHandler(
         ITelegramBotClient botClient,
         ILogger<UpdateHandler> logger,
@@ -36,14 +34,12 @@ public class UpdateHandler : IUpdateHandler
         Tekken8FrameData frameData,
         IHostApplicationLifetime lifetime,
         IDbContextFactory<AppDbContext> factory,
-        IWebHostEnvironment environment,
-        IHttpClientFactory factory1
+        IWebHostEnvironment environment
     )
     {
         _botClient = botClient;
         _logger = logger;
         _commands = commands;
-        this._factory = factory1;
         AdminLongs = factory.CreateDbContext().Configuration.Single().AdminIdsArray;
 
         if (environment.IsProduction())
@@ -136,126 +132,119 @@ public class UpdateHandler : IUpdateHandler
     {
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
 
-        if (message.Type == MessageType.Text)
+        if (
+            message.Type != MessageType.Text
+            || message.Text is not { } messageText
+            || !messageText.StartsWith("/")
+        )
         {
-            var chatId = message.Chat.Id;
+            return;
+        }
 
-            if (message.Text is not { } messageText)
-            {
-                return;
-            }
+        Task<Message>? action;
 
-            if (!messageText.StartsWith('/'))
-            {
-                return;
-            }
+        try
+        {
+            var command = messageText.Split(' ')[0];
+            var methodName = GetMethodName(command);
+            var methods = _commands
+                .GetType()
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
-            Task<Message> action;
+            var method = methods.FirstOrDefault(e =>
+                e.Name.Equals(methodName, StringComparison.OrdinalIgnoreCase)
+            );
+            if (method == null)
+            {
+                var methodWithAliases = methods.Where(e =>
+                    e.GetCustomAttribute<AliasAttribute>() != null
+                );
+                var commandWithoutSlash = command.Substring(1);
+                method = methodWithAliases.FirstOrDefault(
+                    e =>
+                    {
+                        var aliasAttr = e?.GetCustomAttribute<AliasAttribute>();
+                        if (aliasAttr?.MethodAliases.Contains(commandWithoutSlash) == true)
+                        {
+                            return true;
+                        }
 
-            if (AdminLongs.Contains(chatId))
-            {
-                action = messageText.Split(' ')[0] switch
-                {
-                    "/help" => _commands.OnHelpCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/framedate" => _commands.OnFramedataCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/fd" => _commands.OnFramedataCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/commands" => Commands.OnUsageCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/start" => _commands.OnStartCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/scrup" => _commands.OnScrupCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/joined" => _commands.OnJoinedCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/shutdown" => _commands.OnShutdownCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/korobka" => _commands.OnKorobkaCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    _ => ErrorCommand(_botClient, message, cancellationToken),
-                };
-            }
-            else
-            {
-                action = messageText.Split(' ')[0] switch
-                {
-                    "/help" => _commands.OnHelpCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/framedate" => _commands.OnFramedataCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/fd" => _commands.OnFramedataCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/commands" => Commands.OnUsageCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    "/start" => _commands.OnStartCommandReceived(
-                        _botClient,
-                        message,
-                        cancellationToken
-                    ),
-                    _ => ErrorCommand(_botClient, message, cancellationToken),
-                };
-            }
-
-            static Task<Message> ErrorCommand(
-                ITelegramBotClient client,
-                Message message,
-                CancellationToken cancellationToken
-            )
-            {
-                return client.SendMessage(
-                    message.Chat.Id,
-                    Commands.Template,
-                    cancellationToken: cancellationToken
+                        return false;
+                    },
+                    null
                 );
             }
 
-            var sentMessage = await action;
+            if (method != null)
+            {
+                var isAdminMethod = method.GetCustomAttribute<AdminAttribute>() != null;
+                var isIgnore = method.GetCustomAttribute<IgnoreAttribute>() != null;
+                var isAdminUser = AdminLongs.Any(e => e == message.Chat.Id);
+
+                if (isIgnore || (isAdminMethod && !isAdminUser))
+                {
+                    action = ErrorCommand(_botClient, message, cancellationToken);
+                }
+                else
+                {
+                    var parameters = new object[] { _botClient, message, cancellationToken };
+                    if (methodName == "OnCommandsCommandReceived")
+                    {
+                        if (isAdminUser)
+                        {
+                            parameters = [_botClient, message, cancellationToken, true];
+                        }
+                        else
+                        {
+                            parameters = [_botClient, message, cancellationToken, false];
+                        }
+                    }
+
+                    action = (Task<Message>?)method.Invoke(_commands, parameters);
+                }
+            }
+            else
+            {
+                action = ErrorCommand(_botClient, message, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error handling command");
+            action = ErrorCommand(_botClient, message, cancellationToken);
+        }
+
+        if (action != null)
+        {
+            var sentMessage = await action.ConfigureAwait(false);
             _logger.LogInformation(
                 "The message was sent with id: {SentMessageId}",
                 sentMessage.MessageId
             );
         }
+    }
+
+    private Task<Message>? ErrorCommand(
+        ITelegramBotClient client,
+        Message message,
+        CancellationToken cancellationToken
+    )
+    {
+        return client.SendMessage(
+            message.Chat.Id,
+            Commands.Template,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    private string GetMethodName(string command)
+    {
+        return string.Concat(
+            "On",
+            command.Substring(1).First().ToString().ToUpper(),
+            command.AsSpan(2),
+            "CommandReceived"
+        );
     }
 
     private Task UnknownUpdateHandlerAsync(Update update)

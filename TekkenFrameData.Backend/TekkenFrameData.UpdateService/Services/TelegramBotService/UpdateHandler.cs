@@ -1,74 +1,30 @@
-﻿using System.Net.Http;
-using System.Reflection;
-using Microsoft.AspNetCore.Hosting;
+﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
-using TekkenFrameData.Watcher.Services.Framedata;
-using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
-using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
+using TekkenFrameData.UpdateService.Services.TelegramBotService.Commands.Attribute;
 using Telegram.Bot;
+using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 
-namespace TekkenFrameData.Watcher.Services.TelegramBotService;
+namespace TekkenFrameData.UpdateService.Services.TelegramBotService;
 
-public class UpdateHandler : IUpdateHandler
+public class UpdateHandler(
+    ITelegramBotClient botClient,
+    ILogger<UpdateHandler> logger,
+    Commands.Commands commands,
+    IDbContextFactory<AppDbContext> dbContextFactory
+) : IUpdateHandler
 {
-    private delegate Task TelegramUpdateDelegate(ITelegramBotClient client, Update update);
+    public delegate Task TelegramUpdateDelegate(ITelegramBotClient client, Update update);
 
-    private readonly ITelegramBotClient _botClient;
-    private readonly Commands _commands;
-    private readonly ILogger<UpdateHandler> _logger;
-    private long[] AdminLongs { get; init; }
-
-    private TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
-
-    public UpdateHandler(
-        ITelegramBotClient botClient,
-        ILogger<UpdateHandler> logger,
-        Commands commands,
-        Tekken8FrameData frameData,
-        IHostApplicationLifetime lifetime,
-        IDbContextFactory<AppDbContext> factory,
-        IWebHostEnvironment environment
-    )
-    {
-        _botClient = botClient;
-        _logger = logger;
-        _commands = commands;
-        AdminLongs = factory.CreateDbContext().Configuration.Single().AdminIdsArray;
-
-        if (environment.IsProduction())
-        {
-            lifetime.ApplicationStarted.Register(() =>
-            {
-                _telegramDelegate += frameData.HandAlert;
-
-                foreach (var admins in AdminLongs)
-                {
-                    botClient
-                        .SendMessage(admins, "Приложение запустилось")
-                        .GetAwaiter()
-                        .GetResult();
-                }
-            });
-
-            lifetime.ApplicationStopping.Register(() =>
-            {
-                foreach (var admins in AdminLongs)
-                {
-                    botClient
-                        .SendMessage(admins, "Приложение было отключено через graceful shutdown")
-                        .GetAwaiter()
-                        .GetResult();
-                }
-            });
-        }
-    }
+    public readonly long[] AdminsIds = dbContextFactory
+        .CreateDbContext()
+        .Configuration.Single()
+        .AdminIdsArray;
 
     public async Task HandleUpdateAsync(
         ITelegramBotClient _,
@@ -82,23 +38,62 @@ public class UpdateHandler : IUpdateHandler
         }
         catch (Exception e)
         {
-            _logger.LogException(e);
+            logger.LogException(e);
         }
 
-        var handler = update switch
+        Task handler = update switch
         {
+            //{ ChannelPost: {} channelPost } => BotOnChannelPost(channelPost, cancellationToken),
             { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
-            _ => UnknownUpdateHandlerAsync(update),
+            { InlineQuery: { } inlineQuery } => BotOnInlineQueryReceived(
+                inlineQuery,
+                cancellationToken
+            ),
+            _ => UnknownUpdateHandlerAsync(update, cancellationToken),
         };
 
         await handler;
-
-        await _telegramDelegate.Invoke(_, update);
+        await TelegramUpdate.Invoke(_, update);
     }
+
+    public Task HandleErrorAsync(
+        ITelegramBotClient botClient,
+        Exception exception,
+        HandleErrorSource source,
+        CancellationToken cancellationToken
+    )
+    {
+        logger.LogException(exception);
+        return Task.CompletedTask;
+    }
+
+    public async Task HandlePollingErrorAsync(
+        ITelegramBotClient botClient,
+        Exception exception,
+        CancellationToken cancellationToken
+    )
+    {
+        var errorMessage = exception switch
+        {
+            ApiRequestException apiRequestException =>
+                $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
+            _ => exception.ToString(),
+        };
+
+        logger.LogInformation("HandleError: {ErrorMessage}", errorMessage);
+
+        // Cooldown in case of network connection error
+        if (exception is RequestException)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+        }
+    }
+
+    public event TelegramUpdateDelegate TelegramUpdate = (client, update) => Task.CompletedTask;
 
     private async void ResendMessage(Update update)
     {
-        foreach (var id in AdminLongs)
+        foreach (var id in AdminsIds)
         {
             switch (update.Type)
             {
@@ -108,7 +103,7 @@ public class UpdateHandler : IUpdateHandler
 
                     if (update.Message.HasProtectedContent != true)
                     {
-                        await _botClient.ForwardMessage(id, chatId, messageId);
+                        await botClient.ForwardMessage(id, chatId, messageId);
                     }
 
                     break;
@@ -118,7 +113,7 @@ public class UpdateHandler : IUpdateHandler
 
                     if (update.ChannelPost.HasProtectedContent != true)
                     {
-                        await _botClient.ForwardMessage(id, chatId, messageId);
+                        await botClient.ForwardMessage(id, chatId, messageId);
                     }
 
                     //if (_environment.IsDevelopment())
@@ -130,7 +125,7 @@ public class UpdateHandler : IUpdateHandler
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        logger.LogInformation("Receive message type: {MessageType}", message.Type);
 
         if (
             message.Type != MessageType.Text
@@ -147,7 +142,7 @@ public class UpdateHandler : IUpdateHandler
         {
             var command = messageText.Split(' ')[0];
             var methodName = GetMethodName(command);
-            var methods = _commands
+            var methods = commands
                 .GetType()
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
@@ -179,45 +174,45 @@ public class UpdateHandler : IUpdateHandler
             {
                 var isAdminMethod = method.GetCustomAttribute<AdminAttribute>() != null;
                 var isIgnore = method.GetCustomAttribute<IgnoreAttribute>() != null;
-                var isAdminUser = AdminLongs.Any(e => e == message.Chat.Id);
+                var isAdminUser = AdminsIds.Any(e => e == message.Chat.Id);
 
                 if (isIgnore || (isAdminMethod && !isAdminUser))
                 {
-                    action = ErrorCommand(_botClient, message, cancellationToken);
+                    action = ErrorCommand(botClient, message, cancellationToken);
                 }
                 else
                 {
-                    var parameters = new object[] { _botClient, message, cancellationToken };
+                    var parameters = new object[] { botClient, message, cancellationToken };
                     if (methodName == "OnCommandsCommandReceived")
                     {
                         if (isAdminUser)
                         {
-                            parameters = [_botClient, message, cancellationToken, true];
+                            parameters = [botClient, message, cancellationToken, true];
                         }
                         else
                         {
-                            parameters = [_botClient, message, cancellationToken, false];
+                            parameters = [botClient, message, cancellationToken, false];
                         }
                     }
 
-                    action = (Task<Message>?)method.Invoke(_commands, parameters);
+                    action = (Task<Message>?)method.Invoke(commands, parameters);
                 }
             }
             else
             {
-                action = ErrorCommand(_botClient, message, cancellationToken);
+                action = ErrorCommand(botClient, message, cancellationToken);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error handling command");
-            action = ErrorCommand(_botClient, message, cancellationToken);
+            logger.LogError(ex, "Error handling command");
+            action = ErrorCommand(botClient, message, cancellationToken);
         }
 
         if (action != null)
         {
             var sentMessage = await action.ConfigureAwait(false);
-            _logger.LogInformation(
+            logger.LogInformation(
                 "The message was sent with id: {SentMessageId}",
                 sentMessage.MessageId
             );
@@ -232,7 +227,7 @@ public class UpdateHandler : IUpdateHandler
     {
         return client.SendMessage(
             message.Chat.Id,
-            Commands.Template,
+            Commands.Commands.Template,
             cancellationToken: cancellationToken
         );
     }
@@ -247,20 +242,40 @@ public class UpdateHandler : IUpdateHandler
         );
     }
 
-    private Task UnknownUpdateHandlerAsync(Update update)
-    {
-        _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
-        return Task.CompletedTask;
-    }
+    #region Inline Mode
 
-    public Task HandleErrorAsync(
-        ITelegramBotClient botClient,
-        Exception exception,
-        HandleErrorSource source,
+    private async Task BotOnInlineQueryReceived(
+        InlineQuery inlineQuery,
         CancellationToken cancellationToken
     )
     {
-        _logger.LogException(exception);
+        logger.LogInformation(
+            "Received inline query from: {InlineQueryFromId}",
+            inlineQuery.From.Id
+        );
+
+        InlineQueryResult[] results =
+        {
+            // displayed result
+            new InlineQueryResultArticle("1", "TgBots", new InputTextMessageContent("hello")),
+        };
+
+        await botClient.AnswerInlineQuery(
+            inlineQuery.Id,
+            results,
+            0,
+            true,
+            cancellationToken: cancellationToken
+        );
+    }
+
+    #endregion
+
+#pragma warning disable IDE0060 // Remove unused parameter
+    private Task UnknownUpdateHandlerAsync(Update update, CancellationToken cancellationToken)
+#pragma warning restore IDE0060 // Remove unused parameter
+    {
+        logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
         return Task.CompletedTask;
     }
 }

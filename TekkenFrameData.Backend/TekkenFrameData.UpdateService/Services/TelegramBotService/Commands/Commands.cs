@@ -1,32 +1,16 @@
 ﻿using System.Reflection;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using TekkenFrameData.Library.DB;
-using TekkenFrameData.Library.Models.SignalRInterfaces;
-using TekkenFrameData.Watcher.Hubs;
-using TekkenFrameData.Watcher.Services.Framedata;
-using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
+using TekkenFrameData.UpdateService.Services.TelegramBotService.Commands.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using TwitchLib.Client.Interfaces;
 
-namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
+namespace TekkenFrameData.UpdateService.Services.TelegramBotService.Commands;
 
-public partial class Commands(
-    Tekken8FrameData frameData,
-    ITwitchClient twitchClient,
-    IHostApplicationLifetime lifetime,
-    IDbContextFactory<AppDbContext> dbContextFactory,
-    IHubContext<MainHub, IMainHubCommands> hubContext,
-    ITwitchClient client
-)
+public partial class Commands
 {
     public const string Template =
         "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";
 
-    [Description("список комманд бота")]
     public async Task<Message> OnCommandsCommandReceived(
         ITelegramBotClient botClient,
         Message message,
@@ -82,13 +66,7 @@ public partial class Commands(
             MethodInfo method = methods[i];
             var length = method.Name.Length - template.Length;
             var name = method.Name.Substring(2, length);
-
-            var description = method.GetCustomAttribute<DescriptionAttribute>();
-            var isDescription = !string.IsNullOrWhiteSpace(description?.Description);
-
-            commandNames[i] = isDescription
-                ? "/" + name.ToLower() + " - " + description!.Description
-                : "/" + name.ToLower();
+            commandNames[i] = "/" + name.ToLower();
         }
 
         return commandNames;

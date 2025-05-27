@@ -2,9 +2,7 @@
 using System.IO;
 using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -12,13 +10,12 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
+using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.Library.Exstensions;
-using TekkenFrameData.Library.Models.Configuration;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
-using TekkenFrameData.Watcher.Services.RebootService;
 using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
@@ -70,9 +67,13 @@ public class Program
         }
 
         var contextBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        ConfigureBuilder(contextBuilder, builder.Environment, builder.Configuration);
+        BuilderConfigurator.ConfigureBuilder(
+            contextBuilder,
+            builder.Environment,
+            builder.Configuration
+        );
 
-        Configuration configuration = GetAppConfiguration(builder, contextBuilder);
+        var configuration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
         var token = configuration.BotToken;
         var tclient = new TelegramBotClient(token, new HttpClient());
         builder.Logging.AddTelegramLogger(
@@ -91,7 +92,11 @@ public class Program
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-            ConfigureBuilder(optionsBuilder, builder.Environment, builder.Configuration)
+            BuilderConfigurator.ConfigureBuilder(
+                optionsBuilder,
+                builder.Environment,
+                builder.Configuration
+            )
         );
 
         services.AddSingleton<ITwitchClient>(sp =>
@@ -168,8 +173,6 @@ public class Program
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
-        services.AddSingleton<RebootService>();
-
         services.AddSignalR();
 
         var app = builder.Build();
@@ -194,60 +197,6 @@ public class Program
         {
             var logger = app.Services.GetService<ILogger<Program>>();
             logger?.LogException(e);
-        }
-    }
-
-    private static Configuration GetAppConfiguration(
-        WebApplicationBuilder builder,
-        DbContextOptionsBuilder<AppDbContext> contextBuilder
-    )
-    {
-        var dbContext = new AppDbContext(contextBuilder.Options);
-        var configuration = dbContext.Configuration.SingleOrDefault();
-
-        if (configuration == null)
-        {
-            configuration = builder.Configuration.GetSection("Configuration").Get<Configuration>();
-
-            if (configuration == default)
-            {
-                throw new NullReferenceException();
-            }
-        }
-
-        return configuration;
-    }
-
-    private static void ConfigureBuilder(
-        DbContextOptionsBuilder builder,
-        IWebHostEnvironment environment,
-        IConfiguration configuration
-    )
-    {
-        if (environment.IsDevelopment())
-        {
-            builder.EnableDetailedErrors();
-            builder.EnableThreadSafetyChecks();
-            builder
-                .UseNpgsql(configuration.GetConnectionString("DB"))
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
-        }
-        else
-        {
-            var constring = new NpgsqlConnectionStringBuilder
-            {
-                { "Host", Environment.GetEnvironmentVariable("DB_HOST")! },
-                { "Port", Environment.GetEnvironmentVariable("DB_PORT")! },
-                { "Database", Environment.GetEnvironmentVariable("DB_NAME")! },
-                { "Username", Environment.GetEnvironmentVariable("DB_USER")! },
-                { "Password", Environment.GetEnvironmentVariable("DB_PASSWORD")! },
-            };
-
-            builder.EnableDetailedErrors();
-            builder.EnableThreadSafetyChecks();
-            builder
-                .UseNpgsql(constring.ToString())
-                .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
         }
     }
 }

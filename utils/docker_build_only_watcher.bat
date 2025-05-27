@@ -6,7 +6,7 @@ echo Собираем и запускаем только TekkenFrameData.Watcher
 :: Сборка образа Watcher
 echo.
 echo [1/4] Сборка образа TekkenFrameData.Watcher...
-docker build -f "..\TekkenFrameData.Backend\TekkenFrameData.Watcher\Dockerfile" -t tekken_frame_data_watcher:dev ".."
+docker build -f "..\TekkenFrameData.Backend\TekkenFrameData.Watcher\Dockerfile" -t tekken_frame_data.watcher:dev ".."
 
 :: Сборка образа Streamer
 echo.

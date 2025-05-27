@@ -3,6 +3,7 @@ using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
+using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -164,6 +165,7 @@ public static class ContractorHelper
                             await client.SendMessageToMainTwitchAsync(
                                 $"@{userName}, все готово! Скоро бот подключится, возможна задержка."
                             );
+                            TwitchFramedate.ApprovedChannels.Clear();
                             break;
                         }
                     }

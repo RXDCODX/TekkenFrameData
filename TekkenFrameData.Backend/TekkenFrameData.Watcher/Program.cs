@@ -1,9 +1,14 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Logging.Console;
+using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.Library.Exstensions;
@@ -40,13 +45,24 @@ public class Program
 
         if (builder.Environment.IsDevelopment())
         {
-            builder.Logging.AddConsole();
+            builder.Logging.AddConsole(options =>
+            {
+                options.FormatterName = "custom"; // Указываем имя форматтера
+            });
+            // Регистрируем кастомный форматтер
+            builder.Logging.AddConsoleFormatter<CustomFormatter, ConsoleFormatterOptions>();
             builder.Logging.AddDebug();
-            builder.Logging.SetMinimumLevel(LogLevel.Trace);
+
+            builder.Logging.SetMinimumLevel(LogLevel.Information);
         }
         else
         {
-            builder.Logging.AddConsole();
+            builder.Logging.AddConsole(options =>
+            {
+                options.FormatterName = "custom"; // Указываем имя форматтера
+            });
+            // Регистрируем кастомный форматтер
+            builder.Logging.AddConsoleFormatter<CustomFormatter, ConsoleFormatterOptions>();
             builder.Logging.SetMinimumLevel(LogLevel.Warning);
         }
 

@@ -37,7 +37,7 @@ public static class LoggerExstension
 
         logger.LogError(
             "({LoggerName}): {Message} # {StackTrace}",
-            nameof(T),
+            typeof(T).Name,
             sb.ToString(),
             stackTrace
         );

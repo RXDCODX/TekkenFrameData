@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -19,27 +19,41 @@ public partial class Commands(
     ITwitchClient twitchClient,
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
-    IHubContext<MainHub, IMainHubCommands> hubContext
+    IHubContext<MainHub, IMainHubCommands> hubContext,
+    ITwitchClient client
 )
 {
     public const string Template =
         "Не получилось получить комманды бота, сообщите об этой ошибке разработчику";
 
-    internal static async Task<Message> OnUsageCommandReceived(
+    [Description("список комманд бота")]
+    public async Task<Message> OnCommandsCommandReceived(
         ITelegramBotClient botClient,
         Message message,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool isAdminCall = false
     )
     {
-        var commands = typeof(Commands);
+        Type commands = typeof(Commands);
+        MethodInfo[] methods;
 
-        var methods = commands.GetMethods(
-            BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public
-        );
+        if (isAdminCall)
+        {
+            methods = commands.GetMethods(
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public
+            );
+        }
+        else
+        {
+            methods = commands
+                .GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+                .Where(method => method.GetCustomAttribute<AdminAttribute>() == null)
+                .ToArray();
+        }
 
         string usage;
 
-        if (methods.Length > 0)
+        if (methods.Any())
         {
             var names = GetCommandName(methods);
             usage = string.Join(Environment.NewLine, names);
@@ -57,17 +71,24 @@ public partial class Commands(
         );
     }
 
-    private static string[] GetCommandName(MethodInfo[] methods)
+    [Ignore]
+    private string[] GetCommandName(MethodInfo[] methods)
     {
         var commandNames = new string[methods.Length];
         const string template = "OnCommandReceived";
 
         for (var i = 0; i < methods.Length; i++)
         {
-            var method = methods[i];
+            MethodInfo method = methods[i];
             var length = method.Name.Length - template.Length;
             var name = method.Name.Substring(2, length);
-            commandNames[i] = "/" + name;
+
+            var description = method.GetCustomAttribute<DescriptionAttribute>();
+            var isDescription = !string.IsNullOrWhiteSpace(description?.Description);
+
+            commandNames[i] = isDescription
+                ? "/" + name.ToLower() + " - " + description!.Description
+                : "/" + name.ToLower();
         }
 
         return commandNames;

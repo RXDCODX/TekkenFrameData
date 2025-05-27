@@ -8,7 +8,7 @@ public class TekkenMove
 {
     [MaxLength(150)]
     public required string CharacterName { get; init; }
-    public required TekkenCharacter Character { get; set; }
+    public TekkenCharacter? Character { get; set; }
     public bool IsFromStance => !string.IsNullOrWhiteSpace(StanceCode);
 
     [MaxLength(10)]

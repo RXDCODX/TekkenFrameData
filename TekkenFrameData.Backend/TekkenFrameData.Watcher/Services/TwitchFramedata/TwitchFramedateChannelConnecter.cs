@@ -163,7 +163,6 @@ public class TwitchFramedateChannelConnecter(
         client.OnConnectionError += (sender, args) =>
             logger.LogError("{BotUsername} # {ErrorMessage}", args.BotUsername, args.Error.Message);
         client.OnLog += (sender, args) => logger.LogInformation("{Data}", args.Data);
-
         return Task.Factory.StartNew(ConnectToStreams, cancellationToken);
     }
 

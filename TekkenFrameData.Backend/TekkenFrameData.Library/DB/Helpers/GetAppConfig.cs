@@ -13,7 +13,7 @@ public static class GetAppConfig
         Configuration configuration = null!;
         try
         {
-            var dbContext = new AppDbContext(contextBuilder.Options);
+            var dbContext = new AppDbContext(contextBuilder.Options, false);
             configuration = dbContext.Configuration.Single();
         }
         catch (Exception)

@@ -8,25 +8,25 @@ public sealed partial class AppDbContext : DbContext
     private static readonly Lock Locker = new();
     private static bool _isMigrated;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
+    public AppDbContext(DbContextOptions<AppDbContext> options, bool isMigrations)
         : base(options)
     {
-        if (!_isMigrated)
+        if (!_isMigrated && !isMigrations)
         {
-            lock (Locker)
+            Locker.Enter();
+            if (!_isMigrated)
             {
-                if (!_isMigrated)
+                var migrations = Database.GetPendingMigrations();
+
+                if (migrations.Any())
                 {
-                    var migrations = Database.GetPendingMigrations();
-
-                    if (migrations.Any())
-                    {
-                        Database.Migrate();
-                    }
-
-                    _isMigrated = true;
+                    Database.Migrate();
                 }
+
+                _isMigrated = true;
             }
+
+            Locker.Exit();
         }
     }
 

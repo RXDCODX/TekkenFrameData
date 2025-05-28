@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Net.Http;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.Exstensions;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
@@ -111,6 +112,13 @@ public class TwitchFramedateChannelConnecter(
             );
 
             return [.. clipsResponse.Streams];
+        }
+        catch (HttpRequestException e)
+            when (e.Message.Contains("The SSL connection could not be established"))
+        {
+            logger.LogException(e);
+            await Task.Delay(TimeSpan.FromMinutes(5), _cancellationToken);
+            return await GetStreamsFromRuTekken();
         }
         catch (Exception e)
             when (e.Message.Contains("Invalid OAuth token", StringComparison.OrdinalIgnoreCase))

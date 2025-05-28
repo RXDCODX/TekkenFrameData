@@ -50,7 +50,6 @@ public partial class Commands
                             );
                         }
                     }
-                    return await client.SendMessage(message.Chat, result, cancellationToken: token);
                 }
                 catch (Exception e)
                 {

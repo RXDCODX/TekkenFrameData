@@ -23,9 +23,9 @@ public partial class Commands
             {
                 try
                 {
-                    var caption = 512;
+                    var caption = 4095;
                     var result = await string.Join(' ', splits.Skip(1)).Bash();
-                    if (result.Length > caption)
+                    while (result.Length > caption)
                     {
                         var split = result.Take(caption).ToArray();
                         result = new string(result.Skip(caption).ToArray());

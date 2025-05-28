@@ -2,6 +2,6 @@
 
 public partial class Configuration
 {
-    public string SteamClientLogin { get; set; }
-    public string SteamClientPassword { get; set; }
+    public required string SteamClientLogin { get; set; }
+    public required string SteamClientPassword { get; set; }
 }

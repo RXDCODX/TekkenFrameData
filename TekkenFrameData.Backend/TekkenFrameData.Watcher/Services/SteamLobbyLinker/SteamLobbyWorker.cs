@@ -19,7 +19,7 @@ namespace TekkenFrameData.Watcher.Services.SteamLobbyLinker
         private SteamUser? _steamUser;
         private SteamFriends? _steamFriends;
 
-        private bool _isConnected;
+        //private bool _isConnected;
         private bool _isLoggedOn;
 
         public event Action<OnLobbyLinkAvailableEventArgs>? OnLobbyLinkAvailable;
@@ -83,7 +83,7 @@ namespace TekkenFrameData.Watcher.Services.SteamLobbyLinker
 
         private void OnConnected(SteamClient.ConnectedCallback callback)
         {
-            _isConnected = true;
+            //_isConnected = true;
             _logger.LogInformation("[Steam] Connected. Logging in...");
 
             _steamUser?.LogOn(
@@ -98,7 +98,7 @@ namespace TekkenFrameData.Watcher.Services.SteamLobbyLinker
 
         private void OnDisconnected(SteamClient.DisconnectedCallback callback)
         {
-            _isConnected = false;
+            //_isConnected = false;
             _isLoggedOn = false;
             _logger.LogWarning("[Steam] Disconnected.");
         }
@@ -142,13 +142,13 @@ namespace TekkenFrameData.Watcher.Services.SteamLobbyLinker
             }
         }
 
-        private void OnGamePlayed(SteamFriends.GamePlayedCallback callback)
-        {
-            if (callback.GamePlayed?.GameID.AppID == Tekken8AppId)
-            {
-                _logger.LogInformation("[Steam] Game played event detected for Tekken 8.");
-            }
-        }
+        //private void OnGamePlayed(SteamFriends.GamePlayedCallback callback)
+        //{
+        //    if (callback.GamePlayed?.GameID.AppID == Tekken8AppId)
+        //    {
+        //        _logger.LogInformation("[Steam] Game played event detected for Tekken 8.");
+        //    }
+        //}
 
         private void CallbackFunc(SteamFriends.ChatInviteCallback obj)
         {

@@ -176,7 +176,7 @@ public class Program
         services.AddSignalR();
 
         var app = builder.Build();
-
+        var logger = app.Services.GetService<ILogger<Program>>();
         app.MapHub<MainHub>("/mainhub");
 
         app.UseDeveloperExceptionPage();
@@ -195,7 +195,6 @@ public class Program
         }
         catch (Exception e)
         {
-            var logger = app.Services.GetService<ILogger<Program>>();
             logger?.LogException(e);
         }
     }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Console;
 using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
+using TekkenFrameData.Library.DB.Factory;
 using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Hubs;
@@ -91,12 +92,18 @@ public class Program
             .AddHttpClient("telegram_bot_client")
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
-        services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-            BuilderConfigurator.ConfigureBuilder(
-                optionsBuilder,
-                builder.Environment,
-                builder.Configuration
-            )
+        services.AddSingleton<IDbContextFactory<AppDbContext>>(
+            (sp) =>
+            {
+                return new AppDbContextFactory(options =>
+                {
+                    BuilderConfigurator.ConfigureBuilder(
+                        options,
+                        builder.Environment,
+                        builder.Configuration
+                    );
+                });
+            }
         );
 
         services.AddSingleton<ITwitchClient>(sp =>

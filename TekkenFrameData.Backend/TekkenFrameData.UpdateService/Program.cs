@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TekkenFrameData.Library.DB;
+using TekkenFrameData.Library.DB.Factory;
 using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.UpdateService.Services.TelegramBotService;
 using TekkenFrameData.UpdateService.Services.TelegramBotService.Commands;
@@ -24,13 +25,18 @@ public class Program
             true
         );
         var appConfiguration = GetAppConfig.GetAppConfiguration(builder, contextBuilder);
-        services.AddDbContextFactory<AppDbContext>(optionsBuilder =>
-            BuilderConfigurator.ConfigureBuilder(
-                optionsBuilder,
-                builder.Environment,
-                builder.Configuration,
-                true
-            )
+        services.AddSingleton<IDbContextFactory<AppDbContext>>(
+            (sp) =>
+            {
+                return new AppDbContextFactory(options =>
+                {
+                    BuilderConfigurator.ConfigureBuilder(
+                        options,
+                        builder.Environment,
+                        builder.Configuration
+                    );
+                });
+            }
         );
 
         services

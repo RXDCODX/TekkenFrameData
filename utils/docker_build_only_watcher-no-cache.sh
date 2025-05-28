@@ -41,7 +41,7 @@ fi
 echo
 echo "Состояние контейнеров:"
 docker ps --filter "name=tfd_"
-
+ 
 echo
 echo "Watcher должен быть доступен на http://localhost:7080"
 echo "PostgreSQL доступен на localhost:5552"

@@ -109,7 +109,13 @@ public class TwitchFramedate(
         }
         else
         {
-            if (isBroadcaster)
+            if (
+                isBroadcaster
+                && (
+                    command.StartsWith("fd", StringComparison.OrdinalIgnoreCase)
+                    || command.StartsWith("start")
+                )
+            )
             {
                 client.SendMessage(
                     channelName,

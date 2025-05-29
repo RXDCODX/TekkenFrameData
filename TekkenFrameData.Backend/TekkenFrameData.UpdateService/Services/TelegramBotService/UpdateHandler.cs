@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.UpdateService.Services.TelegramBotService.Commands.Attribute;
@@ -9,6 +10,7 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
+using TwitchLib.Communication.Interfaces;
 
 namespace TekkenFrameData.UpdateService.Services.TelegramBotService;
 
@@ -154,7 +156,7 @@ public class UpdateHandler(
                 var methodWithAliases = methods.Where(e =>
                     e.GetCustomAttribute<AliasAttribute>() != null
                 );
-                var commandWithoutSlash = command.Substring(1);
+                var commandWithoutSlash = command.Trim().Substring(1);
                 method = methodWithAliases.FirstOrDefault(
                     e =>
                     {
@@ -168,6 +170,15 @@ public class UpdateHandler(
                     },
                     null
                 );
+
+                if (method == null)
+                {
+                    var scriptPath = ScriptsParser.ScriptsDictionary[commandWithoutSlash];
+                    if (!string.IsNullOrWhiteSpace(scriptPath))
+                    {
+                        await ExecBashScript(scriptPath, message.Chat, cancellationToken);
+                    }
+                }
             }
 
             if (method != null)
@@ -215,6 +226,45 @@ public class UpdateHandler(
             logger.LogInformation(
                 "The message was sent with id: {SentMessageId}",
                 sentMessage.MessageId
+            );
+        }
+    }
+
+    private async Task<Message> ExecBashScript(
+        string scriptPath,
+        Chat chat,
+        CancellationToken token
+    )
+    {
+        try
+        {
+            var caption = 4095;
+            var result = await ("sh " + scriptPath).Bash();
+            while (result.Length > caption)
+            {
+                var split = result.Take(caption).ToArray();
+                result = new string(result.Skip(caption).ToArray());
+                var newMessage = new string(split);
+
+                await Task.Delay(3000, token);
+
+                if (result.Length > caption)
+                {
+                    await botClient.SendMessage(chat, newMessage, cancellationToken: token);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return await botClient.SendMessage(chat, result, cancellationToken: token);
+        }
+        catch (Exception e)
+        {
+            return await botClient.SendMessage(
+                chat,
+                e.Message + "#" + e.StackTrace,
+                cancellationToken: token
             );
         }
     }

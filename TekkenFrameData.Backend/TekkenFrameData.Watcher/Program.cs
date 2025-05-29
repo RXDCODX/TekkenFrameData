@@ -93,7 +93,7 @@ public class Program
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddSingleton<IDbContextFactory<AppDbContext>>(
-            (sp) =>
+            (_) =>
             {
                 return new AppDbContextFactory(options =>
                 {

@@ -25,11 +25,12 @@ public partial class Commands
                 {
                     var caption = 4095;
                     var result = await string.Join(' ', splits.Skip(1)).Bash();
+                    var newMessage = "";
                     while (result.Length > caption)
                     {
                         var split = result.Take(caption).ToArray();
                         result = new string(result.Skip(caption).ToArray());
-                        var newMessage = new string(split);
+                        newMessage = new string(split);
 
                         await Task.Delay(3000, token);
 
@@ -41,15 +42,13 @@ public partial class Commands
                                 cancellationToken: token
                             );
                         }
-                        else
-                        {
-                            return await client.SendMessage(
-                                message.Chat,
-                                newMessage,
-                                cancellationToken: token
-                            );
-                        }
                     }
+
+                    return await client.SendMessage(
+                        message.Chat,
+                        newMessage,
+                        cancellationToken: token
+                    );
                 }
                 catch (Exception e)
                 {

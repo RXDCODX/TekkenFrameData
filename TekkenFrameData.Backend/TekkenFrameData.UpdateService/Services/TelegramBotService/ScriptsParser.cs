@@ -22,6 +22,7 @@ public static class ScriptsParser
     public static void UpdateScripts()
     {
         var scipts = File.ReadAllLines(IniFilePath)
+            .Where(e => !e.Contains('#'))
             .Select(e =>
             {
                 var keyValueSplit = e.Split('=');

@@ -23,38 +23,47 @@ public partial class Commands
             {
                 try
                 {
-                    var caption = 4095;
-                    var result = await string.Join(' ', splits.Skip(1)).Bash();
-                    var newMessage = "";
-                    while (result.Length > caption)
+                    const int maxMessageLength = 4096; // Максимальная длина сообщения в Telegram
+                    var command = string.Join(' ', splits.Skip(1));
+                    var result = await command.Bash();
+
+                    // Если результат помещается в одно сообщение
+                    if (result.Length <= maxMessageLength)
                     {
-                        var split = result.Take(caption).ToArray();
-                        result = new string(result.Skip(caption).ToArray());
-                        newMessage = new string(split);
-
-                        await Task.Delay(3000, token);
-
-                        if (result.Length > caption)
-                        {
-                            await client.SendMessage(
-                                message.Chat,
-                                newMessage,
-                                cancellationToken: token
-                            );
-                        }
+                        return await client.SendMessage(
+                            message.Chat,
+                            result,
+                            cancellationToken: token
+                        );
                     }
 
-                    return await client.SendMessage(
-                        message.Chat,
-                        newMessage,
-                        cancellationToken: token
-                    );
+                    // Разбиваем длинный результат на части
+                    var messages = new List<string>();
+                    for (int i = 0; i < result.Length; i += maxMessageLength)
+                    {
+                        var length = Math.Min(maxMessageLength, result.Length - i);
+                        messages.Add(result.Substring(i, length));
+                    }
+
+                    // Отправляем части с задержкой
+                    Message lastMessage = null!;
+                    foreach (var part in messages)
+                    {
+                        await Task.Delay(1000, token); // Задержка между сообщениями
+                        lastMessage = await client.SendMessage(
+                            message.Chat,
+                            part,
+                            cancellationToken: token
+                        );
+                    }
+
+                    return lastMessage;
                 }
                 catch (Exception e)
                 {
                     return await client.SendMessage(
                         message.Chat,
-                        e.Message + "#" + e.StackTrace,
+                        $"Error: {e.Message}\nStack trace: {e.StackTrace}",
                         cancellationToken: token
                     );
                 }
@@ -63,7 +72,7 @@ public partial class Commands
 
         return await client.SendMessage(
             message.Chat,
-            "Кривые параметры!",
+            "Invalid command parameters!",
             cancellationToken: token
         );
     }

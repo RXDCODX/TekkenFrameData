@@ -38,7 +38,6 @@ public class TwitchFramedate(
             userId.Trim().Equals(TwitchClientExstension.AuthorId.ToString())
             || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
         var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
-
         if (pass || IsChannelApproved(channelId))
         {
             if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))

@@ -33,7 +33,8 @@ public class Program
                     BuilderConfigurator.ConfigureBuilder(
                         options,
                         builder.Environment,
-                        builder.Configuration
+                        builder.Configuration,
+                        true
                     );
                 });
             }

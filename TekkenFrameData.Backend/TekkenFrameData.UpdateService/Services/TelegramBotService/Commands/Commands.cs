@@ -40,6 +40,10 @@ public partial class Commands
         if (methods.Any())
         {
             var names = GetCommandName(methods);
+            if (isAdminCall)
+            {
+                names.AddRange(ScriptsParser.ScriptsDictionary.Keys);
+            }
             usage = string.Join(Environment.NewLine, names);
         }
         else
@@ -56,9 +60,9 @@ public partial class Commands
     }
 
     [Ignore]
-    private string[] GetCommandName(MethodInfo[] methods)
+    private List<string> GetCommandName(MethodInfo[] methods)
     {
-        var commandNames = new string[methods.Length];
+        var commandNames = new List<string>(methods.Length);
         const string template = "OnCommandReceived";
 
         for (var i = 0; i < methods.Length; i++)

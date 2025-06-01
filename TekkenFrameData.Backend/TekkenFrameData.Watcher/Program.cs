@@ -114,11 +114,11 @@ public class Program
                 MessagesAllowedInPeriod = 750,
                 ThrottlingPeriod = TimeSpan.FromSeconds(30),
             };
-
+            var logger = sp.GetRequiredService<ILogger<TwitchClient>>();
             var client = new TwitchClient(
-                client: new WebSocketClient(clientOptions),
-                protocol: ClientProtocol.WebSocket,
-                logger: sp.GetRequiredService<ILogger<TwitchClient>>()
+                new WebSocketClient(clientOptions),
+                ClientProtocol.WebSocket,
+                logger
             );
             var tokenService = sp.GetRequiredService<TokenService>();
             var twitchTokenInfo =

@@ -173,9 +173,10 @@ public class UpdateHandler(
 
                 if (method == null)
                 {
-                    var scriptPath = ScriptsParser.ScriptsDictionary[commandWithoutSlash];
-                    if (!string.IsNullOrWhiteSpace(scriptPath))
+                    var scriptName = ScriptsParser.ScriptsDictionary[commandWithoutSlash];
+                    if (!string.IsNullOrWhiteSpace(scriptName))
                     {
+                        var scriptPath = Path.Combine(ScriptsParser.ScriptsFolder, scriptName);
                         await ExecBashScript(scriptPath, message.Chat, cancellationToken);
                     }
                 }

@@ -390,7 +390,7 @@ public partial class Tekken8FrameData(
                 cancellationToken: _cancellationToken
             );
 
-        return character?.Movelist?.ToArray();
+        return character?.Movelist.ToArray();
     }
 
     private static Task<(TekkenMoveTag tag, TekkenMove[])?> GetMultipleMovesFromMovelistByTagAsync(

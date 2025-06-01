@@ -10,6 +10,7 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 
 public partial class Commands
 {
+    [Alias("fd")]
     [Description("узнать фреймдату")]
     public async Task<Message> OnFramedataCommandReceived(
         ITelegramBotClient botClient,

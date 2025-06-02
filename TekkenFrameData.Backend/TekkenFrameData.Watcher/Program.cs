@@ -189,7 +189,6 @@ public class Program
         app.UseDeveloperExceptionPage();
         app.UseExceptionHandler("/Error");
         app.UseHsts();
-        app.UseHttpsRedirection();
         app.MapHealthChecks("/health");
         app.UseRouting();
         app.UseStaticFiles();

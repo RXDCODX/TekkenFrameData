@@ -20,9 +20,13 @@ public class TwitchFramedateChannelConnecter(
     private Timer? _timer;
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
 
+    private bool IsRequesting { get; set; }
+
     public async Task ConnectToStreams()
     {
+        IsRequesting = true;
         var streams = await GetStreamsFromRuTekken();
+        IsRequesting = false;
         var joined = client.JoinedChannels;
         var newStreams = streams.Where(e =>
             joined.All(joinedChannel =>
@@ -114,7 +118,9 @@ public class TwitchFramedateChannelConnecter(
             return [.. clipsResponse.Streams];
         }
         catch (HttpRequestException e)
-            when (e.Message.Contains("The SSL connection could not be established"))
+            when (e.Message.Contains("The SSL connection could not be established")
+                || e.Message.Contains("Resource temporarily unavailable")
+            )
         {
             logger.LogException(e);
             await Task.Delay(TimeSpan.FromMinutes(5), _cancellationToken);
@@ -161,7 +167,13 @@ public class TwitchFramedateChannelConnecter(
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _timer = new Timer(TimeSpan.FromMinutes(2)) { AutoReset = true };
-        _timer.Elapsed += async (sender, args) => await ConnectToStreams();
+        _timer.Elapsed += async (sender, args) =>
+        {
+            if (!IsRequesting)
+            {
+                await ConnectToStreams();
+            }
+        };
 
         _timer.Start();
 

@@ -1,5 +1,11 @@
 ﻿global using System;
-global using System.Text;
-global using System.Threading.Tasks;
 global using System.Linq;
+global using System.Text;
 global using System.Threading;
+global using System.Threading.Tasks;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Logging.Abstractions;
+global using Microsoft.Extensions.Logging.Console;
+global using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;

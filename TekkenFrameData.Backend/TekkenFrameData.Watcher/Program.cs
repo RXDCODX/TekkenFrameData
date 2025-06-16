@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
+using DSharpPlus;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Extensions.Logging.Console;
-using Npgsql;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Library.DB.Factory;
 using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.Configuration;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Contractor;
+using TekkenFrameData.Watcher.Services.Discord;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
 using TekkenFrameData.Watcher.Services.TekkenVictorina;
@@ -30,7 +26,6 @@ using TwitchLib.Client.Interfaces;
 using TwitchLib.Client.Models;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
-using AppDbContext = TekkenFrameData.Library.DB.AppDbContext;
 using Commands = TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Commands;
 
 namespace TekkenFrameData.Watcher;
@@ -92,6 +87,9 @@ public class Program
             .AddHttpClient("telegram_bot_client")
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
+        services.AddTwitchEvents(configuration);
+        services.AddDiscordServices(builder.Environment, configuration);
+
         services.AddSingleton<IDbContextFactory<AppDbContext>>(
             (_) =>
             {
@@ -106,6 +104,57 @@ public class Program
             }
         );
 
+        services.AddScoped<Commands>();
+        services.AddScoped<UpdateHandler>();
+        services.AddScoped<ReceiverService>();
+        services.AddHostedService<PollingService>();
+        services.AddSingleton<TwitchFramedateChannelConnecter>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
+
+        services.AddSingleton<Tekken8FrameData>();
+        services.AddHostedService(sp => sp.GetRequiredService<Tekken8FrameData>());
+
+        services.AddSingleton<TwitchAuthService>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchAuthService>());
+        services.AddSingleton<TokenService>();
+        services.AddSingleton<TelegramTokenNotification>();
+
+        services.AddSingleton<TekkenVictorinaLeaderbord>();
+        services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
+
+        services.AddSignalR();
+
+        var app = builder.Build();
+        var logger = app.Services.GetService<ILogger<Program>>();
+        app.MapHub<MainHub>("/mainhub");
+
+        app.UseDeveloperExceptionPage();
+        app.UseExceptionHandler("/Error");
+        app.UseHsts();
+        app.MapHealthChecks("/health");
+        app.UseRouting();
+        app.UseStaticFiles();
+
+        app.UseStatusCodePages();
+
+        try
+        {
+            await app.RunAsync();
+        }
+        catch (Exception e)
+        {
+            logger?.LogException(e);
+        }
+    }
+}
+
+internal static class ProgramInitExstension
+{
+    public static IServiceCollection AddTwitchEvents(
+        this IServiceCollection services,
+        Configuration configuration
+    )
+    {
         services.AddSingleton<ITwitchClient>(sp =>
         {
             // Add robust reconnection settings
@@ -135,7 +184,6 @@ public class Program
             );
             client.AutoReListenOnException = true;
             client.AddChatCommandIdentifier('!');
-            client.AddChatCommandIdentifier('/');
             client.Connect();
             return client;
         });
@@ -154,54 +202,44 @@ public class Program
             return twitchApi;
         });
 
-        services.AddScoped<Commands>();
-        services.AddScoped<UpdateHandler>();
-        services.AddScoped<ReceiverService>();
-        services.AddHostedService<PollingService>();
-        services.AddSingleton<TwitchFramedateChannelConnecter>();
-        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
-
-        services.AddSingleton<Tekken8FrameData>();
-        services.AddHostedService(sp => sp.GetRequiredService<Tekken8FrameData>());
-
-        services.AddSingleton<ContractorService>();
-        services.AddHostedService(sp => sp.GetRequiredService<ContractorService>());
-
-        services.AddSingleton<TwitchAuthService>();
-        services.AddHostedService(sp => sp.GetRequiredService<TwitchAuthService>());
-        services.AddSingleton<TokenService>();
-        services.AddSingleton<TelegramTokenNotification>();
-
         services.AddSingleton<CrossChannelManager>();
         services.AddHostedService(sp => sp.GetRequiredService<CrossChannelManager>());
         services.AddSingleton<TwitchFramedate>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedate>());
+        services.AddSingleton<TwitchFramedateChannelConnecter>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
 
-        services.AddSingleton<TekkenVictorinaLeaderbord>();
-        services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
+        services.AddSingleton<ContractorService>();
+        services.AddHostedService(sp => sp.GetRequiredService<ContractorService>());
 
-        services.AddSignalR();
+        return services;
+    }
 
-        var app = builder.Build();
-        var logger = app.Services.GetService<ILogger<Program>>();
-        app.MapHub<MainHub>("/mainhub");
+    public static IServiceCollection AddDiscordServices(
+        this IServiceCollection services,
+        IWebHostEnvironment environment,
+        Configuration configuration
+    )
+    {
+        services.AddSingleton<DiscordClient>(sp => new DiscordClient(
+            new DiscordConfiguration()
+            {
+                Token = configuration.DiscordToken,
+                TokenType = TokenType.Bot,
+                Intents =
+                    DiscordIntents.AllUnprivileged
+                    | DiscordIntents.MessageContents
+                    | DiscordIntents.GuildMessages,
+                MinimumLogLevel = environment.IsProduction()
+                    ? LogLevel.Error
+                    : LogLevel.Information,
+            }
+        ));
 
-        app.UseDeveloperExceptionPage();
-        app.UseExceptionHandler("/Error");
-        app.UseHsts();
-        app.MapHealthChecks("/health");
-        app.UseRouting();
-        app.UseStaticFiles();
+        services.AddSingleton<DiscordManager>();
+        services.AddHostedService(sp => sp.GetRequiredService<DiscordManager>());
+        services.AddSingleton<DiscordFramedataChannels>();
 
-        app.UseStatusCodePages();
-
-        try
-        {
-            await app.RunAsync();
-        }
-        catch (Exception e)
-        {
-            logger?.LogException(e);
-        }
+        return services;
     }
 }

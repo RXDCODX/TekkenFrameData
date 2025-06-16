@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace TekkenFrameData.Library.Models.FrameData;
 
@@ -13,4 +14,7 @@ public class TekkenCharacter
     public string? LinkToImage { get; set; }
     public ICollection<TekkenMove> Movelist { get; set; } = [];
     public DateTime LastUpdateTime { get; set; } = DateTime.Now.ToLocalTime();
+    public string? Description { get; set; }
+    public string[]? Strengths { get; set; }
+    public string[]? Weaknesess { get; set; }
 }

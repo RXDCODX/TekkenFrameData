@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TekkenFrameData.Library.Models.Discord;
 using TekkenFrameData.Library.Models.FrameData;
 
 namespace TekkenFrameData.Library.DB;
@@ -10,6 +11,7 @@ public sealed partial class AppDbContext
     public DbSet<TwitchTekkenChannel> TekkenChannels { get; set; } = null!;
     public DbSet<TwitchAcceptesToken> AcceptesTokens { get; set; } = null!;
     public DbSet<TwitchLeaderboardUser> TwitchLeaderboardUsers { get; set; } = null!;
+    public DbSet<DiscordFramedataChannel> DiscordFramedataChannels { get; set; } = null!;
 
     private static void OnFrameDataModelCreatingPartial(ModelBuilder modelBuilder)
     {

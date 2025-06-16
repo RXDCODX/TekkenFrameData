@@ -27,6 +27,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="DSharpPlus" />
+		<PackageReference Include="DSharpPlus.CommandsNext" />
+		<PackageReference Include="DSharpPlus.Interactivity" />
+		<PackageReference Include="DSharpPlus.Rest" />
+		<PackageReference Include="DSharpPlus.SlashCommands" />
 		<PackageReference Include="HtmlAgilityPack" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">

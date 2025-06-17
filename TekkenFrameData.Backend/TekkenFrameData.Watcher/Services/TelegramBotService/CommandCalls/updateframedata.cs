@@ -13,14 +13,23 @@ public partial class Commands
         CancellationToken cancellationToken
     )
     {
-        await Task.Factory.StartNew(
-            () => frameData.StartScrupFrameData(message.Chat),
-            cancellationToken
-        );
+        if (!frameData.ParsingActive)
+        {
+            await Task.Factory.StartNew(
+                () => frameData.StartScrupFrameData(message.Chat),
+                cancellationToken
+            );
+
+            return await botClient.SendMessage(
+                message.Chat,
+                "Начал парсинг",
+                cancellationToken: cancellationToken
+            );
+        }
 
         return await botClient.SendMessage(
             message.Chat,
-            "Начал парсинг",
+            "Парсинг уже идет!",
             cancellationToken: cancellationToken
         );
     }

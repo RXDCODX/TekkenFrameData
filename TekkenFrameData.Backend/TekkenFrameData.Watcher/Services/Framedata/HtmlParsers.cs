@@ -12,6 +12,7 @@ public partial class Tekken8FrameData
 {
     internal async Task StartScrupFrameData(Chat? chat = default)
     {
+        ParsingActive = true;
         var docW = new HtmlWeb();
         var doc = await docW.LoadFromWebAsync(
             BasePath.AbsoluteUri + "t/Main_Page",
@@ -177,6 +178,7 @@ public partial class Tekken8FrameData
                 "Парсинг теккен фрейм даты закончено!",
                 cancellationToken: _cancellationToken
             );
+        ParsingActive = false;
     }
 
     private static Task<TekkenMove[]> ConsolidateMoveGroups(List<TekkenMove> moves)

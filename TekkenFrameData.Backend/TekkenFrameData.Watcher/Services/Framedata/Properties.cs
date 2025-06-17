@@ -74,4 +74,5 @@ public partial class Tekken8FrameData
 
     public readonly Uri BasePath = new("https://tekkendocs.com");
     public List<TekkenMove> VictorinaMoves = [];
+    public bool ParsingActive { get; set; }
 }

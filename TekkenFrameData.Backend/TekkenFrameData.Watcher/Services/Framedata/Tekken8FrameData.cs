@@ -17,21 +17,35 @@ public partial class Tekken8FrameData(
     ITelegramBotClient client
 ) : BackgroundService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using var dbContext = await dbContextFactory.CreateDbContextAsync(stoppingToken);
-        var character = await dbContext.TekkenCharacters.FirstOrDefaultAsync(
-            cancellationToken: stoppingToken
-        );
-        var isDateInCurrentWeek = await IsDateInCurrentWeek(
-            character?.LastUpdateTime ?? DateTime.UnixEpoch
-        );
-        if (character == null || !isDateInCurrentWeek)
-        {
-            await Task.Factory.StartNew(() => StartScrupFrameData(), stoppingToken);
-        }
+        return Task.Factory.StartNew(
+            async () =>
+            {
+                while (!stoppingToken.IsCancellationRequested)
+                {
+                    await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                        stoppingToken
+                    );
+                    var character = await dbContext.TekkenCharacters.FirstOrDefaultAsync(
+                        cancellationToken: stoppingToken
+                    );
+                    var isDateInCurrentWeek = await IsDateInCurrentWeek(
+                        character?.LastUpdateTime ?? DateTime.UnixEpoch
+                    );
+                    if (character == null || !isDateInCurrentWeek)
+                    {
+                        await Task.Factory.StartNew(() => StartScrupFrameData(), stoppingToken);
+                    }
 
-        await UpdateMovesForVictorina();
+                    await UpdateMovesForVictorina();
+                    await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+                }
+            },
+            stoppingToken,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default
+        );
     }
 
     public async Task<TekkenMove[]?> GetCharMoveList(string charname)

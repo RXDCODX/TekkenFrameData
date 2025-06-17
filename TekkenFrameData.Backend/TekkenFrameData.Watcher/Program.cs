@@ -1,5 +1,7 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,12 +43,7 @@ public class Program
 
         if (builder.Environment.IsDevelopment())
         {
-            builder.Logging.AddConsole(options =>
-            {
-                options.FormatterName = "custom"; // Указываем имя форматтера
-            });
             // Регистрируем кастомный форматтер
-            builder.Logging.AddConsoleFormatter<CustomFormatter, ConsoleFormatterOptions>();
             builder.Logging.AddDebug();
 
             builder.Logging.SetMinimumLevel(LogLevel.Information);
@@ -126,6 +123,7 @@ public class Program
 
         var app = builder.Build();
         var logger = app.Services.GetService<ILogger<Program>>();
+        var bsd = app.Services.GetRequiredService<BaseDiscordClient>();
         app.MapHub<MainHub>("/mainhub");
 
         app.UseDeveloperExceptionPage();
@@ -221,23 +219,45 @@ internal static class ProgramInitExstension
         Configuration configuration
     )
     {
-        services.AddSingleton<DiscordClient>(sp => new DiscordClient(
-            new DiscordConfiguration()
+        services.AddSingleton<BaseDiscordClient>(
+            (sp) =>
             {
-                Token = configuration.DiscordToken,
-                TokenType = TokenType.Bot,
-                Intents =
+                var eventHandler = sp.GetRequiredService<DiscordManager>();
+                var builder = DiscordClientBuilder.CreateDefault(
+                    configuration.DiscordToken,
                     DiscordIntents.AllUnprivileged
-                    | DiscordIntents.MessageContents
-                    | DiscordIntents.GuildMessages,
-                MinimumLogLevel = environment.IsProduction()
-                    ? LogLevel.Error
-                    : LogLevel.Information,
+                        | DiscordIntents.MessageContents
+                        | DiscordIntents.GuildMessages
+                );
+                builder.ConfigureLogging(configure => configure.SetMinimumLevel(LogLevel.Warning));
+                builder.ConfigureEventHandlers(handler =>
+                    handler
+                        .HandleGuildCreated(
+                            (discordClient, args) =>
+                                eventHandler.HandleEventAsync(discordClient, args)
+                        )
+                        .HandleMessageCreated(
+                            (discordClient, args) =>
+                                eventHandler.HandleEventAsync(discordClient, args)
+                        )
+                        .HandleComponentInteractionCreated(
+                            (discordClient, args) =>
+                                eventHandler.HandleEventAsync(discordClient, args)
+                        )
+                        .HandleGuildDeleted(
+                            (discordClient, args) =>
+                                eventHandler.HandleEventAsync(discordClient, args)
+                        )
+                );
+
+                var client = builder.Build();
+                client.ConnectAsync().GetAwaiter().GetResult();
+                return client;
             }
-        ));
+        );
 
         services.AddSingleton<DiscordManager>();
-        services.AddHostedService(sp => sp.GetRequiredService<DiscordManager>());
+        services.AddHostedService<DiscordManager>();
         services.AddSingleton<DiscordFramedataChannels>();
 
         return services;

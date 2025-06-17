@@ -4,11 +4,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CliWrap" Version="3.8.2" />
-    <PackageVersion Include="DSharpPlus" Version="4.5.1" />
-    <PackageVersion Include="DSharpPlus.CommandsNext" Version="4.5.1" />
-    <PackageVersion Include="DSharpPlus.Interactivity" Version="4.5.1" />
-    <PackageVersion Include="DSharpPlus.Rest" Version="4.5.1" />
-    <PackageVersion Include="DSharpPlus.SlashCommands" Version="4.5.1" />
+    <PackageVersion Include="DSharpPlus" Version="5.0.0-nightly-02520" />
+    <PackageVersion Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-02520" />
+    <PackageVersion Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-02520" />
+    <PackageVersion Include="DSharpPlus.Rest" Version="5.0.0-nightly-02504" />
+    <PackageVersion Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-02520" />
     <PackageVersion Include="Hangfire" Version="1.8.17" />
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.17" />
     <PackageVersion Include="Hangfire.Core" Version="1.8.17" />

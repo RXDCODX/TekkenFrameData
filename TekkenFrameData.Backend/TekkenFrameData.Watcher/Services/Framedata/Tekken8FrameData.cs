@@ -364,15 +364,20 @@ public partial class Tekken8FrameData(
         await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
             _cancellationToken
         );
-        TekkenCharacter result = null!;
-        result = isWithMoveList
+        var result = isWithMoveList
             ? await dbContext
                 .TekkenCharacters.Include(e => e.Movelist)
                 .AsNoTracking()
-                .FirstAsync(e => e.Name.Equals(name), cancellationToken: _cancellationToken)
+                .FirstOrDefaultAsync(
+                    e => e.Name.Equals(name),
+                    cancellationToken: _cancellationToken
+                )
             : await dbContext
                 .TekkenCharacters.AsNoTracking()
-                .FirstAsync(e => e.Name.Equals(name), cancellationToken: _cancellationToken);
+                .FirstOrDefaultAsync(
+                    e => e.Name.Equals(name),
+                    cancellationToken: _cancellationToken
+                );
 
         return result;
     }

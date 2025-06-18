@@ -37,6 +37,7 @@ public sealed partial class AppDbContext : DbContext
         AppDbContext.OnFrameDataModelCreatingPartial(modelBuilder);
         AppDbContext.OnConfigurationModelCreatingPartial(modelBuilder);
         AppDbContext.OnFrameDataModelCreatingPartial(modelBuilder);
+        AppDbContext.OnTwitchCreatingPartial(modelBuilder);
     }
 
     public class DateTimeToDateTimeUtc()

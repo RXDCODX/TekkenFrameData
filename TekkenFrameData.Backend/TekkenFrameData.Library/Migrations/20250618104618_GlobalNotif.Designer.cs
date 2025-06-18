@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TekkenFrameData.Library.DB;
@@ -11,9 +12,11 @@ using TekkenFrameData.Library.DB;
 namespace TekkenFrameData.Cli.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250618104618_GlobalNotif")]
+    partial class GlobalNotif
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -312,18 +315,17 @@ namespace TekkenFrameData.Cli.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ChannelId")
-                        .HasColumnType("uuid");
-
                     b.Property<bool>("IsFinished")
                         .HasColumnType("boolean");
 
                     b.Property<Guid>("MessageId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.Property<string>("TwitchId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasIndex("ChannelId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MessageId");
 
@@ -343,19 +345,11 @@ namespace TekkenFrameData.Cli.Migrations
 
             modelBuilder.Entity("TekkenFrameData.Library.Models.Twitch.TwitchNotificationChannelsState", b =>
                 {
-                    b.HasOne("TekkenFrameData.Library.Models.FrameData.TwitchTekkenChannel", "Channel")
-                        .WithMany()
-                        .HasForeignKey("ChannelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TekkenFrameData.Library.Models.Twitch.GlobalNotificationMessage", "Message")
                         .WithMany()
                         .HasForeignKey("MessageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Channel");
 
                     b.Navigation("Message");
                 });

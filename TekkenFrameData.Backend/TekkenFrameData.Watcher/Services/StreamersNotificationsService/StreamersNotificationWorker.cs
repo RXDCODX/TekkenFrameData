@@ -1,6 +1,5 @@
 ﻿using TekkenFrameData.Library.Models.Twitch;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
-using TwitchLib.Api.Interfaces;
 using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.StreamersNotificationsService;
@@ -9,8 +8,7 @@ public class StreamersNotificationWorker(
     IDbContextFactory<AppDbContext> contextFactory,
     IHostApplicationLifetime lifetime,
     TwitchFramedataChannelsEvents events,
-    ITwitchClient twitchClient,
-    ITwitchAPI twitchApi
+    ITwitchClient twitchClient
 ) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,9 +36,10 @@ public class StreamersNotificationWorker(
             var channelsTwitchIds = args.Streams.Select(e => e.UserId).ToArray();
             await using var dbContext = await contextFactory.CreateDbContextAsync();
             var streamNotifsNotFinished = dbContext
-                .GlobalNotificatoinChannelsState.Where(e =>
-                    channelsTwitchIds.Contains(e.TwitchId) && e.IsFinished == false
+                .GlobalNotificatoinChannelsState.Include(twitchNotificationChannelsState =>
+                    twitchNotificationChannelsState.Channel
                 )
+                .Where(e => channelsTwitchIds.Contains(e.Channel.TwitchId) && e.IsFinished == false)
                 .ToList();
 
             var messagesId = streamNotifsNotFinished
@@ -55,11 +54,8 @@ public class StreamersNotificationWorker(
 
             foreach (var twitchNotificationChannelsState in streamNotifsNotFinished)
             {
-                var channelName = await twitchApi.Helix.Channels.GetChannelInformationAsync(
-                    twitchNotificationChannelsState.TwitchId
-                );
                 twitchClient.SendMessage(
-                    channelName.Data.First().BroadcasterLogin,
+                    twitchNotificationChannelsState.Channel.Name,
                     messages.First(e => e.Id == twitchNotificationChannelsState.MessageId).Message
                 );
                 twitchNotificationChannelsState.IsFinished = true;

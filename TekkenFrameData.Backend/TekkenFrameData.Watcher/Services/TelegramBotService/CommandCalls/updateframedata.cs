@@ -7,6 +7,7 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 public partial class Commands
 {
     [Admin]
+    [Description("scrupframedate")]
     public async Task<Message> OnScrupCommandReceived(
         ITelegramBotClient botClient,
         Message message,

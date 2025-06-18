@@ -1,7 +1,5 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
-using DSharpPlus.EventArgs;
-using DSharpPlus.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -128,7 +126,7 @@ public class Program
 
         var app = builder.Build();
         var logger = app.Services.GetService<ILogger<Program>>();
-        var bsd = app.Services.GetRequiredService<BaseDiscordClient>();
+        var bsd = app.Services.GetService<BaseDiscordClient>();
         app.MapHub<MainHub>("/mainhub");
 
         app.UseDeveloperExceptionPage();

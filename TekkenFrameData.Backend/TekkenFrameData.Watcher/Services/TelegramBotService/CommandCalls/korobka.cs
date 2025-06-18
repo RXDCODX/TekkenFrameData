@@ -32,10 +32,10 @@ public partial class Commands
 
         try
         {
-            client.JoinChannel(channel, true);
+            twitchClient.JoinChannel(channel, true);
             if (text != null)
             {
-                client.SendMessage(channel, string.Join(' ', text));
+                twitchClient.SendMessage(channel, string.Join(' ', text));
             }
 
             return await botClient.SendMessage(

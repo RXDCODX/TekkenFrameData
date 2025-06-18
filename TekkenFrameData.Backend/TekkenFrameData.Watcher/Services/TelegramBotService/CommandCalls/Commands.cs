@@ -6,6 +6,7 @@ using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.StreamersNotificationsService;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -20,7 +21,7 @@ public partial class Commands(
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext,
-    ITwitchClient client
+    MessagesHandler globalNotifHandler
 )
 {
     public const string Template =

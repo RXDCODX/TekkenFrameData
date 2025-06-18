@@ -1,6 +1,4 @@
 ﻿using System.Net.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using TekkenFrameData.Library.Exstensions;
 using TwitchLib.Api.Helix.Models.Chat.ChatSettings;
 using TwitchLib.Api.Interfaces;
@@ -14,7 +12,8 @@ public class TwitchFramedateChannelConnecter(
     ILogger<TwitchFramedateChannelConnecter> logger,
     ITwitchClient client,
     ITwitchAPI api,
-    IHostApplicationLifetime lifetime
+    IHostApplicationLifetime lifetime,
+    TwitchFramedataChannelsEvents events
 ) : IHostedService
 {
     private Timer? _timer;
@@ -28,11 +27,13 @@ public class TwitchFramedateChannelConnecter(
         var streams = await GetStreamsFromRuTekken();
         IsRequesting = false;
         var joined = client.JoinedChannels;
-        var newStreams = streams.Where(e =>
-            joined.All(joinedChannel =>
-                !joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
-            ) && !e.UserId.Equals("785975641", StringComparison.OrdinalIgnoreCase)
-        );
+        var newStreams = streams
+            .Where(e =>
+                joined.All(joinedChannel =>
+                    !joinedChannel.Channel.Equals(e.UserLogin, StringComparison.OrdinalIgnoreCase)
+                ) && !e.UserId.Equals("785975641", StringComparison.OrdinalIgnoreCase)
+            )
+            .ToArray();
         var streamsToLeave = joined.Where(joinedChannel =>
             // Канал не найден в текущих стримах
             !streams.Any(stream =>
@@ -83,6 +84,8 @@ public class TwitchFramedateChannelConnecter(
         {
             client.JoinChannel(TwitchClientExstension.Channel);
         }
+
+        events.InvokeChannelsConnected(newStreams);
     }
 
     private async Task<ChatSettingsResponseModel> GetStreamInfo(string id)

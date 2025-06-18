@@ -34,11 +34,8 @@ public class TwitchFramedate(
         var command = args.Command.CommandText;
         var channelId = args.Command.ChatMessage.RoomId;
         var channelName = args.Command.ChatMessage.Channel;
-        var pass =
-            userId.Trim().Equals(TwitchClientExstension.AuthorId.ToString())
-            || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
         var isBroadcaster = args.Command.ChatMessage.IsBroadcaster;
-        if (pass || IsChannelApproved(channelId))
+        if (PassByUser(userId) || IsChannelApproved(channelId))
         {
             if (command.StartsWith("fd", StringComparison.OrdinalIgnoreCase))
             {
@@ -122,6 +119,33 @@ public class TwitchFramedate(
                 );
             }
         }
+    }
+
+    private bool PassByUser(string userId)
+    {
+        var pass =
+            userId.Trim().Equals(TwitchClientExstension.AuthorId.ToString())
+            || userId.Trim().Equals(TwitchClientExstension.AnubisaractId.ToString());
+
+        if (pass)
+        {
+            return true;
+        }
+
+        if (ApprovedChannels.Contains(userId))
+        {
+            return true;
+        }
+
+        //проверяем наличие канала в бд
+        using var dbContext = factory.CreateDbContext();
+        var isApproved = dbContext.TekkenChannels.Any(e =>
+            e.TwitchId == userId && e.FramedataStatus == TekkenFramedataStatus.Accepted
+        );
+        if (!isApproved)
+            return false;
+        ApprovedChannels.Add(userId);
+        return true;
     }
 
     private bool IsChannelApproved(string channelId)

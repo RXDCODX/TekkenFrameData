@@ -8,10 +8,6 @@ public sealed partial class AppDbContext
 {
     public DbSet<TekkenMove> TekkenMoves { get; set; } = null!;
     public DbSet<TekkenCharacter> TekkenCharacters { get; set; } = null!;
-    public DbSet<TwitchTekkenChannel> TekkenChannels { get; set; } = null!;
-    public DbSet<TwitchAcceptesToken> AcceptesTokens { get; set; } = null!;
-    public DbSet<TwitchLeaderboardUser> TwitchLeaderboardUsers { get; set; } = null!;
-    public DbSet<DiscordFramedataChannel> DiscordFramedataChannels { get; set; } = null!;
 
     private static void OnFrameDataModelCreatingPartial(ModelBuilder modelBuilder)
     {

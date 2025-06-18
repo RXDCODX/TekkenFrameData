@@ -15,6 +15,7 @@ using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.Discord;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
+using TekkenFrameData.Watcher.Services.StreamersNotificationsService;
 using TekkenFrameData.Watcher.Services.TekkenVictorina;
 using TekkenFrameData.Watcher.Services.TelegramBotService;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
@@ -85,7 +86,7 @@ public class Program
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddTwitchEvents(configuration);
-        services.AddDiscordServices(builder.Environment, configuration);
+        //services.AddDiscordServices(builder.Environment, configuration);
 
         services.AddSingleton<IDbContextFactory<AppDbContext>>(
             (_) =>
@@ -118,6 +119,10 @@ public class Program
 
         services.AddSingleton<TekkenVictorinaLeaderbord>();
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
+
+        services.AddSingleton<StreamersNotificationWorker>();
+        services.AddSingleton(sp => sp.GetRequiredService<StreamersNotificationWorker>());
+        services.AddSingleton<MessagesHandler>();
 
         services.AddSignalR();
 
@@ -206,6 +211,7 @@ internal static class ProgramInitExstension
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedate>());
         services.AddSingleton<TwitchFramedateChannelConnecter>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchFramedateChannelConnecter>());
+        services.AddSingleton<TwitchFramedataChannelsEvents>();
 
         services.AddSingleton<ContractorService>();
         services.AddHostedService(sp => sp.GetRequiredService<ContractorService>());

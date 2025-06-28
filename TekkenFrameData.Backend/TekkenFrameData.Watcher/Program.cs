@@ -255,7 +255,7 @@ internal static class ProgramInitExstension
                 );
 
                 var client = builder.Build();
-                client.ConnectAsync().GetAwaiter().GetResult();
+                Task.Factory.StartNew(() => client.ConnectAsync());
                 return client;
             }
         );

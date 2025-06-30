@@ -84,7 +84,7 @@ public class Program
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddTwitchEvents(configuration);
-        services.AddDiscordServices(builder.Environment, configuration);
+        //services.AddDiscordServices(builder.Environment, configuration);
 
         services.AddSingleton<IDbContextFactory<AppDbContext>>(
             (_) =>

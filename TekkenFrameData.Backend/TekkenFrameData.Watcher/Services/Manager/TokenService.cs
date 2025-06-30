@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.DB;
-using TekkenFrameData.Library.Exstensions;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.ExternalServices.Twitch;
 using TwitchLib.Api.Interfaces;
 
@@ -50,7 +47,7 @@ public class TokenService(
                 api.Settings.ClientId
             );
 
-            var token = (await dbContext.TwitchToken.Where(e => true).ToListAsync())[0];
+            var token = await dbContext.TwitchToken.SingleAsync();
 
             token.AccessToken = result.AccessToken;
             token.ExpiresIn = TimeSpan.FromSeconds(result.ExpiresIn);

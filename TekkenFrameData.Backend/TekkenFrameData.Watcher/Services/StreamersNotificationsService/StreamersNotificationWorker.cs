@@ -1,4 +1,7 @@
-﻿using TekkenFrameData.Library.Models.Twitch;
+﻿using Microsoft.Extensions.Logging;
+using SteamKit2.CDN;
+using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.Twitch;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Interfaces;
 
@@ -8,7 +11,8 @@ public class StreamersNotificationWorker(
     IDbContextFactory<AppDbContext> contextFactory,
     IHostApplicationLifetime lifetime,
     TwitchFramedataChannelsEvents events,
-    ITwitchClient twitchClient
+    ITwitchClient twitchClient,
+    Logger<StreamersNotificationWorker> logger
 ) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,31 +39,50 @@ public class StreamersNotificationWorker(
         {
             var channelsTwitchIds = args.Streams.Select(e => e.UserId).ToArray();
             await using var dbContext = await contextFactory.CreateDbContextAsync();
-            var streamNotifsNotFinished = dbContext
-                .GlobalNotificatoinChannelsState.Include(twitchNotificationChannelsState =>
-                    twitchNotificationChannelsState.Channel
-                )
-                .Where(e => channelsTwitchIds.Contains(e.Channel.TwitchId) && e.IsFinished == false)
+
+            var allChannels = await dbContext.TekkenChannels.ToListAsync();
+            var activeChannels = allChannels
+                .Where(c => channelsTwitchIds.Contains(c.TwitchId))
                 .ToList();
 
-            var messagesId = streamNotifsNotFinished
-                .DistinctBy(e => e.MessageId)
-                .Select(e => e.MessageId)
-                .ToArray();
-            var messages = await dbContext
-                .GlobalNotificationMessage.Where(e =>
-                    messagesId.Contains(e.Id) && e.Services == GlobalNotificationsPlatforms.Twitch
-                )
-                .ToArrayAsync();
-
-            foreach (var twitchNotificationChannelsState in streamNotifsNotFinished)
+            if (activeChannels.Count == 0)
             {
-                twitchClient.SendMessage(
-                    twitchNotificationChannelsState.Channel.Name,
-                    messages.First(e => e.Id == twitchNotificationChannelsState.MessageId).Message
-                );
-                twitchNotificationChannelsState.IsFinished = true;
-                dbContext.Entry(twitchNotificationChannelsState).State = EntityState.Modified;
+                return; // Нет активных каналов для уведомлений
+            }
+
+            // Получаем незавершенные уведомления для активных каналов
+            var streamNotifsNotFinished = await dbContext
+                .GlobalNotificatoinChannelsState.Include(s => s.Channel)
+                .Include(s => s.Message)
+                .Where(e =>
+                    activeChannels.Select(c => c.Id).Contains(e.ChannelId) && e.IsFinished == false
+                )
+                .ToListAsync();
+
+            if (streamNotifsNotFinished.Count == 0)
+            {
+                return; // Нет незавершенных уведомлений
+            }
+
+            foreach (var notificationState in streamNotifsNotFinished)
+            {
+                try
+                {
+                    // Отправляем сообщение
+                    twitchClient.SendMessage(
+                        notificationState.Channel.Name,
+                        notificationState.Message.Message
+                    );
+
+                    // Помечаем как завершенное
+                    notificationState.IsFinished = true;
+                    dbContext.Update(notificationState);
+                }
+                catch (Exception ex)
+                {
+                    // Логирование ошибки
+                    logger.LogException(ex);
+                }
             }
 
             await dbContext.SaveChangesAsync();

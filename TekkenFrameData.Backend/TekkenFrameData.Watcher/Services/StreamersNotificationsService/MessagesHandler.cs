@@ -38,33 +38,53 @@ public class MessagesHandler(IDbContextFactory<AppDbContext> contextFactory, ITw
     public async Task NotifOnlineStreamers()
     {
         await using var dbContext = await contextFactory.CreateDbContextAsync();
-        var joinedChannels = client.JoinedChannels.Select(e => e.Channel).ToArray();
 
-        var streamNotifsNotFinished = dbContext
-            .GlobalNotificatoinChannelsState.Include(twitchNotificationChannelsState =>
-                twitchNotificationChannelsState.Channel
-            )
-            .Where(e => joinedChannels.Contains(e.Channel.Name) && e.IsFinished == false)
+        // Получаем имена подключенных каналов
+        var joinedChannelNames = client.JoinedChannels.Select(e => e.Channel).ToArray();
+
+        var allChannels = await dbContext.TekkenChannels.ToListAsync();
+        var activeChannels = allChannels
+            .Where(c => joinedChannelNames.Contains(c.Name, StringComparer.OrdinalIgnoreCase))
             .ToList();
 
-        var messagesId = streamNotifsNotFinished
-            .DistinctBy(e => e.MessageId)
-            .Select(e => e.MessageId)
-            .ToArray();
-        var messages = await dbContext
-            .GlobalNotificationMessage.Where(e =>
-                messagesId.Contains(e.Id) && e.Services == GlobalNotificationsPlatforms.Twitch
-            )
-            .ToArrayAsync();
-
-        foreach (var twitchNotificationChannelsState in streamNotifsNotFinished)
+        if (activeChannels.Count == 0)
         {
-            client.SendMessage(
-                twitchNotificationChannelsState.Channel.Name,
-                messages.First(e => e.Id == twitchNotificationChannelsState.MessageId).Message
-            );
-            twitchNotificationChannelsState.IsFinished = true;
-            dbContext.Entry(twitchNotificationChannelsState).State = EntityState.Modified;
+            return; // Нет активных каналов для уведомлений
+        }
+
+        // Получаем незавершенные уведомления для активных каналов
+        var streamNotifsNotFinished = await dbContext
+            .GlobalNotificatoinChannelsState.Include(s => s.Channel)
+            .Include(s => s.Message)
+            .Where(e =>
+                activeChannels.Select(c => c.Id).Contains(e.ChannelId) && e.IsFinished == false
+            )
+            .ToListAsync();
+
+        if (streamNotifsNotFinished.Count == 0)
+        {
+            return; // Нет незавершенных уведомлений
+        }
+
+        foreach (var notificationState in streamNotifsNotFinished)
+        {
+            try
+            {
+                // Отправляем сообщение
+                client.SendMessage(
+                    notificationState.Channel.Name,
+                    notificationState.Message.Message
+                );
+
+                // Помечаем как завершенное
+                notificationState.IsFinished = true;
+                dbContext.Update(notificationState);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                Console.WriteLine($"Error sending notification: {ex.Message}");
+            }
         }
 
         await dbContext.SaveChangesAsync();

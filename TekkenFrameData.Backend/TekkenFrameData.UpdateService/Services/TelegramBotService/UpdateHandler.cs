@@ -43,7 +43,7 @@ public class UpdateHandler(
             logger.LogException(e);
         }
 
-        Task handler = update switch
+        var handler = update switch
         {
             //{ ChannelPost: {} channelPost } => BotOnChannelPost(channelPost, cancellationToken),
             { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
@@ -70,7 +70,6 @@ public class UpdateHandler(
     }
 
     public async Task HandlePollingErrorAsync(
-        ITelegramBotClient botClient,
         Exception exception,
         CancellationToken cancellationToken
     )
@@ -132,7 +131,7 @@ public class UpdateHandler(
         if (
             message.Type != MessageType.Text
             || message.Text is not { } messageText
-            || !messageText.StartsWith("/")
+            || !messageText.StartsWith('/')
         )
         {
             return;
@@ -156,17 +155,12 @@ public class UpdateHandler(
                 var methodWithAliases = methods.Where(e =>
                     e.GetCustomAttribute<AliasAttribute>() != null
                 );
-                var commandWithoutSlash = command.Trim().Substring(1);
+                var commandWithoutSlash = command.Trim()[1..];
                 method = methodWithAliases.FirstOrDefault(
                     e =>
                     {
                         var aliasAttr = e?.GetCustomAttribute<AliasAttribute>();
-                        if (aliasAttr?.MethodAliases.Contains(commandWithoutSlash) == true)
-                        {
-                            return true;
-                        }
-
-                        return false;
+                        return aliasAttr?.MethodAliases.Contains(commandWithoutSlash) == true;
                     },
                     null
                 );
@@ -197,14 +191,9 @@ public class UpdateHandler(
                     var parameters = new object[] { botClient, message, cancellationToken };
                     if (methodName == "OnCommandsCommandReceived")
                     {
-                        if (isAdminUser)
-                        {
-                            parameters = [botClient, message, cancellationToken, true];
-                        }
-                        else
-                        {
-                            parameters = [botClient, message, cancellationToken, false];
-                        }
+                        parameters = isAdminUser
+                            ? [botClient, message, cancellationToken, true]
+                            : [botClient, message, cancellationToken, false];
                     }
 
                     action = (Task<Message>?)method.Invoke(commands, parameters);
@@ -244,7 +233,7 @@ public class UpdateHandler(
             while (result.Length > caption)
             {
                 var split = result.Take(caption).ToArray();
-                result = new string(result.Skip(caption).ToArray());
+                result = new string(result.AsSpan()[caption..]);
                 var newMessage = new string(split);
 
                 await Task.Delay(3000, token);
@@ -270,7 +259,7 @@ public class UpdateHandler(
         }
     }
 
-    private Task<Message>? ErrorCommand(
+    private static Task<Message>? ErrorCommand(
         ITelegramBotClient client,
         Message message,
         CancellationToken cancellationToken
@@ -283,11 +272,11 @@ public class UpdateHandler(
         );
     }
 
-    private string GetMethodName(string command)
+    private static string GetMethodName(string command)
     {
         return string.Concat(
             "On",
-            command.Substring(1).First().ToString().ToUpper(),
+            command[1..].First().ToString().ToUpper(),
             command.AsSpan(2),
             "CommandReceived"
         );
@@ -306,10 +295,10 @@ public class UpdateHandler(
         );
 
         InlineQueryResult[] results =
-        {
+        [
             // displayed result
             new InlineQueryResultArticle("1", "TgBots", new InputTextMessageContent("hello")),
-        };
+        ];
 
         await botClient.AnswerInlineQuery(
             inlineQuery.Id,

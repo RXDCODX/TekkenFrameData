@@ -11,7 +11,7 @@ public static class LoggerExstension
     public static ILogger LogException(this ILogger logger, Exception exception)
     {
         var stackTrace = exception.StackTrace;
-        Exception? innerException = exception;
+        var innerException = exception;
 
         while (innerException.InnerException != null)
         {
@@ -25,7 +25,7 @@ public static class LoggerExstension
     public static ILogger<T> LogException<T>(this ILogger<T> logger, Exception exception)
     {
         var stackTrace = exception.StackTrace;
-        Exception? innerException = exception;
+        var innerException = exception;
 
         var sb = new StringBuilder(exception.Message);
 

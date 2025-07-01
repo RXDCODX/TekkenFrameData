@@ -219,7 +219,7 @@ public partial class Commands
 
         async Task<Message> SendDefaultResponse(int cs = 0)
         {
-            string mss = "Плохие параметры запроса";
+            var mss = "Плохие параметры запроса";
 
             mss += cs switch
             {

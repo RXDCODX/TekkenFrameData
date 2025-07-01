@@ -39,7 +39,7 @@ public class TokenService(
     {
         try
         {
-            await using AppDbContext dbContext = await factory.CreateDbContextAsync();
+            await using var dbContext = await factory.CreateDbContextAsync();
 
             var result = await api.Auth.RefreshAuthTokenAsync(
                 refreshToken.RefreshToken,

@@ -15,7 +15,7 @@ public static class TwitchApiExstension
     {
         try
         {
-            ValidateAccessTokenResponse? response = await api.Auth.ValidateAccessTokenAsync(
+            var response = await api.Auth.ValidateAccessTokenAsync(
                 token ?? api.Settings.AccessToken
             );
 

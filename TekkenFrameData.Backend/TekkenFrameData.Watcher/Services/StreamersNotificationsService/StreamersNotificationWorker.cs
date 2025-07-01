@@ -30,12 +30,12 @@ public class StreamersNotificationWorker(
         return Task.CompletedTask;
     }
 
-    private Task EventsOnChannelConnected(
+    private async Task EventsOnChannelConnected(
         object? sender,
         TwitchFramedataChannelsEvents.ChannelConnectedEventArgs args
     )
     {
-        return Task.Factory.StartNew(async () =>
+        await Task.Factory.StartNew(async () =>
         {
             var channelsTwitchIds = args.Streams.Select(e => e.UserId).ToArray();
             await using var dbContext = await contextFactory.CreateDbContextAsync();

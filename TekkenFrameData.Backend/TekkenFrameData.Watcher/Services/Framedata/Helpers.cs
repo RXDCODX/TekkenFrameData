@@ -16,10 +16,10 @@ public partial class Tekken8FrameData
             daysToSubtract += 7; // Если сегодня воскресенье (DayOfWeek.Sunday = 0)
         }
 
-        DateTime startOfWeek = currentDate.AddDays(-daysToSubtract).Date;
+        var startOfWeek = currentDate.AddDays(-daysToSubtract).Date;
 
         // Определяем последний день текущей недели
-        DateTime endOfWeek = startOfWeek.AddDays(7);
+        var endOfWeek = startOfWeek.AddDays(7);
 
         // Сравниваем дату с началом и концом недели
         return Task.FromResult(date >= startOfWeek && date <= endOfWeek);

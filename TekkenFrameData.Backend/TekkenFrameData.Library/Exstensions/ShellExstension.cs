@@ -23,7 +23,7 @@ public static class ShellExstension
             ? Encoding.GetEncoding(866)
             : Encoding.UTF8;
 
-        var result = await CliWrap
+        await CliWrap
             .Cli.Wrap(command)
             .WithArguments(args)
             .WithValidation(CommandResultValidation.None)

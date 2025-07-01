@@ -65,7 +65,7 @@ public class TekkenVictorinaLeaderbord(
         }
 
         // 2. Глобальный рейтинг через COUNT
-        int globalOrder =
+        var globalOrder =
             await dbContext
                 .TwitchLeaderboardUsers.AsNoTracking()
                 .CountAsync(
@@ -209,7 +209,7 @@ public class TekkenVictorinaLeaderbord(
 
         bool CheckCooldownPass()
         {
-            if (!cooldownDictionary.TryGetValue(channelId, out DateTime value))
+            if (!cooldownDictionary.TryGetValue(channelId, out var value))
             {
                 cooldownDictionary.AddOrUpdate(
                     channelId,

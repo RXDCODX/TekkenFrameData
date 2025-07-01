@@ -39,7 +39,7 @@ public partial class Commands
 
                     // Разбиваем длинный результат на части
                     var messages = new List<string>();
-                    for (int i = 0; i < result.Length; i += maxMessageLength)
+                    for (var i = 0; i < result.Length; i += maxMessageLength)
                     {
                         var length = Math.Min(maxMessageLength, result.Length - i);
                         messages.Add(result.Substring(i, length));

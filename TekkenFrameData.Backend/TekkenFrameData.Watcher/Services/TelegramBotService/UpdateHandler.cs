@@ -135,7 +135,7 @@ public class UpdateHandler : IUpdateHandler
         if (
             message.Type != MessageType.Text
             || message.Text is not { } messageText
-            || !messageText.StartsWith("/")
+            || !messageText.StartsWith('/')
         )
         {
             return;
@@ -159,7 +159,7 @@ public class UpdateHandler : IUpdateHandler
                 var methodWithAliases = methods.Where(e =>
                     e.GetCustomAttribute<AliasAttribute>() != null
                 );
-                var commandWithoutSlash = command.Substring(1);
+                var commandWithoutSlash = command[1..];
                 method = methodWithAliases.FirstOrDefault(
                     e =>
                     {
@@ -224,7 +224,7 @@ public class UpdateHandler : IUpdateHandler
         }
     }
 
-    private Task<Message>? ErrorCommand(
+    private static Task<Message>? ErrorCommand(
         ITelegramBotClient client,
         Message message,
         CancellationToken cancellationToken
@@ -237,11 +237,11 @@ public class UpdateHandler : IUpdateHandler
         );
     }
 
-    private string GetMethodName(string command)
+    private static string GetMethodName(string command)
     {
         return string.Concat(
             "On",
-            command.Substring(1).First().ToString().ToUpper(),
+            command[1..].First().ToString().ToUpper(),
             command.AsSpan(2),
             "CommandReceived"
         );

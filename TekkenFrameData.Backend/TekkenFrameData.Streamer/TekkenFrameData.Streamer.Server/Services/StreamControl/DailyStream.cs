@@ -29,21 +29,21 @@ class MoscowDailyTimer : BackgroundService
 
     private void ScheduleNextRun()
     {
-        DateTime utcNow = DateTime.UtcNow;
-        DateTime moscowNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, _moscowTimeZone);
+        var utcNow = DateTime.UtcNow;
+        var moscowNow = TimeZoneInfo.ConvertTimeFromUtc(utcNow, _moscowTimeZone);
 
         // Рассчитываем следующие моменты срабатывания по Москве
-        DateTime next10Am = moscowNow.Date.AddHours(10);
-        DateTime next10Pm = moscowNow.Date.AddHours(22);
+        var next10Am = moscowNow.Date.AddHours(10);
+        var next10Pm = moscowNow.Date.AddHours(22);
 
-        DateTime nextRunTime =
+        var nextRunTime =
             moscowNow < next10Am ? next10Am
             : moscowNow < next10Pm ? next10Pm
             : next10Am.AddDays(1);
 
         // Конвертируем обратно в UTC для таймера
-        DateTime nextRunUtc = TimeZoneInfo.ConvertTimeToUtc(nextRunTime, _moscowTimeZone);
-        TimeSpan interval = nextRunUtc - utcNow;
+        var nextRunUtc = TimeZoneInfo.ConvertTimeToUtc(nextRunTime, _moscowTimeZone);
+        var interval = nextRunUtc - utcNow;
 
         _timer.Interval = interval.TotalMilliseconds;
         _timer.Start();
@@ -56,7 +56,7 @@ class MoscowDailyTimer : BackgroundService
 
     private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
     {
-        DateTime moscowTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _moscowTimeZone);
+        var moscowTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _moscowTimeZone);
         _connection.InvokeAsync(
             nameof(IMainHubCommands.SendToAdminsTelegramMessage),
             $"[{moscowTime:HH:mm:ss} MSK] Таймер сработал!"

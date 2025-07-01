@@ -15,7 +15,7 @@ public static class HttpContextExtensions
         var schemes = context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
 
         var list = new List<AuthenticationScheme>();
-        foreach (AuthenticationScheme scheme in (await schemes.GetAllSchemesAsync()))
+        foreach (var scheme in (await schemes.GetAllSchemesAsync()))
         {
             if (!string.IsNullOrEmpty(scheme.DisplayName))
             {

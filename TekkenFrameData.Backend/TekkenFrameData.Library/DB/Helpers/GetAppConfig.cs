@@ -10,7 +10,7 @@ public static class GetAppConfig
         DbContextOptionsBuilder<AppDbContext> contextBuilder
     )
     {
-        Configuration configuration = null!;
+        Configuration configuration;
         try
         {
             var dbContext = new AppDbContext(contextBuilder.Options, false);

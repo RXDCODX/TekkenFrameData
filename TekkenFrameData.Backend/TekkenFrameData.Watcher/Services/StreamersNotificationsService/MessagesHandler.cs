@@ -1,10 +1,15 @@
-﻿using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
+﻿using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Library.Models.Twitch;
 using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.StreamersNotificationsService;
 
-public class MessagesHandler(IDbContextFactory<AppDbContext> contextFactory, ITwitchClient client)
+public class MessagesHandler(
+    IDbContextFactory<AppDbContext> contextFactory,
+    ITwitchClient client,
+    ILogger<MessagesHandler> logger
+)
 {
     public async Task AddNewNotification(
         string message,
@@ -83,7 +88,7 @@ public class MessagesHandler(IDbContextFactory<AppDbContext> contextFactory, ITw
             catch (Exception ex)
             {
                 // Логирование ошибки
-                Console.WriteLine($"Error sending notification: {ex.Message}");
+                logger.LogException(ex);
             }
         }
 

@@ -35,7 +35,7 @@ public partial class Commands(
         bool isAdminCall = false
     )
     {
-        Type commands = typeof(Commands);
+        var commands = typeof(Commands);
         MethodInfo[] methods;
 
         if (isAdminCall)
@@ -80,7 +80,7 @@ public partial class Commands(
 
         for (var i = 0; i < methods.Length; i++)
         {
-            MethodInfo method = methods[i];
+            var method = methods[i];
             var length = method.Name.Length - template.Length;
             var name = method.Name.Substring(2, length);
 

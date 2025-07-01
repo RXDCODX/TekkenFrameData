@@ -33,7 +33,7 @@ public partial class Tekken8FrameData
 
             if (charDivs != null)
             {
-                foreach (HtmlNode charDiv in charDivs)
+                foreach (var charDiv in charDivs)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(2), _cancellationToken);
 
@@ -74,7 +74,7 @@ public partial class Tekken8FrameData
 
                     for (var index = 0; index < strAndWkns.Count; index++)
                     {
-                        HtmlNode? za = strAndWkns[index];
+                        var za = strAndWkns[index];
                         var twfs = za.SelectNodes("./li") ?? throw new HtmlWebException("miss");
                         foreach (var htmlNode in twfs)
                         {
@@ -111,8 +111,8 @@ public partial class Tekken8FrameData
                         {
                             Name = name,
                             Description = description,
-                            Weaknesess = listWknss.ToArray(),
-                            Strengths = listStr.ToArray(),
+                            Weaknesess = [.. listWknss],
+                            Strengths = [.. listStr],
                         };
 
                         try
@@ -124,8 +124,9 @@ public partial class Tekken8FrameData
 
                             var sortedMovelist = await ConsolidateMoveGroups(movelist);
 
-                            await using AppDbContext dbContext =
-                                await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+                            await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                                _cancellationToken
+                            );
 
                             if (dbContext.TekkenCharacters.Any(e => e.Equals(character)))
                             {
@@ -136,7 +137,7 @@ public partial class Tekken8FrameData
                                 dbContext.TekkenCharacters.Add(character);
                             }
 
-                            foreach (TekkenMove move in sortedMovelist)
+                            foreach (var move in sortedMovelist)
                             {
                                 if (
                                     dbContext.TekkenMoves.Any(e =>
@@ -268,16 +269,15 @@ public partial class Tekken8FrameData
                             Character = character,
                             CharacterName = character.Name,
                             Command = command.Split('-').Last().Trim().ToLower().Replace(".", " "),
+                            // Заполняем остальные свойства объекта Move данными из остальных ячеек
+                            StartUpFrame = cellNodes[1].InnerText.Trim().ToLower(),
+                            HitLevel = cellNodes[2].InnerText.Trim().ToLower(),
+                            Damage = cellNodes[3].InnerText.Trim().ToLower(),
+                            BlockFrame = cellNodes[4].InnerText.Trim().ToLower(),
+                            HitFrame = cellNodes[5].InnerText.Trim().ToLower(),
+                            CounterHitFrame = cellNodes[6].InnerText.Trim().ToLower(),
+                            Notes = cellNodes[8].InnerText.Trim().ToLower(),
                         };
-
-                        // Заполняем остальные свойства объекта Move данными из остальных ячеек
-                        move.StartUpFrame = cellNodes[1].InnerText.Trim().ToLower();
-                        move.HitLevel = cellNodes[2].InnerText.Trim().ToLower();
-                        move.Damage = cellNodes[3].InnerText.Trim().ToLower();
-                        move.BlockFrame = cellNodes[4].InnerText.Trim().ToLower();
-                        move.HitFrame = cellNodes[5].InnerText.Trim().ToLower();
-                        move.CounterHitFrame = cellNodes[6].InnerText.Trim().ToLower();
-                        move.Notes = cellNodes[8].InnerText.Trim().ToLower();
 
                         // Parse states if needed (cellNodes[7])
 
@@ -346,7 +346,7 @@ public partial class Tekken8FrameData
         return movelist;
     }
 
-    private string GenerateCargoQueryUrl(string characterName)
+    private static string GenerateCargoQueryUrl(string characterName)
     {
         // Кодируем имя персонажа для URL
         var encodedName = Uri.EscapeDataString(characterName + " movelist");
@@ -364,7 +364,7 @@ public partial class Tekken8FrameData
             },
             {
                 "where",
-                $"Move._pageName='{encodedName[0].ToString().ToUpper() + encodedName.Substring(1)}'"
+                $"Move._pageName='{string.Concat(encodedName[0].ToString().ToUpper(), encodedName.AsSpan(1))}'"
             },
             { "format", "table" },
             { "offset", "0" },

@@ -50,9 +50,7 @@ public partial class Tekken8FrameData(
 
     public async Task<TekkenMove[]?> GetCharMoveList(string charname)
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
         var character = await dbContext
             .TekkenCharacters.Include(e => e.Movelist)
             .AsNoTracking()
@@ -108,9 +106,7 @@ public partial class Tekken8FrameData(
         string[]? commandParts
     )
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
 
         // Сначала пробуем найти по двум словам
         var charname = string.Join(" ", commandParts?.Take(2) ?? []);
@@ -139,7 +135,7 @@ public partial class Tekken8FrameData(
                 var characterName = aliasPair.Key;
 
                 var characters = dbContext.TekkenCharacters.AsAsyncEnumerable();
-                await foreach (TekkenCharacter tekkenCharacter in characters)
+                await foreach (var tekkenCharacter in characters)
                 {
                     if (
                         tekkenCharacter.Name.Equals(
@@ -375,9 +371,7 @@ public partial class Tekken8FrameData(
 
     public async Task<TekkenCharacter?> GetTekkenCharacter(string name, bool isWithMoveList = false)
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
         var result = isWithMoveList
             ? await dbContext
                 .TekkenCharacters.Include(e => e.Movelist)
@@ -398,9 +392,7 @@ public partial class Tekken8FrameData(
 
     public async Task<TekkenMove[]?> GetCharMoveListAsync(string charname)
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
         var character = await dbContext
             .TekkenCharacters.Include(e => e.Movelist)
             .AsNoTracking()

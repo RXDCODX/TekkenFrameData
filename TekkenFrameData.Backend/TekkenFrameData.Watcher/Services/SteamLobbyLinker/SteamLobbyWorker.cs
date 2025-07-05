@@ -1,9 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using SteamKit2;
+﻿using SteamKit2;
 using TekkenFrameData.Library.Models.Steam;
 
 namespace TekkenFrameData.Watcher.Services.SteamLobbyLinker;
@@ -16,8 +11,7 @@ public class SteamLobbyWorker : BackgroundService
     private readonly CallbackManager _callbackManager;
     private readonly ILogger<SteamLobbyWorker> _logger;
 
-    private SteamUser? _steamUser;
-    private SteamFriends? _steamFriends;
+    private readonly SteamUser? _steamUser;
 
     //private bool _isConnected;
     private bool _isLoggedOn;
@@ -34,9 +28,6 @@ public class SteamLobbyWorker : BackgroundService
         _steamUser =
             _steamClient.GetHandler<SteamUser>()
             ?? throw new InvalidOperationException("SteamUser handler not found");
-        _steamFriends =
-            _steamClient.GetHandler<SteamFriends>()
-            ?? throw new InvalidOperationException("SteamFriends handler not found");
 
         SetupCallbacks();
     }

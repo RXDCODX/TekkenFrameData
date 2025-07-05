@@ -14,10 +14,7 @@ public class DiscordBotAnswers
 {
     public static ILogger<DiscordBotAnswers>? Logger { get; set; }
 
-    private static readonly DiscordEmbedBuilder DefaultEmbed = new DiscordEmbedBuilder()
-    {
-        Color = DiscordColor.Red,
-    };
+    private static readonly DiscordEmbedBuilder DefaultEmbed = new() { Color = DiscordColor.Red };
 
     public static async Task OnDiscordServerJoin(DiscordClient sender, GuildCreatedEventArgs args)
     {
@@ -227,7 +224,6 @@ public class DiscordBotAnswers
     }
 
     public static async Task FramedataCallback(
-        DiscordClient sender,
         Tekken8FrameData frameData,
         ComponentInteractionCreatedEventArgs args
     )
@@ -365,7 +361,6 @@ public class DiscordBotAnswers
     }
 
     public static async Task CharacterOnlyRequest(
-        DiscordClient sender,
         TekkenCharacter character,
         MessageCreatedEventArgs args
     )
@@ -506,7 +501,6 @@ public class DiscordBotAnswers
     }
 
     public static async Task GuildJoinCallback(
-        DiscordClient sender,
         DiscordFramedataChannels discordFramedataChannels,
         ComponentInteractionCreatedEventArgs args
     )
@@ -543,7 +537,6 @@ public class DiscordBotAnswers
     }
 
     public static Task OnDiscordServerLeave(
-        DiscordClient sender,
         DiscordFramedataChannels channels,
         GuildDeletedEventArgs args
     )

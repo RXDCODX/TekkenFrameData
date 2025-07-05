@@ -18,7 +18,7 @@ public class DiscordFramedataChannels(
     {
         using var dbContext = dbContextFactory.CreateDbContext();
         var channels = dbContext.DiscordFramedataChannels.Select(e => e.ChannelId);
-        return channels.ToList();
+        return [.. channels];
     }
 
     public async Task<bool> AddAsync(DiscordFramedataChannel channel)
@@ -63,6 +63,6 @@ public class DiscordFramedataChannels(
     private async Task UpdateAllowedChannels()
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
-        Channels = dbContext.DiscordFramedataChannels.Select(e => e.ChannelId).ToList();
+        Channels = [.. dbContext.DiscordFramedataChannels.Select(e => e.ChannelId)];
     }
 }

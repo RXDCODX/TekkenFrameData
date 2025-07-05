@@ -19,25 +19,21 @@ public partial class Commands
     )
     {
         var commands = typeof(Commands);
-        MethodInfo[] methods;
-
-        if (isAdminCall)
-        {
-            methods = commands.GetMethods(
+        var methods = isAdminCall
+            ? commands.GetMethods(
                 BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public
-            );
-        }
-        else
-        {
-            methods = commands
-                .GetMethods(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
-                .Where(method => method.GetCustomAttribute<AdminAttribute>() == null)
-                .ToArray();
-        }
-
+            )
+            :
+            [
+                .. commands
+                    .GetMethods(
+                        BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public
+                    )
+                    .Where(method => method.GetCustomAttribute<AdminAttribute>() == null),
+            ];
         string usage;
 
-        if (methods.Any())
+        if (methods.Length != 0)
         {
             var names = GetCommandName(methods);
             if (isAdminCall)
@@ -60,7 +56,7 @@ public partial class Commands
     }
 
     [Ignore]
-    private List<string> GetCommandName(MethodInfo[] methods)
+    private static List<string> GetCommandName(MethodInfo[] methods)
     {
         var commandNames = new List<string>(methods.Length);
         const string template = "OnCommandReceived";

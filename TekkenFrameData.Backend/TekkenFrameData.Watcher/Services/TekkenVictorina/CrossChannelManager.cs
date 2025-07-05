@@ -1,7 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using TekkenFrameData.Library.DB;
+using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
@@ -62,7 +60,11 @@ public class CrossChannelManager(
 
         if (
             command == "tekken_victorina"
-            && (e.Command.ChatMessage.IsBroadcaster || e.Command.ChatMessage.IsModerator)
+            && (
+                e.Command.ChatMessage.IsBroadcaster
+                || e.Command.ChatMessage.IsModerator
+                || e.Command.ChatMessage.UserId == TwitchClientExstension.AuthorId.ToString()
+            )
         )
         {
             await Task.Factory.StartNew(

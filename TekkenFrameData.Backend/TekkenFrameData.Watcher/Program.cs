@@ -84,7 +84,7 @@ public class Program
             .AddTypedClient<ITelegramBotClient>(_ => tclient);
 
         services.AddTwitchEvents(configuration);
-        services.AddDiscordServices(builder.Environment, configuration);
+        services.AddDiscordServices(configuration);
 
         services.AddSingleton<IDbContextFactory<AppDbContext>>(
             (_) =>
@@ -219,7 +219,6 @@ internal static class ProgramInitExstension
 
     public static IServiceCollection AddDiscordServices(
         this IServiceCollection services,
-        IWebHostEnvironment environment,
         Configuration configuration
     )
     {

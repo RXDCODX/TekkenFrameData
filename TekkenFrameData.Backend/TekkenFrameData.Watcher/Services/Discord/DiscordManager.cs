@@ -46,11 +46,7 @@ public class DiscordManager(
                 {
                     await Task.Factory.StartNew(
                         async () =>
-                            await DiscordBotAnswers.CharacterOnlyRequest(
-                                sender,
-                                character,
-                                eventArgs
-                            ),
+                            await DiscordBotAnswers.CharacterOnlyRequest(character, eventArgs),
                         _cancellationToken
                     );
                 }
@@ -79,8 +75,7 @@ public class DiscordManager(
                 if (discordFramedataChannels.Channels.Contains(channelId))
                 {
                     await Task.Factory.StartNew(
-                        async () =>
-                            await DiscordBotAnswers.FramedataCallback(sender, frameData, eventArgs),
+                        async () => await DiscordBotAnswers.FramedataCallback(frameData, eventArgs),
                         _cancellationToken
                     );
                 }
@@ -89,7 +84,6 @@ public class DiscordManager(
                 await Task.Factory.StartNew(
                     async () =>
                         await DiscordBotAnswers.GuildJoinCallback(
-                            sender,
                             discordFramedataChannels,
                             eventArgs
                         ),
@@ -102,8 +96,7 @@ public class DiscordManager(
     public async Task HandleEventAsync(DiscordClient sender, GuildDeletedEventArgs eventArgs)
     {
         await Task.Factory.StartNew(
-            () =>
-                DiscordBotAnswers.OnDiscordServerLeave(sender, discordFramedataChannels, eventArgs),
+            () => DiscordBotAnswers.OnDiscordServerLeave(discordFramedataChannels, eventArgs),
             _cancellationToken
         );
     }

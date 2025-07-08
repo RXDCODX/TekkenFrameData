@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TekkenFrameData.TwitchService": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:63357;http://localhost:63358"
+    }
+  }
+}

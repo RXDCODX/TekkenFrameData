@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Library.DB.Factory;

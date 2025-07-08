@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.Client" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="TwitchLib.Api" />
+    <PackageReference Include="TwitchLib.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TekkenFrameData.Core\TekkenFrameData.Core.csproj" />
+    <ProjectReference Include="..\TekkenFrameData.Library\TekkenFrameData.Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="..\TekkenFrameData.Core\Protos\framedata.proto" GrpcServices="Client" />
+  </ItemGroup>
+
+</Project> 

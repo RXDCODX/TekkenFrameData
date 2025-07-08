@@ -1,0 +1,111 @@
+version: '3.8'
+
+services:
+  # База данных
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tekkenframedata
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - tekken-network
+
+  # Core сервис (фреймдата + Telegram)
+  core-service:
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.Core/Dockerfile
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=tekkenframedata;Username=postgres;Password=password
+    depends_on:
+      - postgres
+    networks:
+      - tekken-network
+    restart: unless-stopped
+
+  # Twitch сервис
+  twitch-service:
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.TwitchService/Dockerfile
+    ports:
+      - "5002:5000"
+      - "5003:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=tekkenframedata;Username=postgres;Password=password
+      - CoreService__Url=http://core-service:5000
+    depends_on:
+      - postgres
+      - core-service
+    networks:
+      - tekken-network
+    restart: unless-stopped
+
+  # Discord сервис
+  discord-service:
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Backend/TekkenFrameData.DiscordService/Dockerfile
+    ports:
+      - "5004:5000"
+      - "5005:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000;https://+:5001
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=tekkenframedata;Username=postgres;Password=password
+      - CoreService__Url=http://core-service:5000
+    depends_on:
+      - postgres
+      - core-service
+    networks:
+      - tekken-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: .
+      dockerfile: TekkenFrameData.Frontend/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - core-service
+    networks:
+      - tekken-network
+    restart: unless-stopped
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - core-service
+      - twitch-service
+      - discord-service
+      - frontend
+    networks:
+      - tekken-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  tekken-network:
+    driver: bridge 

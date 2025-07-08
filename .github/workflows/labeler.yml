@@ -1,4 +1,4 @@
-# .github/labeler.yml
+# .github/workflows/labeler.yml
 
 Frontend:
   - 'TekkenFrameData.Frontend/**'

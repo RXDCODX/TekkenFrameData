@@ -1,0 +1,71 @@
+# .github/labeler.yml
+
+Frontend:
+  - 'TekkenFrameData.Frontend/**'
+  - 'TekkenFrameData.Streamer/tekkenframedata.streamer.client/**'
+  - '**/*.tsx'
+  - '**/*.ts'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.css'
+  - '**/*.scss'
+  - '**/*.html'
+
+Backend:
+  - 'TekkenFrameData.Backend/**'
+  - 'TekkenFrameData.Library/**'
+  - 'TekkenFrameData.Service/**'
+  - 'TekkenFrameData.TwitchService/**'
+  - 'TekkenFrameData.DiscordService/**'
+  - 'TekkenFrameData.UpdateService/**'
+  - 'TekkenFrameData.Watcher/**'
+  - '**/*.cs'
+  - '**/*.csproj'
+
+Python:
+  - 'TekkenFrameData.Scraper/**'
+  - '**/*.py'
+
+Docker:
+  - '**/Dockerfile'
+  - '**/docker-compose*.yml'
+  - '**/docker-compose*.yaml'
+  - 'nginx.conf'
+
+DevOps:
+  - '.github/workflows/**'
+  - 'utils/**'
+  - '**/*.sh'
+  - '**/*.cmd'
+  - '**/*.bat'
+
+Database:
+  - 'TekkenFrameData.Library/DB/**'
+  - 'TekkenFrameData.Library/Migrations/**'
+  - '**/Migrations/**'
+  - '**/migrations/**'
+
+Documentation:
+  - '**/*.md'
+  - 'README.md'
+  - 'MIGRATION_GUIDE.md'
+
+Config:
+  - '**/*.json'
+  - '**/*.ini'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/appsettings.*'
+
+Tests:
+  - '**/tests/**'
+  - '**/*.test.*'
+  - '**/*.spec.*'
+
+CI/CD:
+  - '.github/workflows/**'
+
+Assets:
+  - '**/assets/**'
+  - '**/public/**'
+  - '**/wwwroot/**'

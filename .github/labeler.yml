@@ -1,0 +1,93 @@
+# .github/labeler.yml
+
+Frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'TekkenFrameData.Frontend/**'
+          - 'TekkenFrameData.Streamer/tekkenframedata.streamer.client/**'
+          - '**/*.tsx'
+          - '**/*.ts'
+          - '**/*.js'
+          - '**/*.jsx'
+          - '**/*.css'
+          - '**/*.scss'
+          - '**/*.html'
+
+Backend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'TekkenFrameData.Backend/**'
+          - 'TekkenFrameData.Library/**'
+          - 'TekkenFrameData.Service/**'
+          - 'TekkenFrameData.TwitchService/**'
+          - 'TekkenFrameData.DiscordService/**'
+          - 'TekkenFrameData.UpdateService/**'
+          - 'TekkenFrameData.Watcher/**'
+          - '**/*.cs'
+          - '**/*.csproj'
+
+Python:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'TekkenFrameData.Scraper/**'
+          - '**/*.py'
+
+Docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/Dockerfile'
+          - '**/docker-compose*.yml'
+          - '**/docker-compose*.yaml'
+          - 'nginx.conf'
+
+DevOps:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+          - 'utils/**'
+          - '**/*.sh'
+          - '**/*.cmd'
+          - '**/*.bat'
+
+Database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'TekkenFrameData.Library/DB/**'
+          - 'TekkenFrameData.Library/Migrations/**'
+          - '**/Migrations/**'
+          - '**/migrations/**'
+
+Documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - 'README.md'
+          - 'MIGRATION_GUIDE.md'
+
+Config:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.json'
+          - '**/*.ini'
+          - '**/*.yml'
+          - '**/*.yaml'
+          - '**/appsettings.*'
+
+Tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/tests/**'
+          - '**/*.test.*'
+          - '**/*.spec.*'
+
+CI/CD:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/workflows/**'
+
+Assets:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/assets/**'
+          - '**/public/**'
+          - '**/wwwroot/**'

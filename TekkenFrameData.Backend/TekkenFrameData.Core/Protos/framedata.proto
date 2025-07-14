@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+option csharp_namespace = "TekkenFrameData.Core.Protos";
+
+package framedata;
+
+// Сервис для работы с фреймдатой
+service FrameDataService {
+  // Получить список всех персонажей
+  rpc GetCharacters (GetCharactersRequest) returns (GetCharactersResponse);
+  
+  // Получить персонажа по ID
+  rpc GetCharacter (GetCharacterRequest) returns (GetCharacterResponse);
+  
+  // Получить список движений персонажа
+  rpc GetCharacterMoves (GetCharacterMovesRequest) returns (GetCharacterMovesResponse);
+  
+  // Получить конкретное движение
+  rpc GetMove (GetMoveRequest) returns (GetMoveResponse);
+  
+  // Поиск движений
+  rpc SearchMoves (SearchMovesRequest) returns (SearchMovesResponse);
+}
+
+// Запросы
+message GetCharactersRequest {
+}
+
+message GetCharacterRequest {
+  int32 character_id = 1;
+  string character_name = 2;
+}
+
+message GetCharacterMovesRequest {
+  int32 character_id = 1;
+  string character_name = 2;
+}
+
+message GetMoveRequest {
+  int32 move_id = 1;
+  string move_name = 2;
+  int32 character_id = 3;
+}
+
+message SearchMovesRequest {
+  string query = 1;
+  int32 character_id = 2;
+  int32 limit = 3;
+}
+
+// Ответы
+message GetCharactersResponse {
+  repeated TekkenCharacter characters = 1;
+}
+
+message GetCharacterResponse {
+  TekkenCharacter character = 1;
+}
+
+message GetCharacterMovesResponse {
+  repeated TekkenMove moves = 1;
+}
+
+message GetMoveResponse {
+  TekkenMove move = 1;
+}
+
+message SearchMovesResponse {
+  repeated TekkenMove moves = 1;
+}
+
+// Модели данных
+message TekkenCharacter {
+  int32 id = 1;
+  string name = 2;
+  string image_url = 3;
+}
+
+message TekkenMove {
+  int32 id = 1;
+  string name = 2;
+  string input = 3;
+  int32 startup = 4;
+  int32 active = 5;
+  int32 recovery = 6;
+  int32 on_block = 7;
+  int32 on_hit = 8;
+  int32 damage = 9;
+  string properties = 10;
+  int32 character_id = 11;
+  string character_name = 12;
+  // Дополнительные поля для совместимости с TwitchFrameData.cs
+  string startup_frame = 13;
+  string block_frame = 14;
+  string hit_frame = 15;
+  string counter_hit_frame = 16;
+  string hit_level = 17;
+  bool heat_engage = 18;
+  bool tornado = 19;
+  bool heat_smash = 20;
+  bool power_crush = 21;
+  bool heat_burst = 22;
+  bool homing = 23;
+  bool throw_move = 24;
+  string stance_code = 25;
+  string stance_name = 26;
+  bool is_from_stance = 27;
+} 

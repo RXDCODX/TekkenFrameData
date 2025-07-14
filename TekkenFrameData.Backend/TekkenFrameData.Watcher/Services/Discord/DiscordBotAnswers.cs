@@ -210,6 +210,7 @@ public class DiscordBotAnswers
                 msg.AddEmbed(embed);
 
                 await sender.SendMessageAsync(args.Channel, msg);
+                return;
             }
         }
 
@@ -453,17 +454,17 @@ public class DiscordBotAnswers
             new DiscordActionRowComponent(
                 [
                     new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        DiscordButtonStyle.Danger,
                         $"framedata:{charName}:randomhigh",
                         "Random High Move"
                     ),
                     new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        DiscordButtonStyle.Danger,
                         $"framedata:{charName}:randommid",
                         "Random Mid Move"
                     ),
                     new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        DiscordButtonStyle.Danger,
                         $"framedata:{charName}:randomlow",
                         "Random Low Move"
                     ),

@@ -12,7 +12,7 @@ public class StreamersNotificationWorker(
     IHostApplicationLifetime lifetime,
     TwitchFramedataChannelsEvents events,
     ITwitchClient twitchClient,
-    Logger<StreamersNotificationWorker> logger
+    ILogger<StreamersNotificationWorker> logger
 ) : BackgroundService
 {
     protected override Task ExecuteAsync(CancellationToken stoppingToken)

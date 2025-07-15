@@ -5,12 +5,17 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using TekkenFrameData.Library.Exstensions;
+using TekkenFrameData.Library.Models.Discord;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Watcher.Services.Framedata;
 
 namespace TekkenFrameData.Watcher.Services.Discord;
 
-public class FrameDataSlashCommands(Tekken8FrameData frameData) : ApplicationCommandModule
+public class FrameDataSlashCommands(
+    Tekken8FrameData frameData,
+    DiscordFramedataChannels framedataChannels,
+    ILogger<FrameDataSlashCommands> logger
+) : ApplicationCommandModule
 {
     private readonly Dictionary<string, string?> _imageUrlCache = new();
 
@@ -331,23 +336,56 @@ public class FrameDataSlashCommands(Tekken8FrameData frameData) : ApplicationCom
         );
     }
 
-    [SlashCommand("setframedatachannel", "Указать канал для работы фреймдаты")]
+    [SlashCommand("setframedatachannel", "Сделать этот канал рабочим для фреймдаты")]
     [SlashCommandPermissions(Permissions.Administrator)]
     [RequireGuild]
     public async Task SetFramedataChannel(InteractionContext ctx)
     {
-        var selectMenu = new DiscordChannelSelectComponent(
-            "setframedatachannel",
-            "Выбери канал для фреймдаты",
-            new[] { ChannelType.Text }
-        );
+        var channel = ctx.Channel;
+        var channelId = channel.Id;
+        var channelName = channel.Name;
+        var owner = ctx.Guild.Owner;
+        bool isAdded;
 
-        var builder = new DiscordInteractionResponseBuilder()
-            .WithContent("Пожалуйста, выберите канал для работы фреймдаты:")
-            .AddComponents(selectMenu)
-            .AsEphemeral();
+        if (framedataChannels.Channels.Contains(channelId))
+        {
+            isAdded = true;
+        }
+        else
+        {
+            isAdded = await framedataChannels.AddAsync(
+                new DiscordFramedataChannel()
+                {
+                    ChannelId = channelId,
+                    ChannelName = channelName,
+                    GuildId = ctx.Guild.Id,
+                    GuildName = channel.Guild.Name,
+                    OwnerName = owner.DisplayName,
+                    OwnerId = owner.Id,
+                }
+            );
+        }
 
-        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+        try
+        {
+            var builder = new DiscordInteractionResponseBuilder(
+                new DiscordMessageBuilder()
+                {
+                    Content = isAdded
+                        ? "Этот канал был выбран для постинга фреймдаты"
+                        : "Прости, но не удалось добавить! Возможно, он уже добавлен!",
+                }
+            );
+            builder.AsEphemeral();
+            await ctx.CreateResponseAsync(
+                InteractionResponseType.ChannelMessageWithSource,
+                builder
+            );
+        }
+        catch (Exception e)
+        {
+            logger?.LogError(e, e.Message);
+        }
     }
 
     private async Task<string?> GetImageUrl(BaseContext context, Character character)

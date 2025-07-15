@@ -101,16 +101,16 @@ public class DiscordManager(
                     );
                 }
                 break;
-            case "guildjoin":
-                await Task.Factory.StartNew(
-                    async () =>
-                        await DiscordBotAnswers.GuildJoinCallback(
-                            discordFramedataChannels,
-                            eventArgs
-                        ),
-                    _cancellationToken
-                );
-                break;
+            //case "guildjoin":
+            //    await Task.Factory.StartNew(
+            //        async () =>
+            //            await DiscordBotAnswers.GuildJoinCallback(
+            //                discordFramedataChannels,
+            //                eventArgs
+            //            ),
+            //        _cancellationToken
+            //    );
+            //    break;
         }
     }
 

@@ -1,24 +1,24 @@
-﻿using DSharpPlus;
+﻿using System;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using SteamKit2;
+using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Watcher.Services.Framedata;
+using DiscordMessageBuilder = DSharpPlus.Entities.DiscordMessageBuilder;
 
 namespace TekkenFrameData.Watcher.Services.Discord;
 
 public class DiscordManager(
+    DiscordClient client,
     DiscordFramedataChannels discordFramedataChannels,
     Tekken8FrameData frameData,
     IHostApplicationLifetime lifetime
-)
-    : IHostedService,
-        IEventHandler<GuildCreatedEventArgs>,
-        IEventHandler<MessageCreatedEventArgs>,
-        IEventHandler<ComponentInteractionCreatedEventArgs>,
-        IEventHandler<GuildDeletedEventArgs>
+) : IHostedService
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
 
-    public Task HandleEventAsync(DiscordClient sender, GuildCreatedEventArgs eventArgs)
+    public Task HandleEventAsync(DiscordClient sender, GuildCreateEventArgs eventArgs)
     {
         return Task.Factory.StartNew(
             async () => await DiscordBotAnswers.OnDiscordServerJoin(sender, eventArgs),
@@ -26,12 +26,29 @@ public class DiscordManager(
         );
     }
 
-    public async Task HandleEventAsync(DiscordClient sender, MessageCreatedEventArgs eventArgs)
+    public async Task HandleEventAsync(DiscordClient sender, MessageCreateEventArgs eventArgs)
     {
         var channelId = eventArgs.Channel.Id;
         var messageText = eventArgs.Message.Content;
         var splits = messageText.Split(' ');
         var keywords = splits.Skip(1).ToArray();
+
+        // Проверка на упоминание бота без команды
+        var botMention1 = $"<@{sender.CurrentUser.Id}>";
+        var botMention2 = $"<@!{sender.CurrentUser.Id}>";
+        if (
+            (messageText.Trim() == botMention1 || messageText.Trim() == botMention2)
+            && !eventArgs.Author.IsBot
+        )
+        {
+            var embed = new DiscordEmbedBuilder(FrameDataSlashCommands.DefaultEmbed)
+                .WithTitle("Доступные команды Discord-бота")
+                .WithColor(DiscordColor.Azure)
+                .WithDescription(DiscordHelpFormatter.HelpText);
+
+            await eventArgs.Message.RespondAsync(embed);
+            return;
+        }
 
         if (discordFramedataChannels.Channels.Contains(channelId))
         {
@@ -42,11 +59,14 @@ public class DiscordManager(
                     true
                 );
 
-                if (character != null)
+                if (character is not null)
                 {
                     await Task.Factory.StartNew(
                         async () =>
-                            await DiscordBotAnswers.CharacterOnlyRequest(character, eventArgs),
+                            await DiscordBotAnswers.CharacterOnlyRequest(
+                                (Character)character,
+                                eventArgs
+                            ),
                         _cancellationToken
                     );
                 }
@@ -64,7 +84,7 @@ public class DiscordManager(
 
     public async Task HandleEventAsync(
         DiscordClient sender,
-        ComponentInteractionCreatedEventArgs eventArgs
+        ComponentInteractionCreateEventArgs eventArgs
     )
     {
         var channelId = eventArgs.Channel.Id;
@@ -75,7 +95,8 @@ public class DiscordManager(
                 if (discordFramedataChannels.Channels.Contains(channelId))
                 {
                     await Task.Factory.StartNew(
-                        async () => await DiscordBotAnswers.FramedataCallback(frameData, eventArgs),
+                        async () =>
+                            await DiscordBotAnswers.FramedataCallback(sender, frameData, eventArgs),
                         _cancellationToken
                     );
                 }
@@ -93,7 +114,7 @@ public class DiscordManager(
         }
     }
 
-    public async Task HandleEventAsync(DiscordClient sender, GuildDeletedEventArgs eventArgs)
+    public async Task HandleEventAsync(DiscordClient sender, GuildDeleteEventArgs eventArgs)
     {
         await Task.Factory.StartNew(
             () => DiscordBotAnswers.OnDiscordServerLeave(discordFramedataChannels, eventArgs),
@@ -103,6 +124,11 @@ public class DiscordManager(
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        // Подписка на события
+        client.GuildCreated += HandleEventAsync;
+        client.MessageCreated += HandleEventAsync;
+        client.ComponentInteractionCreated += HandleEventAsync;
+        client.GuildDeleted += HandleEventAsync;
         return Task.CompletedTask;
     }
 

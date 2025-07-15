@@ -1,9 +1,13 @@
-﻿using Telegram.Bot;
+﻿using System.Collections.Generic;
+using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 
+/// <summary>
+/// Provides Telegram-related functionality for the Tekken8FrameData class.
+/// </summary>
 public partial class Tekken8FrameData
 {
     public async Task HandAlert(ITelegramBotClient telegramClient, Update update)
@@ -21,7 +25,7 @@ public partial class Tekken8FrameData
                     var type = split[2];
                     var chatid = new ChatId(data.Message!.Chat.Id);
 
-                    var movelist = await GetCharMoveList(charname);
+                    var movelist = await GetCharMoveListAsync(charname);
 
                     if (movelist is null)
                     {
@@ -93,13 +97,21 @@ public partial class Tekken8FrameData
                             break;
                         case "stance":
                             var stanceCode = split[3];
-                            var pair = Aliases.Stances.First(e => e.Key == stanceCode);
+                            KeyValuePair<string, string>? pair = Aliases.Stances.FirstOrDefault(e =>
+                                e.Key == stanceCode
+                            );
                             text.AppendLine($"<b>{pair.Value}</b>");
                             text.AppendLine();
                             text.AppendJoin(
                                 Environment.NewLine,
                                 movelist!
-                                    .Where(e => e.StanceCode == stanceCode)
+                                    .Where(e =>
+                                        e.StanceCode != null
+                                        && e.StanceCode.Equals(
+                                            stanceCode,
+                                            StringComparison.OrdinalIgnoreCase
+                                        )
+                                    )
                                     .Select(e => e.Command)
                             );
                             break;

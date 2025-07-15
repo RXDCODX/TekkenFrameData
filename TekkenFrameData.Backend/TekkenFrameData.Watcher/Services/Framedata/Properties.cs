@@ -4,6 +4,9 @@ using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 
+/// <summary>
+/// Provides additional properties for the Tekken8FrameData class.
+/// </summary>
 public partial class Tekken8FrameData
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
@@ -73,6 +76,7 @@ public partial class Tekken8FrameData
     };
 
     public readonly Uri BasePath = new("https://wavu.wiki");
-    public List<TekkenMove> VictorinaMoves = [];
+    public readonly Uri SecondBasePath = new("https://tekkendocs.com");
+    public List<Move> VictorinaMoves = [];
     public bool ParsingActive { get; set; }
 }

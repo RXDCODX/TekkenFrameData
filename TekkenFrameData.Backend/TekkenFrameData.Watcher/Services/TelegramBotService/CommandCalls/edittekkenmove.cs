@@ -20,7 +20,7 @@ public partial class Commands
 
         //if (splits is { Length: 2 })
         //{
-        //    var tekkenMove = JsonSerializer.Deserialize<TekkenMove>(splits[1]);
+        //    var tekkenMove = JsonSerializer.Deserialize<Move>(splits[1]);
 
         //    if (tekkenMove is not null)
         //    {
@@ -41,7 +41,7 @@ public partial class Commands
         //    "нужно вторым параметром прислать сериализированную строку объекта: "
         //    + Environment.NewLine
         //    + JsonSerializer.Serialize(
-        //        new TekkenMove() { Command = "command name", CharacterName = "character name" }
+        //        new Move() { Command = "command name", CharacterName = "character name" }
         //    );
         //return botClient.SendMessage(message.Chat, resultMessage, cancellationToken: token);
     }

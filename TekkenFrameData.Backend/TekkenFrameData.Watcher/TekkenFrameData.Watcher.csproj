@@ -27,6 +27,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AngleSharp" />
+		<PackageReference Include="AngleSharp.XPath" />
 		<PackageReference Include="DSharpPlus" />
 		<PackageReference Include="DSharpPlus.CommandsNext" />
 		<PackageReference Include="DSharpPlus.Interactivity" />
@@ -39,8 +41,10 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="SixLabors.ImageSharp" />
 		<PackageReference Include="SteamKit2" />
 		<PackageReference Include="System.Formats.Asn1" />
+		<PackageReference Include="System.Net.Security" />
 		<PackageReference Include="System.Text.Json" />
 		<PackageReference Include="Telegram.Bot" />
 		<PackageReference Include="TwitchLib.Api" />

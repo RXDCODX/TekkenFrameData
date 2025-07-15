@@ -3,11 +3,14 @@ using TekkenFrameData.Library.Models.FrameData;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 
+/// <summary>
+/// Provides helper methods for the Tekken8FrameData class.
+/// </summary>
 public partial class Tekken8FrameData
 {
-    private static Task<bool> IsDateInCurrentWeek(DateTime date)
+    private static Task<bool> IsDateInCurrentWeek(DateTimeOffset date)
     {
-        var currentDate = DateTime.Now;
+        DateTimeOffset currentDate = DateTimeOffset.Now;
 
         // Определяем первый день текущей недели (предполагается, что неделя начинается с понедельника)
         var daysToSubtract = (int)currentDate.DayOfWeek - (int)DayOfWeek.Monday;
@@ -16,10 +19,10 @@ public partial class Tekken8FrameData
             daysToSubtract += 7; // Если сегодня воскресенье (DayOfWeek.Sunday = 0)
         }
 
-        var startOfWeek = currentDate.AddDays(-daysToSubtract).Date;
+        DateTime startOfWeek = currentDate.AddDays(-daysToSubtract).Date;
 
         // Определяем последний день текущей недели
-        var endOfWeek = startOfWeek.AddDays(7);
+        DateTime endOfWeek = startOfWeek.AddDays(7);
 
         // Сравниваем дату с началом и концом недели
         return Task.FromResult(date >= startOfWeek && date <= endOfWeek);
@@ -35,7 +38,7 @@ public partial class Tekken8FrameData
             );
     }
 
-    public ValueTask<string> GetMoveTags(TekkenMove move)
+    public ValueTask<string> GetMoveTags(Move move)
     {
         var tags = new List<string>();
 

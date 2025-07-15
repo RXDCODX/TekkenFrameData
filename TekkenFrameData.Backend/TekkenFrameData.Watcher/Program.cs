@@ -1,5 +1,8 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -219,41 +222,43 @@ internal static class ProgramInitExstension
 
     public static IServiceCollection AddDiscordServices(
         this IServiceCollection services,
-        Configuration configuration
+        Configuration config
     )
     {
-        services.AddSingleton<BaseDiscordClient>(
+        services.AddSingleton<DiscordClient>(
             (sp) =>
             {
-                var eventHandler = sp.GetRequiredService<DiscordManager>();
-                var builder = DiscordClientBuilder.CreateDefault(
-                    configuration.DiscordToken,
-                    DiscordIntents.AllUnprivileged
+                var discordConfig = new DiscordConfiguration
+                {
+                    Token = config.DiscordToken,
+                    TokenType = TokenType.Bot,
+                    Intents =
+                        DiscordIntents.AllUnprivileged
                         | DiscordIntents.MessageContents
-                        | DiscordIntents.GuildMessages
+                        | DiscordIntents.GuildMessages,
+                    MinimumLogLevel = LogLevel.Warning,
+                    AutoReconnect = true,
+                };
+                var client = new DiscordClient(discordConfig);
+                var commands = client.UseSlashCommands(
+                    new SlashCommandsConfiguration() { Services = sp }
                 );
-                builder.ConfigureLogging(configure => configure.SetMinimumLevel(LogLevel.Warning));
-                builder.ConfigureEventHandlers(handler =>
-                    handler
-                        .HandleGuildCreated(
-                            (discordClient, args) =>
-                                eventHandler.HandleEventAsync(discordClient, args)
+                client.GuildAvailable += async (sender, args) =>
+                {
+                    DiscordBotAnswers.TechChannel = await sender.GetChannelAsync(
+                        1394393334474211491
+                    );
+                    await client.UpdateStatusAsync(
+                        new DiscordActivity(
+                            "задницу твоей мамаши на весь твич",
+                            ActivityType.Streaming
                         )
-                        .HandleMessageCreated(
-                            (discordClient, args) =>
-                                eventHandler.HandleEventAsync(discordClient, args)
-                        )
-                        .HandleComponentInteractionCreated(
-                            (discordClient, args) =>
-                                eventHandler.HandleEventAsync(discordClient, args)
-                        )
-                        .HandleGuildDeleted(
-                            (discordClient, args) =>
-                                eventHandler.HandleEventAsync(discordClient, args)
-                        )
-                );
+                    );
+                };
 
-                var client = builder.Build();
+                commands.RegisterCommands<FrameDataSlashCommands>();
+                commands.RegisterCommands<HelpSlashCommand>();
+
                 Task.Factory.StartNew(() => client.ConnectAsync());
                 return client;
             }

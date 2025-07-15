@@ -6,22 +6,22 @@ namespace TekkenFrameData.Library.DB;
 
 public sealed partial class AppDbContext
 {
-    public DbSet<TekkenMove> TekkenMoves { get; set; } = null!;
-    public DbSet<TekkenCharacter> TekkenCharacters { get; set; } = null!;
+    public DbSet<Move> TekkenMoves { get; set; } = null!;
+    public DbSet<Character> TekkenCharacters { get; set; } = null!;
 
     private static void OnFrameDataModelCreatingPartial(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TekkenMove>().HasKey(o => new { o.CharacterName, o.Command });
+        modelBuilder.Entity<Move>().HasKey(o => new { o.CharacterName, o.Command });
 
         modelBuilder
-            .Entity<TekkenMove>()
+            .Entity<Move>()
             .HasOne(m => m.Character)
             .WithMany(c => c.Movelist)
             .HasForeignKey(e => e.CharacterName)
             .OnDelete(DeleteBehavior.NoAction); // assuming you add a CharacterId property to Move
 
         modelBuilder
-            .Entity<TekkenCharacter>()
+            .Entity<Character>()
             .HasMany(c => c.Movelist)
             .WithOne(m => m.Character)
             .HasForeignKey(e => e.CharacterName)

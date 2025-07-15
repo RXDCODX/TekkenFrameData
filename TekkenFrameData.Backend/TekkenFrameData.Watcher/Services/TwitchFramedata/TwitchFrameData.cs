@@ -216,7 +216,7 @@ public class TwitchFramedate(
             + string.Join(", ", stances.Select(e => $"{e.Key} - {e.Value}"));
     }
 
-    private async Task<(TekkenMove move, string response)?> HandleSingleMove(string[] keyWords)
+    private async Task<(Move move, string response)?> HandleSingleMove(string[] keyWords)
     {
         var move = await frameData.GetMoveAsync(keyWords);
         if (move?.Character == null)

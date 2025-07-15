@@ -1,10 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;
 
-public class Aliases
+/// <summary>
+/// Provides alias mappings for Tekken characters or moves.
+/// </summary>
+public static class Aliases
 {
-    public static readonly Dictionary<string, string[]> CharacterNameAliases = new()
+    public static readonly FrozenDictionary<string, string[]> CharacterNameAliases = new Dictionary<
+        string,
+        string[]
+    >()
     {
         { "alisa", ["ali", "als"] },
         { "anna", ["ann", "annochka", "anya"] },
@@ -14,17 +21,17 @@ public class Aliases
         { "claudio", ["cld", "cla"] },
         { "clive", ["rosfield", "clivers", "cliverosfield", "cliventura"] },
         { "devil jin", ["dj", "deviljin", "dvj", "devil jin", "devil"] },
-        { "dragunov", ["drag", "sergei", "dragu", "leale", "zven4ik", "звенчик", "лиля"] },
+        { "dragunov", ["drag", "sergei", "dragu"] },
         { "eddy", ["edd", "ed"] },
         //{ "eliza", new string[] { "elz" } },
         { "feng", ["fen"] },
         { "hwoarang", ["hwo"] },
-        { "jack 8", ["j8", "jack-8", "jack", "jack7", "j7"] },
+        { "jack-8", ["j8", "jack 8", "jack", "jack7", "j7"] },
         { "jin", ["jim"] },
         { "jun", [""] },
         //{ "julia", new string[] { "jul" } },
         { "kazuya", ["kaz", "kazze", "masku"] },
-        { "king", ["kin", "station", "станция"] },
+        { "king", ["kin"] },
         { "kuma", ["karhu", "bear"] },
         { "panda", [] },
         { "lars", ["lar"] },
@@ -43,7 +50,7 @@ public class Aliases
         { "yoshimitsu", ["yoshi", "manji", "yos"] },
         { "xiaoyu", ["xiao", "ling"] },
         { "zafina", ["zaffy", "zaf"] },
-        { "fahkumram", ["fah", "fahkum", "fahk", "fak"] },
+        { "fahkumram", new[] { "fah", "fahkum", "fahk", "fak" } },
         { "leroy", ["ler"] },
         //{"ganryu", new string[]{"gan", "ganny"}},
         //{"kunimitsu", new string[]{"kun", "kuni"}},
@@ -51,10 +58,13 @@ public class Aliases
         { "victor", ["vic", "victorian", "viktoriues"] },
         { "reina", ["rheina"] },
         { "heihachi", ["hei", "hachi"] },
-        { "mokujin", ["mokujin", "mokuj"] },
-    };
+        //{ "mokujin", ["mokujin", "mokuj"] },
+    }.ToFrozenDictionary();
 
-    public static readonly Dictionary<string, string> MoveInputReplacer = new()
+    public static readonly FrozenDictionary<string, string> MoveInputReplacer = new Dictionary<
+        string,
+        string
+    >()
     {
         { "cd+", "fnddf" },
         { "cd", "fnddf" },
@@ -83,8 +93,12 @@ public class Aliases
         { ")", "" },
         { "*+", "*" },
         { "hold", "*" },
-    };
-    private static readonly Dictionary<string, string> dictionary = new()
+    }.ToFrozenDictionary();
+
+    public static readonly FrozenDictionary<string, string> Stances = new Dictionary<
+        string,
+        string
+    >()
     {
         { "bkp", "Backup" },
         { "sbt", "Boot" },
@@ -174,7 +188,5 @@ public class Aliases
         { "tom", "Pleasure Time" },
         { "cjm", "Chaos Judgement" },
         { "ham", "Hammer Chance" },
-    };
-
-    public static Dictionary<string, string> Stances { get; } = dictionary;
+    }.ToFrozenDictionary();
 }

@@ -7,7 +7,7 @@ namespace TekkenFrameData.Watcher.Services.TekkenVictorina;
 
 public class TekkenVictorina(
     TekkenVictorinaLeaderbord tekkenVictorinaLeaderbord,
-    TekkenMove randomMove,
+    Move randomMove,
     string channelName,
     string channelId,
     Action<string> sendMessage,
@@ -152,14 +152,14 @@ public class TekkenVictorina(
         removeVictorina();
     }
 
-    private static IntRange GetAnswer(TekkenMove tekkenMove)
+    private static IntRange GetAnswer(Move move)
     {
-        if (int.TryParse(tekkenMove.BlockFrame, out var answer))
+        if (int.TryParse(move.BlockFrame, out var answer))
         {
             return new IntRange(answer, answer);
         }
 
-        var split = tekkenMove.BlockFrame!.Split('~');
+        var split = move.BlockFrame!.Split('~');
         if (split is { Length: 2 })
         {
             var start = int.Parse(split[0]);
@@ -168,7 +168,7 @@ public class TekkenVictorina(
         }
 
         throw new Exception(
-            $"Кривой инпут к удара, {tekkenMove.Character?.Name ?? tekkenMove.CharacterName} {tekkenMove.Command}"
+            $"Кривой инпут к удара, {move.Character?.Name ?? move.CharacterName} {move.Command}"
         );
     }
 

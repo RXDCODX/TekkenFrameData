@@ -4,11 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace TekkenFrameData.Library.Models.FrameData;
 
 [Table("tekken_moves")]
-public class TekkenMove
+public class Move
 {
     [MaxLength(150)]
     public required string CharacterName { get; init; }
-    public TekkenCharacter? Character { get; set; }
+    public Character? Character { get; set; }
 
     public bool IsFromStance => !string.IsNullOrWhiteSpace(StanceCode);
 
@@ -52,7 +52,7 @@ public class TekkenMove
 
     public override bool Equals(object? obj)
     {
-        return obj is TekkenMove move
+        return obj is Move move
             && Command.Equals(move.Command, StringComparison.OrdinalIgnoreCase)
             && CharacterName.Equals(move.CharacterName, StringComparison.OrdinalIgnoreCase);
     }

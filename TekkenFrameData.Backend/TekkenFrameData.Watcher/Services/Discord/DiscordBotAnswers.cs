@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -10,36 +11,71 @@ using TekkenFrameData.Watcher.Services.Framedata;
 
 namespace TekkenFrameData.Watcher.Services.Discord;
 
-public class DiscordBotAnswers
+public static class DiscordBotAnswers
 {
-    public static ILogger<DiscordBotAnswers>? Logger { get; set; }
+    public static ILogger? Logger { get; set; }
 
-    private static readonly DiscordEmbedBuilder DefaultEmbed = new() { Color = DiscordColor.Red };
-
-    public static async Task OnDiscordServerJoin(DiscordClient sender, GuildCreatedEventArgs args)
+    private static readonly DiscordEmbedBuilder DefaultEmbed = new()
     {
-        var msg = new DiscordMessageBuilder();
-        var owner = await args.Guild.GetGuildOwnerAsync();
-        var guildId = args.Guild.Id;
-        var defaultChannel = args.Guild.GetDefaultChannel();
-        msg.AddMention(new UserMention(owner));
-        msg.WithContent(
-            $"Привет <@{owner.Id}>, укажи, пожалуйста, канал, в котором будет работать бот"
-        );
-        var selectMenu = new DiscordChannelSelectComponent(
-            $"guildjoin:{guildId}",
-            "Выбери канал для фреймдаты",
-            [DiscordChannelType.Text]
-        );
-        msg.AddActionRowComponent(selectMenu);
+        Color = DiscordColor.Red,
+        Author = new DiscordEmbedBuilder.EmbedAuthor()
+        {
+            IconUrl =
+                "https://media.discordapp.net/attachments/1394393334474211491/1394586588004094084/download20250603195457.png?ex=68775978&is=687607f8&hm=844cba7b7cd8988058b098751ea99763876ab06351951edd578c0301a05e3795&=&format=webp&quality=lossless",
+            Name = "By RXCODX",
+            Url = "https://twitch.tv/rxdcodx",
+        },
+    };
 
+    public static DiscordChannel? TechChannel { get; set; }
+
+    private static readonly Dictionary<string, string?> _imageUrlCache = new();
+
+    public static async Task<string?> GetImageUrlAsync(DiscordClient client, Character character)
+    {
+        if (_imageUrlCache.TryGetValue(character.Name, out var cachedUrl))
+            return cachedUrl;
+
+        string? url = null;
+
+        if (character.Image is { Length: > 0 } && TechChannel != null)
+        {
+            var response = await client.SendMessageAsync(
+                TechChannel,
+                builder =>
+                {
+                    builder.AddFile(character.Name + ".webp", new MemoryStream(character.Image));
+                }
+            );
+            url = response.Attachments.First().Url;
+        }
+        else
+        {
+            url = character.LinkToImage;
+        }
+
+        _imageUrlCache[character.Name] = url;
+        return url;
+    }
+
+    public static async Task OnDiscordServerJoin(DiscordClient sender, GuildCreateEventArgs args)
+    {
+        var defaultChannel = args.Guild.GetDefaultChannel();
+        var embed = new DiscordEmbedBuilder(DefaultEmbed)
+            .WithTitle("Доступные команды Discord-бота")
+            .WithColor(DiscordColor.Azure)
+            .WithDescription(DiscordHelpFormatter.HelpText)
+            .WithTimestamp(DateTime.Now);
+        ;
+
+        var msg = new DiscordMessageBuilder().AddEmbed(embed);
         try
         {
             await sender.SendMessageAsync(defaultChannel!, msg);
         }
         catch (Exception ex)
         {
-            Logger?.LogException(ex);
+            Logger?.LogError(ex, ex.Message);
         }
     }
 
@@ -47,7 +83,7 @@ public class DiscordBotAnswers
     public static async Task FramedataRequest(
         DiscordClient sender,
         Tekken8FrameData frameData,
-        MessageCreatedEventArgs args
+        MessageCreateEventArgs args
     )
     {
         var textMsg = args.Message.Content;
@@ -59,13 +95,22 @@ public class DiscordBotAnswers
             split = [.. split.Skip(1)];
             var move = await frameData.GetMoveAsync(split);
 
-            if (move != null)
+            if (move is { })
             {
                 var embed = new DiscordEmbedBuilder(DefaultEmbed)
                 {
-                    Title = move.Character!.Name,
+                    Title = move.Character!.Name.FirstCharToUpper(),
+                    Url = move.Character!.PageUrl,
                     Description = move.Command,
+                    Timestamp = DateTime.Now,
                 };
+
+                var link = await GetImageUrlAsync(sender, move.Character!);
+
+                if (!string.IsNullOrWhiteSpace(link))
+                {
+                    embed.WithThumbnail(link, 50, 50);
+                }
 
                 embed.AddField(
                     "Startup",
@@ -104,17 +149,10 @@ public class DiscordBotAnswers
                     !string.IsNullOrWhiteSpace(move.Notes) ? move.Notes : "null"
                 );
 
-                // TODO: Починить
-                embed.WithFooter(
-                    "Presented by Phoenix",
-                    "https://cdn.discordapp.com/avatars/1230230891654156421/8b65a4611a360228bf7ed68b0322ac5f.webp?size=240"
-                );
-
                 if (move.Character.LinkToImage != null)
                 {
                     embed.WithThumbnail(move.Character.LinkToImage, 50, 50);
                 }
-                embed.WithTimestamp(DateTime.Now);
 
                 var msg = new DiscordMessageBuilder();
 
@@ -123,7 +161,7 @@ public class DiscordBotAnswers
                 if (move.HeatEngage)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        ButtonStyle.Secondary,
                         $"framedata:{move.Character.Name}:heatengage",
                         "Heat Engager"
                     );
@@ -133,7 +171,7 @@ public class DiscordBotAnswers
                 if (move.Tornado)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        ButtonStyle.Secondary,
                         $"framedata:{move.Character.Name}:tornado",
                         "Tornado"
                     );
@@ -143,7 +181,7 @@ public class DiscordBotAnswers
                 if (move.HeatSmash)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Primary,
+                        ButtonStyle.Primary,
                         $"framedata:{move.Character.Name}:heatsmash",
                         "Heat Smash"
                     );
@@ -153,7 +191,7 @@ public class DiscordBotAnswers
                 if (move.PowerCrush)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Danger,
+                        ButtonStyle.Danger,
                         $"framedata:{move.Character.Name}:powercrush",
                         "Power Crush"
                     );
@@ -163,7 +201,7 @@ public class DiscordBotAnswers
                 if (move.HeatBurst)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Success,
+                        ButtonStyle.Success,
                         $"framedata:{move.Character.Name}:heatburst",
                         "Heat Burst"
                     );
@@ -173,7 +211,7 @@ public class DiscordBotAnswers
                 if (move.Homing)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        ButtonStyle.Secondary,
                         $"framedata:{move.Character.Name}:homing",
                         "Homing"
                     );
@@ -183,7 +221,7 @@ public class DiscordBotAnswers
                 if (move.Throw)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Primary,
+                        ButtonStyle.Primary,
                         $"framedata:{move.Character.Name}:throw",
                         "Throw"
                     );
@@ -193,7 +231,7 @@ public class DiscordBotAnswers
                 if (move.IsFromStance)
                 {
                     var button = new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        ButtonStyle.Secondary,
                         $"framedata:{move.Character.Name}:stance:{move.StanceCode}",
                         move.StanceName!
                     );
@@ -204,60 +242,205 @@ public class DiscordBotAnswers
 
                 if (buttons.Count > 0)
                 {
-                    msg.AddActionRowComponent(buttons);
+                    msg.AddComponents(buttons);
                 }
 
                 msg.AddEmbed(embed);
 
+                // TODO: Для обычных сообщений Discord не поддерживает ephemeral, но для application commands это будет реализовано
                 await sender.SendMessageAsync(args.Channel, msg);
+
                 return;
             }
         }
 
         try
         {
+            // TODO: Для обычных сообщений Discord не поддерживает ephemeral, но для application commands это будет реализовано
             await sender.SendMessageAsync(args.Channel, "Кривой запрос фд");
         }
         catch (Exception ex)
         {
-            Logger?.LogException(ex);
+            Logger?.LogError(ex, ex.Message);
         }
     }
 
+    private static async Task<DiscordMessageBuilder> BuildMoveDiscordMessage(
+        DiscordClient sender,
+        Move move
+    )
+    {
+        var embed = new DiscordEmbedBuilder(DefaultEmbed)
+        {
+            Title =
+                move.Character?.Name.FirstCharToUpper() ?? move.CharacterName.FirstCharToUpper(),
+            Url = move.Character?.PageUrl,
+            Description = move.Command,
+            Timestamp = DateTime.Now,
+        };
+
+        var link = await GetImageUrlAsync(sender, move.Character!);
+
+        if (!string.IsNullOrWhiteSpace(link))
+        {
+            embed.WithThumbnail(link, 50, 50);
+        }
+
+        embed.AddField(
+            "Startup",
+            !string.IsNullOrWhiteSpace(move.StartUpFrame) ? move.StartUpFrame : "null",
+            true
+        );
+        embed.AddField(
+            "Block",
+            !string.IsNullOrWhiteSpace(move.BlockFrame) ? move.BlockFrame : "null",
+            true
+        );
+        embed.AddField(
+            "Hit",
+            !string.IsNullOrWhiteSpace(move.HitFrame) ? move.HitFrame : "null",
+            true
+        );
+        embed.AddField(
+            "CH",
+            !string.IsNullOrWhiteSpace(move.CounterHitFrame) ? move.CounterHitFrame : "null",
+            true
+        );
+        embed.AddField(
+            "Target",
+            !string.IsNullOrWhiteSpace(move.HitLevel) ? move.HitLevel : "null",
+            true
+        );
+        embed.AddField("Dmg", !string.IsNullOrWhiteSpace(move.Damage) ? move.Damage : "null", true);
+        embed.AddField("Notes", !string.IsNullOrWhiteSpace(move.Notes) ? move.Notes : "null");
+
+        if (move.Character?.LinkToImage != null)
+        {
+            embed.WithThumbnail(move.Character.LinkToImage, 50, 50);
+        }
+
+        var msg = new DiscordMessageBuilder();
+        var buttons = new List<DiscordButtonComponent>();
+        if (move.HeatEngage)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{move.CharacterName}:heatengage",
+                    "Heat Engager"
+                )
+            );
+        }
+        if (move.Tornado)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{move.CharacterName}:tornado",
+                    "Tornado"
+                )
+            );
+        }
+        if (move.HeatSmash)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    $"framedata:{move.CharacterName}:heatsmash",
+                    "Heat Smash"
+                )
+            );
+        }
+        if (move.PowerCrush)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Danger,
+                    $"framedata:{move.CharacterName}:powercrush",
+                    "Power Crush"
+                )
+            );
+        }
+        if (move.HeatBurst)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Success,
+                    $"framedata:{move.CharacterName}:heatburst",
+                    "Heat Burst"
+                )
+            );
+        }
+        if (move.Homing)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{move.CharacterName}:homing",
+                    "Homing"
+                )
+            );
+        }
+        if (move.Throw)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Primary,
+                    $"framedata:{move.CharacterName}:throw",
+                    "Throw"
+                )
+            );
+        }
+        if (move.IsFromStance)
+        {
+            buttons.Add(
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{move.CharacterName}:stance:{move.StanceCode}",
+                    move.StanceName ?? move.StanceCode ?? "Stance"
+                )
+            );
+        }
+        if (buttons.Count > 0)
+        {
+            msg.AddComponents(buttons);
+        }
+        msg.AddEmbed(embed);
+        return msg;
+    }
+
     public static async Task FramedataCallback(
+        DiscordClient sender,
         Tekken8FrameData frameData,
-        ComponentInteractionCreatedEventArgs args
+        ComponentInteractionCreateEventArgs args
     )
     {
         var split = args.Interaction.Data.CustomId.Split(':');
         var charname = split[1];
         var type = split[2];
         var stanceCode = split.ElementAtOrDefault(3);
-        var movelist = await frameData.GetCharMoveList(charname);
+        var movelist = await frameData.GetCharMoveListAsync(charname);
 
         if (movelist is not { Length: > 0 })
         {
             throw new TekkenCharacterNotFoundException();
         }
 
+        var character = movelist.First().Character!;
+
         var embed = new DiscordEmbedBuilder(DefaultEmbed)
         {
-            Title = movelist.First().Character!.Name,
+            Title = character.Name.FirstCharToUpper(),
+            Url = character.PageUrl,
+            Timestamp = DateTime.Now,
         };
 
-        embed.WithAuthor(
-            "Presented by RXDCODX",
-            "https://twitch.tv/rxdcodx",
-            "https://media.discordapp.net/attachments/1370710562497105951/1383709696837292143/canvas-screenshot.png?ex=684fc793&is=684e7613&hm=2a976bc0e73d1f659133dfc965f5b80100f223e40829c4f64bf1f7f89d672a81&=&format=webp&quality=lossless"
-        );
-        //embed.WithFooter("Presented by RXDCODX");
+        var link = await GetImageUrlAsync(sender, character);
 
-        var linkToImage = movelist.First().Character?.LinkToImage;
-        if (linkToImage != null)
+        if (!string.IsNullOrWhiteSpace(link))
         {
-            embed.WithThumbnail(linkToImage, 50, 50);
+            embed.WithThumbnail(link, 50, 50);
         }
-        embed.WithTimestamp(DateTime.Now);
 
         var text = new StringBuilder();
         switch (type)
@@ -333,13 +516,22 @@ public class DiscordBotAnswers
                     text.AppendJoin(
                         Environment.NewLine,
                         movelist
-                            .Where(e => e.StanceCode != null)
+                            .Where(e => !string.IsNullOrWhiteSpace(e.StanceCode))
                             .DistinctBy(e => e.StanceCode)
                             .Select(e => e.StanceCode + " - " + e.StanceName)
                     );
                     embed.AddField("Stances", text.ToString());
                 }
                 break;
+            case "randomhigh":
+                await HandleRandomMoveCase(RandomMoveType.High, sender, movelist, args);
+                return;
+            case "randommid":
+                await HandleRandomMoveCase(RandomMoveType.Mid, sender, movelist, args);
+                return;
+            case "randomlow":
+                await HandleRandomMoveCase(RandomMoveType.Low, sender, movelist, args);
+                return;
         }
 
         var msg = new DiscordMessageBuilder();
@@ -351,22 +543,24 @@ public class DiscordBotAnswers
         try
         {
             await args.Interaction.CreateResponseAsync(
-                DiscordInteractionResponseType.ChannelMessageWithSource,
+                InteractionResponseType.ChannelMessageWithSource,
                 inter
             );
         }
         catch (Exception ex)
         {
-            Logger?.LogException(ex);
+            Logger?.LogError(ex, ex.Message);
         }
     }
 
-    public static async Task CharacterOnlyRequest(
-        TekkenCharacter character,
-        MessageCreatedEventArgs args
-    )
+    public static async Task CharacterOnlyRequest(Character character, MessageCreateEventArgs args)
     {
-        var embed = new DiscordEmbedBuilder(DefaultEmbed) { Title = character.Name };
+        var embed = new DiscordEmbedBuilder(DefaultEmbed)
+        {
+            Title = character.Name.FirstCharToUpper(),
+            Url = character.PageUrl,
+            Timestamp = DateTime.Now,
+        };
         var msg = new DiscordMessageBuilder();
         var charName = character.Name.ToLower();
         // TODO: Исправтиь ссылку на изображение с wavu wiki
@@ -379,26 +573,26 @@ public class DiscordBotAnswers
         {
             embed.WithDescription(character.Description);
         }
-        embed.WithTitle(charName);
+
         if (character is { Strengths: not null, Weaknesess: not null })
         {
             embed.AddField(
-                nameof(TekkenCharacter.Strengths),
+                nameof(Character.Strengths),
                 string.Join(Environment.NewLine, character.Strengths),
                 true
             );
             embed.AddField(
-                nameof(TekkenCharacter.Weaknesess),
+                nameof(Character.Weaknesess),
                 string.Join(Environment.NewLine, character.Weaknesess),
                 true
             );
         }
 
-        msg.AddActionRowComponent(
+        msg.AddComponents(
             new DiscordActionRowComponent(
                 [
                     new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
+                        ButtonStyle.Secondary,
                         $"framedata:{charName}:stance",
                         "Stances"
                     ),
@@ -406,70 +600,64 @@ public class DiscordBotAnswers
             )
         );
 
-        msg.AddActionRowComponent(
-            new DiscordActionRowComponent(
-                [
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:powercrush",
-                        "Power Crushes"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:homing",
-                        "Homings"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:tornado",
-                        "Tornados"
-                    ),
-                ]
-            )
+        msg.AddComponents(
+            [
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:powercrush",
+                    "Power Crushes"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:homing",
+                    "Homings"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:tornado",
+                    "Tornados"
+                ),
+            ]
         );
 
-        msg.AddActionRowComponent(
-            new DiscordActionRowComponent(
-                [
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:heatburst",
-                        "Heat Burst"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:heatengage",
-                        "Heat Engagers"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Secondary,
-                        $"framedata:{charName}:heatsmash",
-                        "Heat Smash"
-                    ),
-                ]
-            )
+        msg.AddComponents(
+            [
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:heatburst",
+                    "Heat Burst"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:heatengage",
+                    "Heat Engagers"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Secondary,
+                    $"framedata:{charName}:heatsmash",
+                    "Heat Smash"
+                ),
+            ]
         );
 
-        msg.AddActionRowComponent(
-            new DiscordActionRowComponent(
-                [
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Danger,
-                        $"framedata:{charName}:randomhigh",
-                        "Random High Move"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Danger,
-                        $"framedata:{charName}:randommid",
-                        "Random Mid Move"
-                    ),
-                    new DiscordButtonComponent(
-                        DiscordButtonStyle.Danger,
-                        $"framedata:{charName}:randomlow",
-                        "Random Low Move"
-                    ),
-                ]
-            )
+        msg.AddComponents(
+            [
+                new DiscordButtonComponent(
+                    ButtonStyle.Danger,
+                    $"framedata:{charName}:randomhigh",
+                    "Random High Move"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Danger,
+                    $"framedata:{charName}:randommid",
+                    "Random Mid Move"
+                ),
+                new DiscordButtonComponent(
+                    ButtonStyle.Danger,
+                    $"framedata:{charName}:randomlow",
+                    "Random Low Move"
+                ),
+            ]
         );
 
         //msg.AddActionRowComponent(
@@ -497,19 +685,19 @@ public class DiscordBotAnswers
         }
         catch (Exception e)
         {
-            Logger?.LogException(e);
+            Logger?.LogError(e, e.Message);
         }
     }
 
     public static async Task GuildJoinCallback(
         DiscordFramedataChannels discordFramedataChannels,
-        ComponentInteractionCreatedEventArgs args
+        ComponentInteractionCreateEventArgs args
     )
     {
         var channel = args.Interaction.Data.Resolved.Channels.First();
         var channelId = channel.Key;
         var channelName = channel.Value.Name;
-        var owner = await channel.Value.Guild.GetGuildOwnerAsync();
+        var owner = channel.Value.Guild.Owner;
         await discordFramedataChannels.AddAsync(
             new DiscordFramedataChannel()
             {
@@ -524,22 +712,24 @@ public class DiscordBotAnswers
 
         try
         {
+            var builder = new DiscordInteractionResponseBuilder(
+                new DiscordMessageBuilder() { Content = "Ну, вроде готово, хз)" }
+            );
+            builder.AsEphemeral();
             await args.Interaction.CreateResponseAsync(
-                DiscordInteractionResponseType.UpdateMessage,
-                new DiscordInteractionResponseBuilder(
-                    new DiscordMessageBuilder() { Content = "Ну, вроде готово, хз)" }
-                )
+                InteractionResponseType.UpdateMessage,
+                builder
             );
         }
         catch (Exception e)
         {
-            Logger?.LogException(e);
+            Logger?.LogError(e, e.Message);
         }
     }
 
     public static Task OnDiscordServerLeave(
         DiscordFramedataChannels channels,
-        GuildDeletedEventArgs args
+        GuildDeleteEventArgs args
     )
     {
         var guildId = args.Guild.Id;
@@ -550,8 +740,63 @@ public class DiscordBotAnswers
         }
         catch (Exception ex)
         {
-            Logger?.LogException(ex);
+            Logger?.LogError(ex, ex.Message);
             throw new Exception("a", ex);
+        }
+    }
+
+    public enum RandomMoveType
+    {
+        None,
+        High,
+        Mid,
+        Low,
+    }
+
+    private static async Task HandleRandomMoveCase(
+        RandomMoveType type,
+        DiscordClient sender,
+        Move[] movelist,
+        ComponentInteractionCreateEventArgs args
+    )
+    {
+        // Определяем символ для поиска по HitLevel
+        char hitLevelChar = type switch
+        {
+            RandomMoveType.High => 'h',
+            RandomMoveType.Mid => 'm',
+            RandomMoveType.Low => 'l',
+            _ => 'm',
+        };
+        // Фильтруем только те мувы, у которых HitLevel содержит нужный символ
+        var filtered = movelist
+            .Where(e =>
+                !string.IsNullOrWhiteSpace(e.HitLevel) && e.HitLevel!.Contains(hitLevelChar)
+            )
+            .ToArray();
+        if (filtered.Length == 0)
+        {
+            await args.Interaction.CreateResponseAsync(
+                InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder()
+                    .WithContent($"Нет подходящих мувов для типа {type}")
+                    .AsEphemeral()
+            );
+            return;
+        }
+        // Быстрый выбор случайного мува
+        var randomMove = filtered[Random.Shared.Next(filtered.Length)];
+        var msg = await BuildMoveDiscordMessage(sender, randomMove);
+        try
+        {
+            await args.Interaction.CreateResponseAsync(
+                InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder(msg).AsEphemeral()
+            );
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, ex.Message);
         }
     }
 }

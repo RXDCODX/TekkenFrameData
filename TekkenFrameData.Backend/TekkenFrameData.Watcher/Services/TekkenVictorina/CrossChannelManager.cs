@@ -23,7 +23,7 @@ public class CrossChannelManager(
         string,
         ITekkenVictorina
     > ChannelsWithActiveVictorina = [];
-    public static readonly ConcurrentDictionary<string, TekkenMove> MovesInVictorina = [];
+    public static readonly ConcurrentDictionary<string, Move> MovesInVictorina = [];
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {

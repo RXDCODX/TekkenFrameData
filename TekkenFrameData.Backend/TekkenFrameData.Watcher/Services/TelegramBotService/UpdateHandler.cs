@@ -23,7 +23,7 @@ public class UpdateHandler : IUpdateHandler
     private readonly ITelegramBotClient _botClient;
     private readonly Commands _commands;
     private readonly ILogger<UpdateHandler> _logger;
-    private long[] AdminLongs { get; init; }
+    public static long[] AdminLongs { get; private set; } = [];
 
     private TelegramUpdateDelegate _telegramDelegate = (client, update) => Task.CompletedTask;
 

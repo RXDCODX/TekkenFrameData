@@ -257,7 +257,6 @@ internal static class ProgramInitExstension
                 };
 
                 commands.RegisterCommands<FrameDataSlashCommands>();
-                commands.RegisterCommands<HelpSlashCommand>();
 
                 Task.Factory.StartNew(() => client.ConnectAsync());
                 return client;
@@ -266,7 +265,6 @@ internal static class ProgramInitExstension
 
         services.AddSingleton<DiscordManager>();
         services.AddHostedService<DiscordManager>();
-        services.AddSingleton<DiscordFramedataChannels>();
 
         return services;
     }

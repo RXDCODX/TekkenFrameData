@@ -4,21 +4,22 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Microsoft.Extensions.Options;
+using SteamKit2.CDN;
 using TekkenFrameData.Library.Exstensions;
-using TekkenFrameData.Library.Models.Discord;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Watcher.Services.Framedata;
+using TekkenFrameData.Watcher.Services.TelegramBotService;
+using Telegram.Bot;
 
 namespace TekkenFrameData.Watcher.Services.Discord;
 
 public class FrameDataSlashCommands(
     Tekken8FrameData frameData,
-    DiscordFramedataChannels framedataChannels,
-    ILogger<FrameDataSlashCommands> logger
+    ITelegramBotClient telegramBotClient,
+    IDbContextFactory<AppDbContext> appFactory
 ) : ApplicationCommandModule
 {
-    private readonly Dictionary<string, string?> _imageUrlCache = new();
-
     public static readonly DiscordEmbedBuilder DefaultEmbed = new()
     {
         Color = DiscordColor.Red,
@@ -42,7 +43,11 @@ public class FrameDataSlashCommands(
             Autocomplete(typeof(CharacterNameAutocompleteProvider))
         ]
             string character,
-        [Option("move", "Команда/удар (опционально)")] string? move = null
+        [
+            Option("move", "Команда/удар (опционально)"),
+            Autocomplete(typeof(MoveCommandAutocompleteProvider))
+        ]
+            string? move = null
     )
     {
         if (string.IsNullOrWhiteSpace(move))
@@ -336,91 +341,70 @@ public class FrameDataSlashCommands(
         );
     }
 
-    [SlashCommand("setframedatachannel", "Сделать этот канал рабочим для фреймдаты")]
-    [SlashCommandPermissions(Permissions.Administrator)]
-    [RequireGuild]
-    public async Task SetFramedataChannel(InteractionContext ctx)
+    [SlashCommand("feedback", "Отправить фидбек / сообщить об ошибке", true)]
+    public async Task SendFeedback(
+        InteractionContext ctx,
+        [Option("message", "Само сообщение")] string text
+    )
     {
-        var channel = ctx.Channel;
-        var channelId = channel.Id;
-        var channelName = channel.Name;
-        var owner = ctx.Guild.Owner;
-        bool isAdded;
-
-        if (framedataChannels.Channels.Contains(channelId))
+        if (string.IsNullOrWhiteSpace(text))
         {
-            isAdded = true;
-        }
-        else
-        {
-            isAdded = await framedataChannels.AddAsync(
-                new DiscordFramedataChannel()
-                {
-                    ChannelId = channelId,
-                    ChannelName = channelName,
-                    GuildId = ctx.Guild.Id,
-                    GuildName = channel.Guild.Name,
-                    OwnerName = owner.DisplayName,
-                    OwnerId = owner.Id,
-                }
-            );
+            await ctx.CreateResponseAsync("Сообщение было пустой", true);
+            return;
         }
 
-        try
+        await Task.Factory.StartNew(async () =>
         {
-            var builder = new DiscordInteractionResponseBuilder(
-                new DiscordMessageBuilder()
-                {
-                    Content = isAdded
-                        ? "Этот канал был выбран для постинга фреймдаты"
-                        : "Прости, но не удалось добавить! Возможно, он уже добавлен!",
-                }
-            );
-            builder.AsEphemeral();
-            await ctx.CreateResponseAsync(
-                InteractionResponseType.ChannelMessageWithSource,
-                builder
-            );
-        }
-        catch (Exception e)
-        {
-            logger?.LogError(e, e.Message);
-        }
+            var message = $"""
+            Дискорд-фидбек от
+                {ctx.User.Username} (id: {ctx.User.Id})
+            С сервера 
+                {ctx.Guild.Name} (id: {ctx.Guild.OwnerId})
+
+            Сообщение:
+                {text}
+
+            {DateTime.Now:F}
+            """;
+
+            foreach (var adminka in UpdateHandler.AdminLongs)
+            {
+                await telegramBotClient.SendMessage(adminka, message);
+            }
+        });
+
+        await ctx.CreateResponseAsync("Фидбек отправлен!", true);
     }
 
     private async Task<string?> GetImageUrl(BaseContext context, Character character)
     {
-        // 2. Проверяем кеш
-        if (_imageUrlCache.TryGetValue(character.Name, out var cachedUrl))
-            return cachedUrl;
-
-        string? url = null;
-
-        if (character.Image is { Length: > 0 })
+        if (!string.IsNullOrWhiteSpace(character.LinkToImage))
         {
-            if (DiscordBotAnswers.TechChannel != null)
-            {
-                var response = await context.Client.SendMessageAsync(
-                    DiscordBotAnswers.TechChannel,
-                    builder =>
-                    {
-                        builder.AddFile(
-                            character.Name + ".webp",
-                            new MemoryStream(character.Image)
-                        );
-                    }
-                );
+            return character.LinkToImage;
+        }
 
-                url = response.Attachments.First().Url;
-            }
+        string? url;
+
+        if (character.Image is { Length: > 0 } && DiscordBotAnswers.TechChannel != null)
+        {
+            var response = await context.Client.SendMessageAsync(
+                DiscordBotAnswers.TechChannel,
+                builder =>
+                {
+                    builder.AddFile(character.Name + ".webp", new MemoryStream(character.Image));
+                }
+            );
+            url = response.Attachments.First().Url;
+
+            await using var dbContext = await appFactory.CreateDbContextAsync();
+            character.LinkToImage = url;
+            dbContext.Update(character);
+            await dbContext.SaveChangesAsync();
         }
         else
         {
             url = character.LinkToImage;
         }
-
-        // 3. Сохраняем в кеш
-        _imageUrlCache[character.Name] = url;
 
         return url;
     }

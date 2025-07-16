@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
@@ -25,8 +26,11 @@ public partial class Tekken8FrameData(
         {
             await Task.Factory.StartNew(() => StartScrupFrameData(), stoppingToken);
         }
-
-        await UpdateMovesForVictorina();
+        else
+        {
+            await UpdateMovesForVictorina();
+            await UpdateAutocompleteDictionary();
+        }
     }
 
     public async Task<(TekkenMoveTag Tag, Move[] Moves)?> GetMultipleMovesByTags(string input)
@@ -417,5 +421,36 @@ public partial class Tekken8FrameData(
         }
 
         VictorinaMoves = list;
+    }
+
+    public async Task UpdateAutocompleteDictionary()
+    {
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+
+        var dictionary = new Dictionary<string, Dictionary<string, Move>>();
+
+        await foreach (
+            var move in dbContext
+                .TekkenMoves.OrderBy(e => e.CharacterName)
+                .AsAsyncEnumerable()
+                .WithCancellation(_cancellationToken)
+        )
+        {
+            if (dictionary.TryGetValue(move.CharacterName, out var dict))
+            {
+                dict.Add(move.Command, move);
+            }
+            else
+            {
+                dictionary.Add(
+                    move.CharacterName,
+                    new Dictionary<string, Move>() { { move.Command, move } }
+                );
+            }
+        }
+
+        var bb = dictionary.ToDictionary(tt => tt.Key, tt => tt.Value.ToFrozenDictionary());
+
+        AutocompleteMovesFrozenDictionary = bb.ToFrozenDictionary();
     }
 }

@@ -300,6 +300,7 @@ public partial class Tekken8FrameData
         await ParseNotParsedCharacters(parsedCharacters);
 
         await UpdateMovesForVictorina();
+        await UpdateAutocompleteDictionary();
         if (chat != null)
             await client.SendMessage(
                 chat,

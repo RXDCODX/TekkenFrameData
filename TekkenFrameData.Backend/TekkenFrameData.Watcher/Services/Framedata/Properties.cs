@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 
@@ -14,6 +15,11 @@ public partial class Tekken8FrameData
         string.Empty,
         string.Empty
     );
+
+    internal static FrozenDictionary<
+        string,
+        FrozenDictionary<string, Move>
+    >? AutocompleteMovesFrozenDictionary;
 
     internal static readonly Dictionary<TekkenMoveTag, string[]> MoveTags = new()
     {

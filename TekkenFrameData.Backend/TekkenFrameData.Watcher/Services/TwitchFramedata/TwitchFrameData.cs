@@ -9,6 +9,8 @@ using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TekkenVictorina;
+using TekkenFrameData.Watcher.Services.TelegramBotService;
+using Telegram.Bot;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -19,7 +21,8 @@ public class TwitchFramedate(
     ITwitchClient client,
     Tekken8FrameData frameData,
     IHostApplicationLifetime lifetime,
-    IDbContextFactory<AppDbContext> factory
+    IDbContextFactory<AppDbContext> factory,
+    ITelegramBotClient telegramBotClient
 ) : BackgroundService
 {
     private readonly CancellationToken _cancellationToken = lifetime.ApplicationStopping;
@@ -101,6 +104,32 @@ public class TwitchFramedate(
                     },
                     _cancellationToken
                 );
+            }
+            else if (command.StartsWith("feedback"))
+            {
+                if (UpdateHandler.AdminLongs is { Length: > 0 })
+                {
+                    var message2 = $"""
+                        Твич-фидбек от
+                            {userName} (id: {userId})
+                        С канала
+                            {channelName}
+
+                        Сообщение:
+                            {message}
+
+                        {DateTime.Now:F}
+                        """;
+
+                    foreach (var adminLong in UpdateHandler.AdminLongs)
+                    {
+                        await telegramBotClient.SendMessage(
+                            adminLong,
+                            message2,
+                            cancellationToken: _cancellationToken
+                        );
+                    }
+                }
             }
         }
         else

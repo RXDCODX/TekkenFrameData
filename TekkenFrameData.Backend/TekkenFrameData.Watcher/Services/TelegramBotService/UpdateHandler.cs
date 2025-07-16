@@ -88,12 +88,18 @@ public class UpdateHandler : IUpdateHandler
         var handler = update switch
         {
             { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
+            { InlineQuery: { } inlineQuery } => InlinqQuery(inlineQuery, cancellationToken),
             _ => UnknownUpdateHandlerAsync(update),
         };
 
         await handler;
 
         await _telegramDelegate.Invoke(_, update);
+    }
+
+    private Task InlinqQuery(InlineQuery message, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private async void ResendMessage(Update update)

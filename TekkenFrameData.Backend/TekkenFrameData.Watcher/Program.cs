@@ -122,14 +122,13 @@ public class Program
         services.AddHostedService(sp => sp.GetRequiredService<TekkenVictorinaLeaderbord>());
 
         services.AddSingleton<StreamersNotificationWorker>();
-        services.AddSingleton(sp => sp.GetRequiredService<StreamersNotificationWorker>());
+        services.AddHostedService(sp => sp.GetRequiredService<StreamersNotificationWorker>());
         services.AddSingleton<MessagesHandler>();
 
         services.AddSignalR();
 
         var app = builder.Build();
         var logger = app.Services.GetService<ILogger<Program>>();
-        var bsd = app.Services.GetService<BaseDiscordClient>();
         app.MapHub<MainHub>("/mainhub");
 
         app.UseDeveloperExceptionPage();

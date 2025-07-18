@@ -216,6 +216,12 @@ internal static class ProgramInitExstension
         services.AddSingleton<ContractorService>();
         services.AddHostedService(sp => sp.GetRequiredService<ContractorService>());
 
+        services.AddSingleton<AlisaAssistantCollab>();
+        services.AddHostedService(sp => sp.GetRequiredService<AlisaAssistantCollab>());
+
+        services.AddSingleton<TwitchRulesCommand>();
+        services.AddHostedService(sp => sp.GetRequiredService<TwitchRulesCommand>());
+
         return services;
     }
 

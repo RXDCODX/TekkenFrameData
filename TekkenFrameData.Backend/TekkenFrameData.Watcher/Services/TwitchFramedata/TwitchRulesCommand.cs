@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ProtoBuf.Serializers;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;

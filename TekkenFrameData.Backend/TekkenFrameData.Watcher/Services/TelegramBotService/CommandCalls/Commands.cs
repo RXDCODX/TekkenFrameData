@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using DSharpPlus;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -21,7 +22,8 @@ public partial class Commands(
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext,
-    MessagesHandler globalNotifHandler
+    MessagesHandler globalNotifHandler,
+    DiscordClient discordClient
 )
 {
     public const string Template =

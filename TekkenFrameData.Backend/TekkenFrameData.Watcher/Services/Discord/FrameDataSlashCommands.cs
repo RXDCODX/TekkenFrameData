@@ -86,18 +86,16 @@ public class FrameDataSlashCommands(
                 var msg = new DiscordMessageBuilder();
                 msg.AddEmbed(embed);
                 msg.AddComponents(
-                    new DiscordComponent[]
-                    {
+                    [
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
                             $"framedata:{charName}:stance",
                             "Stances"
                         ),
-                    }
+                    ]
                 );
                 msg.AddComponents(
-                    new DiscordComponent[]
-                    {
+                    [
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
                             $"framedata:{charName}:powercrush",
@@ -113,11 +111,10 @@ public class FrameDataSlashCommands(
                             $"framedata:{charName}:tornado",
                             "Tornados"
                         ),
-                    }
+                    ]
                 );
                 msg.AddComponents(
-                    new DiscordComponent[]
-                    {
+                    [
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
                             $"framedata:{charName}:heatburst",
@@ -133,11 +130,10 @@ public class FrameDataSlashCommands(
                             $"framedata:{charName}:heatsmash",
                             "Heat Smash"
                         ),
-                    }
+                    ]
                 );
                 msg.AddComponents(
-                    new DiscordComponent[]
-                    {
+                    [
                         new DiscordButtonComponent(
                             ButtonStyle.Danger,
                             $"framedata:{charName}:randomhigh",
@@ -153,7 +149,7 @@ public class FrameDataSlashCommands(
                             $"framedata:{charName}:randomlow",
                             "Random Low Move"
                         ),
-                    }
+                    ]
                 );
 
                 var link = await GetImageUrl(ctx, charObj);

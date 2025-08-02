@@ -68,7 +68,10 @@ public class StreamersNotificationWorker(
                     // Отправляем сообщение
                     twitchClient.SendMessage(
                         notificationState.Channel.Name,
-                        notificationState.Message.Message
+                        "@"
+                            + notificationState.Channel.Name
+                            + ", "
+                            + notificationState.Message.Message
                     );
 
                     // Помечаем как завершенное

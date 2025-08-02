@@ -78,7 +78,7 @@ public class MessagesHandler(
                 // Отправляем сообщение
                 client.SendMessage(
                     notificationState.Channel.Name,
-                    notificationState.Message.Message
+                    "@" + notificationState.Channel.Name + ", " + notificationState.Message.Message
                 );
 
                 // Помечаем как завершенное

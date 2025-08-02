@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
 using DSharpPlus;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Framedata;

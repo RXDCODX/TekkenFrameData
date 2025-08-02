@@ -1,10 +1,8 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
-using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using TekkenFrameData.Library.CustomLoggers.TelegramLogger;
 using TekkenFrameData.Library.DB.Factory;
@@ -13,6 +11,7 @@ using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.Configuration;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.Contractor;
+using TekkenFrameData.Watcher.Services.DailyStreak;
 using TekkenFrameData.Watcher.Services.Discord;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.Manager;
@@ -125,6 +124,12 @@ public class Program
         services.AddHostedService(sp => sp.GetRequiredService<StreamersNotificationWorker>());
         services.AddSingleton<MessagesHandler>();
 
+        services.AddSingleton<DailyStreakService>();
+        services.AddSingleton<DailyStreakSiteParser>();
+        services.AddSingleton<DailyStreakHandler>();
+        services.AddHostedService(sp => sp.GetRequiredService<DailyStreakService>());
+        services.AddHostedService(sp => sp.GetRequiredService<DailyStreakHandler>());
+
         services.AddSignalR();
 
         var app = builder.Build();
@@ -139,6 +144,8 @@ public class Program
         app.UseStaticFiles();
 
         app.UseStatusCodePages();
+
+        var aa = app.Services.GetRequiredService<DailyStreakService>();
 
         try
         {

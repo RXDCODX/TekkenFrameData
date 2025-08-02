@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using TekkenFrameData.Library.Models.DailyStreak.structures;
 
 namespace TekkenFrameData.Library.DB;
 
@@ -46,10 +47,14 @@ public sealed partial class AppDbContext : DbContext
             c => c
         );
 
+    public class TekkenIdToStringConversion()
+        : ValueConverter<TekkenId, string>(id => id.ToString(), a => TekkenId.Parse(a)) { }
+
     protected sealed override void ConfigureConventions(
         ModelConfigurationBuilder configurationBuilder
     )
     {
         configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeToDateTimeUtc>();
+        configurationBuilder.Properties<TekkenId>().HaveConversion<TekkenIdToStringConversion>();
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using Telegram.Bot;

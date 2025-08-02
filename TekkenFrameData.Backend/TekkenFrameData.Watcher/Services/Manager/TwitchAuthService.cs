@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.Exstensions;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.ExternalServices.Twitch;
 using TwitchLib.Api.Interfaces;
 

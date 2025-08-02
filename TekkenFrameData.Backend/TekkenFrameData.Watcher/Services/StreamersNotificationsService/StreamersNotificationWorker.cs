@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using SteamKit2.CDN;
-using TekkenFrameData.Library.Exstensions;
-using TekkenFrameData.Library.Models.Twitch;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Interfaces;
 

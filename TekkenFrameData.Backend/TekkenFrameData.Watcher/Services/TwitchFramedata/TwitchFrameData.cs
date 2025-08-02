@@ -1,9 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;

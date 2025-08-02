@@ -50,7 +50,7 @@ public static class DiscordBotAnswers
                     builder.AddFile(character.Name + ".webp", new MemoryStream(character.Image));
                 }
             );
-            url = response.Attachments.First().Url;
+            url = response.Attachments[0].Url;
 
             await using var dbContext = await appFactory.CreateDbContextAsync();
             character.LinkToImage = url;
@@ -65,11 +65,7 @@ public static class DiscordBotAnswers
         return url;
     }
 
-    public static async Task OnDiscordServerJoin(
-        DiscordClient sender,
-        IDbContextFactory<AppDbContext> appFactory,
-        GuildCreateEventArgs args
-    )
+    public static async Task OnDiscordServerJoin(DiscordClient sender, GuildCreateEventArgs args)
     {
         var defaultChannel = args.Guild.GetDefaultChannel();
         var embed = new DiscordEmbedBuilder(DefaultEmbed)
@@ -86,7 +82,7 @@ public static class DiscordBotAnswers
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, ex.Message);
+            Logger?.LogException(ex);
         }
     }
 
@@ -376,7 +372,7 @@ public static class DiscordBotAnswers
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, ex.Message);
+            Logger?.LogException(ex);
         }
     }
 
@@ -432,7 +428,7 @@ public static class DiscordBotAnswers
         }
         catch (Exception ex)
         {
-            Logger?.LogError(ex, ex.Message);
+            Logger?.LogError(ex, "{msg}", ex.Message);
         }
     }
 }

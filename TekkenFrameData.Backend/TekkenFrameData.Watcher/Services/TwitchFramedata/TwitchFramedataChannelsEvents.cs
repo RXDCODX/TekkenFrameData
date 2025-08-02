@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TwitchLib.Api.Helix.Models.Streams.GetStreams;
+﻿using TwitchLib.Api.Helix.Models.Streams.GetStreams;
 
 namespace TekkenFrameData.Watcher.Services.TwitchFramedata;
 

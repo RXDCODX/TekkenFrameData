@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using TekkenFrameData.Watcher.Services.TelegramBotService.Abstract;
+﻿using TekkenFrameData.Watcher.Services.TelegramBotService.Abstract;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService;
 

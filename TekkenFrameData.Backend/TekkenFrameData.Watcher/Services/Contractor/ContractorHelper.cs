@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TekkenFrameData.Library.DB;
-using TekkenFrameData.Library.Exstensions;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;

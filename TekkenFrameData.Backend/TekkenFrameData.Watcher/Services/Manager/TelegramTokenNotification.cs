@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using Telegram.Bot;
 using TwitchLib.Api.Interfaces;

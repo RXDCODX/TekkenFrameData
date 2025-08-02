@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.DependencyInjection;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 
@@ -41,13 +40,14 @@ public sealed class MoveCommandAutocompleteProvider : IAutocompleteProvider
         if (
             string.IsNullOrWhiteSpace(characterName)
             || Tekken8FrameData.AutocompleteMovesFrozenDictionary == null
-            || !Tekken8FrameData.AutocompleteMovesFrozenDictionary.ContainsKey(characterName)
+            || !Tekken8FrameData.AutocompleteMovesFrozenDictionary.TryGetValue(
+                characterName,
+                out var movesDict
+            )
         )
         {
             return Task.FromResult(Enumerable.Empty<DiscordAutoCompleteChoice>());
         }
-
-        var movesDict = Tekken8FrameData.AutocompleteMovesFrozenDictionary[characterName];
 
         if (movesDict is not { Count: > 0 })
         {
@@ -55,7 +55,7 @@ public sealed class MoveCommandAutocompleteProvider : IAutocompleteProvider
         }
 
         var filtered = movesDict
-            .Keys.Where(cmd => cmd.ToLower().StartsWith(query))
+            .Keys.Where(cmd => cmd.StartsWith(query, StringComparison.CurrentCultureIgnoreCase))
             .Select(cmd => new DiscordAutoCompleteChoice(cmd, cmd))
             .Take(25);
         return Task.FromResult(filtered);

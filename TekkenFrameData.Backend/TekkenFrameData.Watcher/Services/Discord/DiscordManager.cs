@@ -16,7 +16,7 @@ public class DiscordManager(
     public Task HandleEventAsync(DiscordClient sender, GuildCreateEventArgs eventArgs)
     {
         return Task.Factory.StartNew(
-            async () => await DiscordBotAnswers.OnDiscordServerJoin(sender, appFactory, eventArgs),
+            async () => await DiscordBotAnswers.OnDiscordServerJoin(sender, eventArgs),
             _cancellationToken
         );
     }

@@ -4,8 +4,6 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Microsoft.Extensions.Options;
-using SteamKit2.CDN;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Watcher.Services.Framedata;
@@ -390,7 +388,7 @@ public class FrameDataSlashCommands(
                     builder.AddFile(character.Name + ".webp", new MemoryStream(character.Image));
                 }
             );
-            url = response.Attachments.First().Url;
+            url = response.Attachments[0].Url;
 
             await using var dbContext = await appFactory.CreateDbContextAsync();
             character.LinkToImage = url;

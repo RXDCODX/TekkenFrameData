@@ -11,7 +11,6 @@ using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Configuration = SixLabors.ImageSharp.Configuration;
 using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace TekkenFrameData.Watcher.Services.Framedata;

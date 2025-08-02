@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.Twitch;
 
@@ -12,6 +13,8 @@ public partial class AppDbContext
     public DbSet<GlobalNotificationMessage> GlobalNotificationMessage { get; set; } = null!;
     public DbSet<TwitchNotificationChannelsState> GlobalNotificatoinChannelsState { get; set; } =
         null!;
+
+    public DbSet<WankWavuPlayer> WankWavuPlayers { get; set; } = null!;
 
     private static void OnTwitchCreatingPartial(ModelBuilder modelBuilder)
     {

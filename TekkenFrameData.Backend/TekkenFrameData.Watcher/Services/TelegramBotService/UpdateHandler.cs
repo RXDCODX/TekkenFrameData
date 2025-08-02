@@ -1,10 +1,5 @@
-﻿using System.Net.Http;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using TekkenFrameData.Library.DB;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
@@ -88,7 +83,7 @@ public class UpdateHandler : IUpdateHandler
         var handler = update switch
         {
             { Message: { } message } => BotOnMessageReceived(message, cancellationToken),
-            { InlineQuery: { } inlineQuery } => InlinqQuery(inlineQuery, cancellationToken),
+            { InlineQuery: not null } => InlinqQuery(),
             _ => UnknownUpdateHandlerAsync(update),
         };
 
@@ -97,7 +92,7 @@ public class UpdateHandler : IUpdateHandler
         await _telegramDelegate.Invoke(_, update);
     }
 
-    private Task InlinqQuery(InlineQuery message, CancellationToken cancellationToken)
+    private static Task InlinqQuery()
     {
         return Task.CompletedTask;
     }

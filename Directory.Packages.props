@@ -14,7 +14,7 @@
     <PackageVersion Include="Hangfire" Version="1.8.17" />
     <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.17" />
     <PackageVersion Include="Hangfire.Core" Version="1.8.17" />
-    <PackageVersion Include="HtmlAgilityPack" Version="1.12.1" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.2" />
     <PackageVersion Include="LiveStreamingServerNet" Version="0.30.0" />
     <PackageVersion Include="LiveStreamingServerNet.AdminPanelUI" Version="0.30.0" />
     <PackageVersion Include="LiveStreamingServerNet.Rtmp" Version="0.30.0" />
@@ -52,7 +52,7 @@
     <PackageVersion Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore" Version="9.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageVersion Include="obs-websocket-dotnet" Version="5.0.1" />
-    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.10" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageVersion Include="SSH.NET" Version="2025.0.0" />
     <PackageVersion Include="SteamKit2" Version="3.3.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="9.0.1" />

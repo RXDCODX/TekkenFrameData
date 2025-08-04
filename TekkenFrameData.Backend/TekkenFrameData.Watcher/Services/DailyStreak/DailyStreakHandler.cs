@@ -3,6 +3,7 @@ using SteamKit2.GC.Dota.Internal;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
+using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
@@ -16,8 +17,6 @@ public class DailyStreakHandler(
     IDbContextFactory<AppDbContext> factory
 ) : BackgroundService
 {
-    private static readonly ConcurrentBag<string> ApprovedChannels = [];
-
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         lifetime.ApplicationStarted.Register(() =>
@@ -215,7 +214,7 @@ public class DailyStreakHandler(
 
     private bool IsChannelApproved(string channelId)
     {
-        if (ApprovedChannels.Contains(channelId))
+        if (TwitchFramedate.ApprovedChannels.Contains(channelId))
         {
             return true;
         }
@@ -228,7 +227,7 @@ public class DailyStreakHandler(
             );
             if (isApproved)
             {
-                ApprovedChannels.Add(channelId);
+                TwitchFramedate.ApprovedChannels.Add(channelId);
                 return true;
             }
             else

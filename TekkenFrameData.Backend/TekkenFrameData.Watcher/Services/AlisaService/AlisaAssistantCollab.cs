@@ -2,7 +2,7 @@
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
 
-namespace TekkenFrameData.Watcher.Services.TwitchFramedata;
+namespace TekkenFrameData.Watcher.Services.AlisaService;
 
 public class AlisaAssistantCollab(ITwitchClient client, IHostApplicationLifetime lifetime)
     : BackgroundService

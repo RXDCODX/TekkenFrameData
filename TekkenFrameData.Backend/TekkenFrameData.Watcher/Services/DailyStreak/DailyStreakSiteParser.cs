@@ -30,13 +30,13 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
             doc.DocumentNode.SelectSingleNode("/html/body/main/div[1]/section/div[1]/div[1]")
                 ?.InnerText.Trim() ?? throw new NullReferenceException();
 
-        var oldNicknames =
-            doc.DocumentNode.SelectNodes(
-                    "//section[contains(@class, \"card-surface\") and .//h2[contains(text(), \"Name history\")]]//tr"
-                )
-                ?.Select(e => e.FirstChild.InnerText)
-                .Skip(1)
-                .ToArray() ?? throw new NullReferenceException();
+        var oldNicknames = doc
+            .DocumentNode.SelectNodes(
+                "//section[contains(@class, \"card-surface\") and .//h2[contains(text(), \"Name history\")]]//tr"
+            )
+            ?.Select(e => e.FirstChild.InnerText)
+            .Skip(1)
+            .ToArray();
         var tekkenId =
             doc.DocumentNode.SelectSingleNode(
                     "/html/body/main/div[1]/section/div[1]/div[2]/span[1]/a"
@@ -181,14 +181,14 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
             var matchDateTime = ParseDateTime(dateTimeText);
 
             // Левая сторона (игрок 1)
-            var leftPlayer = ParsePlayerSide(cells[1], isLeft: true);
+            var leftPlayer = ParsePlayerSide(cells[1]);
 
             // Результат матча
             var resultText = cells[2].InnerText?.Trim();
             var matchResult = ParseMatchResult(resultText);
 
             // Правая сторона (игрок 2)
-            var rightPlayer = ParsePlayerSide(cells[3], isLeft: false);
+            var rightPlayer = ParsePlayerSide(cells[3]);
 
             return new MatchStat
             {
@@ -214,7 +214,7 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
         }
     }
 
-    private static PlayerMatchInfo ParsePlayerSide(HtmlAgilityPack.HtmlNode cell, bool isLeft)
+    private static PlayerMatchInfo ParsePlayerSide(HtmlAgilityPack.HtmlNode cell)
     {
         var playerName = cell.SelectSingleNode(".//span[@class='player']//a")?.InnerText?.Trim();
         var character = cell.SelectSingleNode(".//span[@class='char']")?.InnerText?.Trim();

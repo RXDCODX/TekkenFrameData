@@ -10,6 +10,7 @@ using TekkenFrameData.Library.DB.Helpers;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.Configuration;
 using TekkenFrameData.Watcher.Hubs;
+using TekkenFrameData.Watcher.Services.AlisaService;
 using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.DailyStreak;
 using TekkenFrameData.Watcher.Services.Discord;
@@ -129,6 +130,11 @@ public class Program
         services.AddSingleton<DailyStreakHandler>();
         services.AddHostedService(sp => sp.GetRequiredService<DailyStreakService>());
         services.AddHostedService(sp => sp.GetRequiredService<DailyStreakHandler>());
+
+        services.AddSingleton<AlisaBlocklist>();
+        services.AddHostedService(sp => sp.GetRequiredService<AlisaBlocklist>());
+        services.AddSingleton<AlisaCall>();
+        services.AddHostedService(sp => sp.GetRequiredService<AlisaCall>());
 
         services.AddSignalR();
 

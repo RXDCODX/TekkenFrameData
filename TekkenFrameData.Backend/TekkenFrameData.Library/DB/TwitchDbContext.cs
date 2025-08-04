@@ -2,6 +2,7 @@
 using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.Twitch;
+using TekkenFrameData.Watcher.Services.AlisaService.Entitys;
 
 namespace TekkenFrameData.Library.DB;
 
@@ -15,6 +16,7 @@ public partial class AppDbContext
         null!;
 
     public DbSet<WankWavuPlayer> WankWavuPlayers { get; set; } = null!;
+    public DbSet<AlisaIgnoreTwitchUser> AlisaIgnoreTwitchUsers { get; set; } = null!;
 
     private static void OnTwitchCreatingPartial(ModelBuilder modelBuilder)
     {

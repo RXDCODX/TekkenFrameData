@@ -8,6 +8,7 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 public partial class Commands
 {
     [Admin]
+    [Description("Комманда для добавления твич юзеров в черный список ассистента алисы")]
     public async Task<Message> OnAlisaIgnoreUserAddCommandReceived(
         ITelegramBotClient botClient,
         Message message,

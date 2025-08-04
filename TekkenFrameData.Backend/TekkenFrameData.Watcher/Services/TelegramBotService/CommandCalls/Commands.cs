@@ -3,12 +3,14 @@ using DSharpPlus;
 using Microsoft.AspNetCore.SignalR;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
+using TekkenFrameData.Watcher.Services.AlisaService;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.StreamersNotificationsService;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using TwitchLib.Api.Interfaces;
 using TwitchLib.Client.Interfaces;
 
 namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
@@ -16,6 +18,8 @@ namespace TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls;
 public partial class Commands(
     Tekken8FrameData frameData,
     ITwitchClient twitchClient,
+    ITwitchAPI twitchApi,
+    AlisaBlocklist alisaBlocklist,
     IHostApplicationLifetime lifetime,
     IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext,

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TekkenFrameData.Watcher.Services.AlisaService.Entitys;
+namespace TekkenFrameData.Library.Models.Twitch.AlisaCollab;
 
 public class AlisaIgnoreTwitchUser
 {

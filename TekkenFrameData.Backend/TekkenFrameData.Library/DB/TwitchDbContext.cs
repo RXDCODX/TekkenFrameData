@@ -2,7 +2,7 @@
 using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.FrameData;
 using TekkenFrameData.Library.Models.Twitch;
-using TekkenFrameData.Watcher.Services.AlisaService.Entitys;
+using TekkenFrameData.Library.Models.Twitch.AlisaCollab;
 
 namespace TekkenFrameData.Library.DB;
 

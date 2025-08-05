@@ -60,18 +60,24 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
 
         // 1. Проверяем что это валидный URL
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
             return false;
+        }
 
         // 2. Проверяем нужный домен (без учета регистра)
         if (!uri.Host.Equals("wank.wavu.wiki", StringComparison.OrdinalIgnoreCase))
+        {
             return false;
+        }
 
         // 3. Проверяем структуру пути /player/{ID}
         if (
             uri.Segments.Length < 3
             || !uri.Segments[1].Equals("player/", StringComparison.OrdinalIgnoreCase)
         )
+        {
             return false;
+        }
 
         // 4. Извлекаем ID (убираем возможные слеши)
         tekkenId = uri.Segments[2].Trim('/');
@@ -237,7 +243,9 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
     private static DateTime ParseDateTime(string? dateTimeText)
     {
         if (string.IsNullOrWhiteSpace(dateTimeText))
+        {
             return DateTime.Now;
+        }
 
         // Удаляем лишние пробелы и "г.", если есть
         dateTimeText = dateTimeText
@@ -310,7 +318,9 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
     private static MatchResult ParseMatchResult(string? resultText)
     {
         if (string.IsNullOrWhiteSpace(resultText))
+        {
             return new MatchResult { Player1Score = 0, Player2Score = 0 };
+        }
 
         var parts = resultText.Split('-');
         if (parts.Length == 2)
@@ -330,7 +340,9 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
     private static int ParseRating(string? ratingText)
     {
         if (string.IsNullOrWhiteSpace(ratingText))
+        {
             return 0;
+        }
 
         var cleanText = new string([.. ratingText.Where(char.IsDigit)]);
         return int.TryParse(cleanText, out var rating) ? rating : 0;
@@ -339,18 +351,19 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
     private static int ParseRatingChange(string? changeText)
     {
         if (string.IsNullOrWhiteSpace(changeText))
+        {
             return 0;
+        }
 
         var cleanText = changeText.Trim();
         var isNegative = cleanText.StartsWith('-');
         var digits = new string([.. cleanText.Where(char.IsDigit)]);
 
-        if (int.TryParse(digits, out var change))
-        {
-            return isNegative ? -change : change;
-        }
-
-        return 0;
+        return int.TryParse(digits, out var change)
+            ? isNegative
+                ? -change
+                : change
+            : 0;
     }
 }
 

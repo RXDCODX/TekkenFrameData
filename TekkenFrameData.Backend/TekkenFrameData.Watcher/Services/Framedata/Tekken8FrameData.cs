@@ -57,10 +57,7 @@ public partial class Tekken8FrameData(
             return result;
         }
 
-        (TekkenMoveTag tag, Move? move) = await GetMoveFromMovelistByTagAsync(
-            lastSplit,
-            characterMovelist
-        );
+        (var tag, var move) = await GetMoveFromMovelistByTagAsync(lastSplit, characterMovelist);
 
         return move != null ? (Tag: tag, [move]) : null;
     }
@@ -124,9 +121,7 @@ public partial class Tekken8FrameData(
 
     public async Task<Character?> GetTekkenCharacter(string name, bool isWithMoveList = false)
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
         Character result = null!;
         result = isWithMoveList
             ? await dbContext
@@ -142,9 +137,7 @@ public partial class Tekken8FrameData(
 
     public async Task<Move[]?> GetCharMoveListAsync(string charname)
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
         var character = await dbContext
             .TekkenCharacters.Include(e => e.Movelist)
             .AsNoTracking()
@@ -204,9 +197,7 @@ public partial class Tekken8FrameData(
         string[]? commandParts
     )
     {
-        await using AppDbContext dbContext = await dbContextFactory.CreateDbContextAsync(
-            _cancellationToken
-        );
+        await using var dbContext = await dbContextFactory.CreateDbContextAsync(_cancellationToken);
 
         // Сначала пробуем найти по двум словам
         var charname = string.Join(" ", commandParts?.Take(2) ?? []);
@@ -235,7 +226,7 @@ public partial class Tekken8FrameData(
                 var characterName = aliasPair.Key;
 
                 var characters = dbContext.TekkenCharacters.AsAsyncEnumerable();
-                await foreach (Character tekkenCharacter in characters)
+                await foreach (var tekkenCharacter in characters)
                 {
                     if (
                         tekkenCharacter.Name.Equals(

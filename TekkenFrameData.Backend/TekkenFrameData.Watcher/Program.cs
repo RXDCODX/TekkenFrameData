@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.SlashCommands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -273,11 +274,30 @@ internal static class ProgramInitExstension
                         )
                     );
                 };
+                client.SocketClosed += ClientOnSocketClosed;
+
+                client.SocketErrored += ClientOnSocketErrored;
 
                 commands.RegisterCommands<FrameDataSlashCommands>();
 
                 Task.Factory.StartNew(() => client.ConnectAsync());
                 return client;
+
+                async Task ClientOnSocketErrored(DiscordClient sender, SocketErrorEventArgs args)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    var logger = sp.GetRequiredService<ILogger<DiscordClient>>();
+                    logger.LogException(args.Exception);
+                    await sender.ReconnectAsync(true);
+                }
+
+                async Task ClientOnSocketClosed(DiscordClient sender, SocketCloseEventArgs args)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    var logger = sp.GetRequiredService<ILogger<DiscordClient>>();
+                    logger.LogError("{Message}", args.CloseMessage);
+                    await sender.ReconnectAsync(true);
+                }
             }
         );
 

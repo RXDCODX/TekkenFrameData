@@ -240,10 +240,14 @@ public class DailyStreakHandler(
     private static string[] SplitIntoChunks(string text, int maxChunkSize)
     {
         if (string.IsNullOrEmpty(text))
+        {
             return [];
+        }
 
         if (text.Length <= maxChunkSize)
+        {
             return [text];
+        }
 
         var chunks = new System.Collections.Generic.List<string>();
         var startIndex = 0;

@@ -64,12 +64,7 @@ public class ContractorService(
                             _ => Task.CompletedTask,
                         };
 
-                        if (taskResult != Task.CompletedTask)
-                        {
-                            return true;
-                        }
-
-                        return false;
+                        return taskResult != Task.CompletedTask;
                     },
                     CancellationToken
                 )

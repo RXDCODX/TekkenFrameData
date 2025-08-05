@@ -393,7 +393,7 @@ public static class DiscordBotAnswers
     )
     {
         // Определяем символ для поиска по HitLevel
-        char hitLevelChar = type switch
+        var hitLevelChar = type switch
         {
             RandomMoveType.High => 'h',
             RandomMoveType.Mid => 'm',

@@ -8,7 +8,9 @@ namespace TekkenFrameData.Watcher.Services.Framedata;
 
 public partial class Tekken8FrameData
 {
+#pragma warning disable IDE0060 // Remove unused parameter
     internal async Task StartScrupFrameDataFromSecondSite(Chat? chat = default)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         var docW = new HtmlWeb();
         var doc = await docW.LoadFromWebAsync(SecondBasePath.AbsoluteUri, _cancellationToken);
@@ -19,7 +21,7 @@ public partial class Tekken8FrameData
 
         if (liNodes != null)
         {
-            foreach (HtmlNode liNode in liNodes)
+            foreach (var liNode in liNodes)
             {
                 var aNode = liNode.SelectSingleNode(".//a[@class='cursor-pointer']");
                 var href = aNode?.GetAttributeValue("href", string.Empty);
@@ -54,9 +56,10 @@ public partial class Tekken8FrameData
 
                         var sortedMovelist = await ConsolidateMoveGroups(movelist);
 
-                        await using AppDbContext dbContext =
-                            await dbContextFactory.CreateDbContextAsync(_cancellationToken);
-                        foreach (Move move in sortedMovelist)
+                        await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                            _cancellationToken
+                        );
+                        foreach (var move in sortedMovelist)
                         {
                             if (
                                 dbContext.TekkenMoves.Any(e =>

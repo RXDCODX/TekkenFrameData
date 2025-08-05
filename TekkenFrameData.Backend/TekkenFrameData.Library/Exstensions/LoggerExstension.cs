@@ -46,7 +46,7 @@ public static class LoggerExstension
     }
 }
 
-public sealed class CustomFormatter : ConsoleFormatter
+public sealed class CustomFormatter() : ConsoleFormatter("custom")
 {
     private static readonly Dictionary<LogLevel, string> _logLevelAbbreviations = new()
     {
@@ -57,9 +57,6 @@ public sealed class CustomFormatter : ConsoleFormatter
         [LogLevel.Error] = "FAIL",
         [LogLevel.Critical] = "CRIT",
     };
-
-    public CustomFormatter()
-        : base("custom") { }
 
     public override void Write<TState>(
         in LogEntry<TState> logEntry,

@@ -148,12 +148,7 @@ public class TwitchFramedateChannelConnecter(
         {
             var response = await api.Auth.ValidateAccessTokenAsync(token);
 
-            if (response == null)
-            {
-                return false;
-            }
-
-            return true;
+            return response != null;
         }
         catch (Exception e)
             when (e.Message.Contains("invalid access token", StringComparison.OrdinalIgnoreCase))

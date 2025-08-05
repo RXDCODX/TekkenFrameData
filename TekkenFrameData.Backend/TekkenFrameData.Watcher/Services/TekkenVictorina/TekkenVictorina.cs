@@ -241,16 +241,12 @@ public class TekkenVictorina(
 
             // Пробуем распарсить как диапазон
             var parts = str.Split('~');
-            if (
+            return
                 parts.Length == 2
                 && int.TryParse(parts[0].Trim(), out var start)
                 && int.TryParse(parts[1].Trim(), out var end)
-            )
-            {
-                return new IntRange(Math.Min(start, end), Math.Max(start, end));
-            }
-
-            return null;
+                ? new IntRange(Math.Min(start, end), Math.Max(start, end))
+                : null;
         }
     }
 
@@ -292,11 +288,8 @@ public class TekkenVictorina(
     // Получает текущее минимальное расстояние среди лучших ответов
     private int GetCurrentBestDistance()
     {
-        if (_currentGame is { GoodAnswers.Count: 0 })
-        {
-            return int.MaxValue;
-        }
-
-        return _currentGame!.GoodAnswers.Min(x => CalculateDistance(x.answer, _currentGame.Answer));
+        return _currentGame is { GoodAnswers.Count: 0 }
+            ? int.MaxValue
+            : _currentGame!.GoodAnswers.Min(x => CalculateDistance(x.answer, _currentGame.Answer));
     }
 }

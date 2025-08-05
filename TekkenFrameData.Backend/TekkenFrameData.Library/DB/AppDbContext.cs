@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TekkenFrameData.Library.Models.DailyStreak.structures;
+using TekkenFrameData.Library.Models.Identity;
 
 namespace TekkenFrameData.Library.DB;
 
-public sealed partial class AppDbContext : DbContext
+public sealed partial class AppDbContext : IdentityDbContext<ApplicationUser>
 {
     private static readonly Lock Locker = new();
     private static bool _isMigrated;

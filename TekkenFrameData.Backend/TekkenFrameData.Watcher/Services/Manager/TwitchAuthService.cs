@@ -68,11 +68,6 @@ public class TwitchAuthService(
         }
 
         var isRefreshed = await tokenService.RefreshTokenAsync(token);
-        if (isRefreshed)
-        {
-            return true;
-        }
-
-        return false;
+        return isRefreshed;
     }
 }

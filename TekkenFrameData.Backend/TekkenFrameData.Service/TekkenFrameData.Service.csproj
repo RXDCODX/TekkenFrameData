@@ -17,6 +17,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
@@ -29,6 +33,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy" />
     <PackageReference Include="System.Formats.Asn1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 

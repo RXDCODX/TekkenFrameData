@@ -250,8 +250,9 @@ public partial class Tekken8FrameData
 
                     var sortedMovelist = await ConsolidateMoveGroups(movelist);
 
-                    await using AppDbContext dbContext =
-                        await dbContextFactory.CreateDbContextAsync(_cancellationToken);
+                    await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                        _cancellationToken
+                    );
 
                     if (dbContext.TekkenCharacters.Any(e => e.Equals(character)))
                     {
@@ -262,7 +263,7 @@ public partial class Tekken8FrameData
                         dbContext.TekkenCharacters.Add(character);
                     }
 
-                    foreach (Move move in sortedMovelist)
+                    foreach (var move in sortedMovelist)
                     {
                         if (
                             dbContext.TekkenMoves.Any(e =>
@@ -301,11 +302,14 @@ public partial class Tekken8FrameData
         await UpdateMovesForVictorina();
         await UpdateAutocompleteDictionary();
         if (chat != null)
+        {
             await client.SendMessage(
                 chat,
                 "Парсинг теккен фрейм даты закончено!",
                 cancellationToken: _cancellationToken
             );
+        }
+
         ParsingActive = false;
     }
 
@@ -374,9 +378,10 @@ public partial class Tekken8FrameData
                     var movelist = await GetMoveListFromSecondSite(character, chatPage);
                     var sortedMovelist = await ConsolidateMoveGroups(movelist);
 
-                    await using AppDbContext dbContext =
-                        await dbContextFactory.CreateDbContextAsync(_cancellationToken);
-                    foreach (Move move in sortedMovelist)
+                    await using var dbContext = await dbContextFactory.CreateDbContextAsync(
+                        _cancellationToken
+                    );
+                    foreach (var move in sortedMovelist)
                     {
                         if (
                             dbContext.TekkenMoves.Any(e =>

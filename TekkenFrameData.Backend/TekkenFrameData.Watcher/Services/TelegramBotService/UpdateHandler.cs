@@ -165,12 +165,7 @@ public class UpdateHandler : IUpdateHandler
                     e =>
                     {
                         var aliasAttr = e?.GetCustomAttribute<AliasAttribute>();
-                        if (aliasAttr?.MethodAliases.Contains(commandWithoutSlash) == true)
-                        {
-                            return true;
-                        }
-
-                        return false;
+                        return aliasAttr?.MethodAliases.Contains(commandWithoutSlash) == true;
                     },
                     null
                 );

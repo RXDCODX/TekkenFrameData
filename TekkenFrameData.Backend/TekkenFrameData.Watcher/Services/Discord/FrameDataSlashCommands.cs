@@ -229,6 +229,7 @@ public class FrameDataSlashCommands(
 
                 var buttons = new List<DiscordButtonComponent>();
                 if (m.HeatEngage)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
@@ -236,7 +237,10 @@ public class FrameDataSlashCommands(
                             "Heat Engager"
                         )
                     );
+                }
+
                 if (m.Tornado)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
@@ -244,7 +248,10 @@ public class FrameDataSlashCommands(
                             "Tornado"
                         )
                     );
+                }
+
                 if (m.HeatSmash)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Primary,
@@ -252,7 +259,10 @@ public class FrameDataSlashCommands(
                             "Heat Smash"
                         )
                     );
+                }
+
                 if (m.PowerCrush)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Danger,
@@ -260,7 +270,10 @@ public class FrameDataSlashCommands(
                             "Power Crush"
                         )
                     );
+                }
+
                 if (m.HeatBurst)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Success,
@@ -268,7 +281,10 @@ public class FrameDataSlashCommands(
                             "Heat Burst"
                         )
                     );
+                }
+
                 if (m.Homing)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
@@ -276,7 +292,10 @@ public class FrameDataSlashCommands(
                             "Homing"
                         )
                     );
+                }
+
                 if (m.Throw)
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Primary,
@@ -284,7 +303,10 @@ public class FrameDataSlashCommands(
                             "Throw"
                         )
                     );
+                }
+
                 if (m.IsFromStance && !string.IsNullOrWhiteSpace(m.StanceCode))
+                {
                     buttons.Add(
                         new DiscordButtonComponent(
                             ButtonStyle.Secondary,
@@ -292,9 +314,14 @@ public class FrameDataSlashCommands(
                             m.StanceName ?? "Stance"
                         )
                     );
+                }
+
                 var msg = new DiscordMessageBuilder().AddEmbed(embed);
                 if (buttons.Count > 0)
+                {
                     msg.AddComponents(buttons);
+                }
+
                 await ctx.CreateResponseAsync(
                     InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder(msg).AsEphemeral()

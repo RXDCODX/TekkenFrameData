@@ -1,50 +1,127 @@
-# React + TypeScript + Vite
+# Tekken Frame Data Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Современный веб-интерфейс для просмотра и управления данными персонажей и движений Tekken 8.
 
-Currently, two official plugins are available:
+## 🚀 Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **WelcomePage** - Красивая главная страница с описанием проекта
+- **CharacterPage** - Просмотр всех персонажей с поиском и фильтрацией
+- **MovePage** - Детальная таблица движений с расширенными фильтрами
+- **Современный дизайн** - Адаптивный интерфейс с градиентами и анимациями
+- **Поиск и фильтрация** - Мощные инструменты для поиска нужной информации
+- **Цветовая кодировка** - Визуальное отображение фрейм-данных
 
-## Expanding the ESLint configuration
+## 🛠 Технологии
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **React 19** - Современная библиотека для UI
+- **TypeScript** - Типизированный JavaScript
+- **Vite** - Быстрый сборщик и dev-сервер
+- **React Router** - Навигация между страницами
+- **Axios** - HTTP-клиент для API запросов
+- **Lucide React** - Красивые иконки
+- **CSS3** - Современные стили с градиентами и анимациями
 
-- Configure the top-level `parserOptions` property like this:
+## 📦 Установка
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Установите зависимости:
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+2. Убедитесь, что backend сервер запущен на порту 5000
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+3. Запустите dev-сервер:
+```bash
+npm run dev
 ```
+
+4. Откройте http://localhost:3000 в браузере
+
+## 🏗 Сборка для продакшена
+
+```bash
+npm run build
+```
+
+Собранные файлы будут в папке `dist/`.
+
+## 📁 Структура проекта
+
+```
+src/
+├── App/
+│   ├── App.tsx          # Главный компонент приложения
+│   └── App.css          # Глобальные стили
+├── Components/
+│   ├── WelcomePage/     # Главная страница
+│   ├── CharacterPage/   # Страница персонажей
+│   ├── MovePage/        # Страница движений
+│   ├── NavBar/          # Навигационная панель
+│   └── Footer/          # Футер
+└── Routes/
+    └── Routes.tsx       # Конфигурация маршрутов
+```
+
+## 🎨 Дизайн
+
+- **Цветовая схема**: Темная тема с градиентами
+- **Основные цвета**: 
+  - Primary: #ff6b6b (красный)
+  - Secondary: #4ecdc4 (бирюзовый)
+  - Background: #1a1a2e (темно-синий)
+- **Анимации**: Плавные переходы и hover-эффекты
+- **Адаптивность**: Полная поддержка мобильных устройств
+
+## 🔧 Конфигурация
+
+### Прокси для API
+В `vite.config.ts` настроен прокси для API запросов:
+```typescript
+proxy: {
+  '/api': {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
+    secure: false,
+  }
+}
+```
+
+### Переменные окружения
+Создайте файл `.env` для настройки:
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+## 📱 Адаптивность
+
+Приложение полностью адаптивно и работает на:
+- 🖥️ Десктоп (1200px+)
+- 📱 Планшет (768px - 1199px)
+- 📱 Мобильный (до 767px)
+
+## 🚀 Развертывание
+
+### Docker
+```bash
+docker build -t tekken-framedata-frontend .
+docker run -p 3000:3000 tekken-framedata-frontend
+```
+
+### Nginx
+Скопируйте файлы из `dist/` в папку nginx и настройте конфигурацию.
+
+## 🤝 Разработка
+
+### Добавление новых страниц
+1. Создайте компонент в `src/Components/`
+2. Добавьте маршрут в `src/Routes/Routes.tsx`
+3. Добавьте ссылку в навигацию
+
+### Стилизация
+- Используйте CSS модули или обычные CSS файлы
+- Следуйте существующей цветовой схеме
+- Добавляйте адаптивные стили для мобильных устройств
+
+## 📄 Лицензия
+
+MIT License

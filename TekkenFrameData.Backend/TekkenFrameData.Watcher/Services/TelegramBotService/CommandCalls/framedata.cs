@@ -195,26 +195,23 @@ public partial class Commands
             string? imageUrl
         )
         {
-            if (string.IsNullOrWhiteSpace(imageUrl))
-            {
-                return await botClient.SendMessage(
+            return string.IsNullOrWhiteSpace(imageUrl)
+                ? await botClient.SendMessage(
                     message.Chat,
                     text,
                     ParseMode.Html,
                     replyMarkup: markup,
                     cancellationToken: cancellationToken
+                )
+                : await botClient.SendPhoto(
+                    message.Chat,
+                    InputFile.FromUri(imageUrl),
+                    text,
+                    showCaptionAboveMedia: true,
+                    replyMarkup: markup,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: cancellationToken
                 );
-            }
-
-            return await botClient.SendPhoto(
-                message.Chat,
-                InputFile.FromUri(imageUrl),
-                text,
-                showCaptionAboveMedia: true,
-                replyMarkup: markup,
-                parseMode: ParseMode.Html,
-                cancellationToken: cancellationToken
-            );
         }
 
         async Task<Message> SendDefaultResponse(int cs = 0)

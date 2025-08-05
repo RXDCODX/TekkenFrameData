@@ -168,7 +168,10 @@ public class TwitchFramedate(
             e.TwitchId == userId && e.FramedataStatus == TekkenFramedataStatus.Accepted
         );
         if (!isApproved)
+        {
             return false;
+        }
+
         ApprovedChannels.Add(userId);
         return true;
     }
@@ -207,13 +210,10 @@ public class TwitchFramedate(
         }
 
         var character = await frameData.GetTekkenCharacter(string.Join(' ', keyWords.SkipLast(1)));
-        if (character == null)
-        {
-            return null;
-        }
-
-        return $"\u2705 {character.Name} \u2705 {Enum.GetName(result.Value.Tag)} | "
-            + $"Команды: {string.Join(", ", result.Value.Moves.Select(e => e.Command))}";
+        return character == null
+            ? null
+            : $"\u2705 {character.Name} \u2705 {Enum.GetName(result.Value.Tag)} | "
+                + $"Команды: {string.Join(", ", result.Value.Moves.Select(e => e.Command))}";
     }
 
     private async Task<string?> HandleStances(string[] keyWords)
@@ -232,13 +232,10 @@ public class TwitchFramedate(
 
         await using var dbContext = await factory.CreateDbContextAsync(_cancellationToken);
         var character = await frameData.FindCharacterInDatabaseAsync(charName, dbContext);
-        if (character == null)
-        {
-            return null;
-        }
-
-        return $"\u2705 {character.Name} \u2705 Стойки: "
-            + string.Join(", ", stances.Select(e => $"{e.Key} - {e.Value}"));
+        return character == null
+            ? null
+            : $"\u2705 {character.Name} \u2705 Стойки: "
+                + string.Join(", ", stances.Select(e => $"{e.Key} - {e.Value}"));
     }
 
     private async Task<(Move move, string response)?> HandleSingleMove(string[] keyWords)

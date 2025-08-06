@@ -34,28 +34,28 @@ public class TwitchFramedateChannelConnecter(
                 ) && !e.UserId.Equals("785975641", StringComparison.OrdinalIgnoreCase)
             )
             .ToArray();
-        var streamsToLeave = joined.Where(joinedChannel =>
-            // Канал не найден в текущих стримах
-            !streams.Any(stream =>
-                string.Equals(
-                    stream.UserLogin,
-                    joinedChannel.Channel,
-                    StringComparison.OrdinalIgnoreCase
-                )
-            )
-            &&
-            // И это не основной канал
-            !string.Equals(
-                joinedChannel.Channel,
-                TwitchClientExstension.Channel,
-                StringComparison.OrdinalIgnoreCase
-            )
-        );
+        //var streamsToLeave = joined.Where(joinedChannel =>
+        //    // Канал не найден в текущих стримах
+        //    !streams.Any(stream =>
+        //        string.Equals(
+        //            stream.UserLogin,
+        //            joinedChannel.Channel,
+        //            StringComparison.OrdinalIgnoreCase
+        //        )
+        //    )
+        //    &&
+        //    // И это не основной канал
+        //    !string.Equals(
+        //        joinedChannel.Channel,
+        //        TwitchClientExstension.Channel,
+        //        StringComparison.OrdinalIgnoreCase
+        //    )
+        //);
 
-        foreach (var joinedChannel in streamsToLeave)
-        {
-            client.LeaveChannel(joinedChannel);
-        }
+        //foreach (var joinedChannel in streamsToLeave)
+        //{
+        //    client.LeaveChannel(joinedChannel);
+        //}
 
         foreach (var stream in newStreams)
         {

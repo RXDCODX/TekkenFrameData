@@ -267,20 +267,18 @@ public class MoveController(AppDbContext context, ILogger<MoveController> logger
 
             if (!string.IsNullOrEmpty(characterName))
             {
-                query = query.Where(m =>
-                    m.CharacterName.ToLower().Contains(characterName.ToLower())
-                );
+                query = query.Where(m => EF.Functions.ILike(m.CharacterName, $"%{characterName}%"));
             }
 
             if (!string.IsNullOrEmpty(command))
             {
-                query = query.Where(m => m.Command.ToLower().Contains(command.ToLower()));
+                query = query.Where(m => EF.Functions.ILike(m.Command, $"{command}"));
             }
 
             if (!string.IsNullOrEmpty(hitLevel))
             {
                 query = query.Where(m =>
-                    m.HitLevel != null && m.HitLevel.ToLower().Contains(hitLevel.ToLower())
+                    m.HitLevel != null && EF.Functions.ILike(m.HitLevel, $"%{hitLevel}%")
                 );
             }
 

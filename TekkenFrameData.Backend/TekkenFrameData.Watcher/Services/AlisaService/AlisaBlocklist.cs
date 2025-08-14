@@ -50,7 +50,7 @@ public class AlisaBlocklist(
         var channelId = e.ChatMessage.RoomId;
         var channelName = e.ChatMessage.Channel;
         var userId = e.ChatMessage.UserId;
-        var userName = e.ChatMessage;
+        var userName = e.ChatMessage.Username;
         var userMessage = e.ChatMessage.Message;
         if (
             _userIds.Contains(userId)

@@ -236,6 +236,9 @@ internal static class ProgramInitExstension
         services.AddSingleton<TwitchRulesCommand>();
         services.AddHostedService(sp => sp.GetRequiredService<TwitchRulesCommand>());
 
+        services.AddSingleton<AlisaHello>();
+        services.AddHostedService<AlisaHello>(sp => sp.GetRequiredService<AlisaHello>());
+
         return services;
     }
 

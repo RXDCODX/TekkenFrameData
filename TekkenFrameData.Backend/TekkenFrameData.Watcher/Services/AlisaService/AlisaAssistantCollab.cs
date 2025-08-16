@@ -35,7 +35,7 @@ public class AlisaAssistantCollab(ITwitchClient client, IHostApplicationLifetime
             {
                 client.SendMessage(
                     e.ChatMessage.Channel,
-                    "Произошла перезагрузка помощника Ассистента Алисы. Все протоколы были обновлены. Ожидаю команды."
+                    "Синхронизация с Ассистентом Алисой прошла успешно. Готов к работе."
                 );
                 Channels.Add(e.ChatMessage.Channel);
             });

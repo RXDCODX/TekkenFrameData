@@ -14,10 +14,7 @@ public class DailyStreakService(
 {
     public static FrozenSet<string> ChannelsIdsWithWank { get; private set; } = [];
 
-    public async Task<WankWavuPlayerStats?> GetPlayerDailyStatsAsync(
-        string twitchId,
-        DateTime? date = null
-    )
+    public async Task<WankWavuPlayerStats?> GetPlayerDailyStatsAsync(string twitchId)
     {
         try
         {
@@ -28,7 +25,7 @@ public class DailyStreakService(
                 ?? throw new Exception($"Игрок с Twitch ID {twitchId} не найден в базе данных");
 
             // Получаем статистику с сайта
-            var stats = await parser.GetDailyStats(player, date);
+            var stats = await parser.GetDailyStats(player);
 
             return stats;
         }

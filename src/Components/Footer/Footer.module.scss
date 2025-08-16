@@ -1,0 +1,125 @@
+.footer {
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem 0 1rem;
+  margin-top: auto;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footerSection {
+  h3 {
+    color: #4ecdc4;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  h4 {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #cbd5e0;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    list-style: none;
+
+    li {
+      margin-bottom: 0.5rem;
+
+      a {
+        color: #cbd5e0;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &:hover {
+          color: #4ecdc4;
+        }
+      }
+    }
+  }
+}
+
+.footerBottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+  text-align: center;
+  color: #a8b2d1;
+  font-size: 0.9rem;
+
+  p {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.heartIcon {
+  color: #ff6b6b;
+  animation: heartbeat 2s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .footerContent {
+    padding: 0 1rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .footerSection {
+    text-align: center;
+
+    h3 {
+      font-size: 1.3rem;
+    }
+
+    h4 {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .footerContent {
+    padding: 0 0.5rem;
+  }
+
+  .footerSection h3 {
+    font-size: 1.2rem;
+  }
+
+  .footerBottom {
+    font-size: 0.8rem;
+  }
+} 

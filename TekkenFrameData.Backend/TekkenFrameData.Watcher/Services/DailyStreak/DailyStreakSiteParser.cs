@@ -86,10 +86,7 @@ public class DailyStreakSiteParser(IHttpClientFactory factory)
         return tekkenId.Length >= 5 && Regex.IsMatch(tekkenId, @"^[a-zA-Z0-9]+$");
     }
 
-    public async Task<WankWavuPlayerStats> GetDailyStats(
-        WankWavuPlayer player,
-        DateTime? date = null
-    )
+    public async Task<WankWavuPlayerStats> GetDailyStats(WankWavuPlayer player)
     {
         var uri = new Uri(
             "https://wank.wavu.wiki/player/" + player.TekkenId.ToStringWithoutDashes()

@@ -21,7 +21,10 @@ public class AlisaHello(
             client.OnChatCommandReceived += ClientOnOnChatCommandReceived;
         });
 
-        lifetime.ApplicationStopping.Register(() => { });
+        lifetime.ApplicationStopping.Register(() =>
+        {
+            client.OnChatCommandReceived -= ClientOnOnChatCommandReceived;
+        });
 
         return Task.CompletedTask;
     }
@@ -76,11 +79,11 @@ public class AlisaHello(
 
                             var answer = Answers[index];
 
-                            var userName = arguments[1];
+                            var userName = arguments[0];
 
                             userName = userName.StartsWith('@') ? userName : '@' + userName;
 
-                            var msg = string.Format(answer, channel, userName);
+                            var msg = string.Format(answer, channel.FirstCharToUpper(), userName);
 
                             if (
                                 !client.JoinedChannels.Any(t =>

@@ -57,10 +57,10 @@ public class AlisaHello(
         {
             if (
                 activator.Equals("AlisaAssistant", StringComparison.OrdinalIgnoreCase)
-                || activator.Equals(TwitchClientExstension.AuthorId.ToString())
+                || userId.Equals(TwitchClientExstension.AuthorId.ToString())
             )
             {
-                if (arguments.Count == 2)
+                if (arguments.Count == 1)
                 {
                     await Task.Factory.StartNew(() =>
                     {

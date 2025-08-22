@@ -14,28 +14,6 @@ public class DailyStreakService(
 {
     public static FrozenSet<string> ChannelsIdsWithWank { get; private set; } = [];
 
-    public async Task<WankWavuPlayerStats?> GetPlayerDailyStatsAsync(string twitchId)
-    {
-        try
-        {
-            await using var context = await contextFactory.CreateDbContextAsync();
-            // Получаем игрока из базы данных
-            var player =
-                await context.WankWavuPlayers.FirstOrDefaultAsync(p => p.TwitchId == twitchId)
-                ?? throw new Exception($"Игрок с Twitch ID {twitchId} не найден в базе данных");
-
-            // Получаем статистику с сайта
-            var stats = await parser.GetDailyStats(player);
-
-            return stats;
-        }
-        catch (Exception ex)
-        {
-            logger.LogException(ex);
-            throw new Exception($"Ошибка получения статистики для игрока {twitchId}: {ex.Message}");
-        }
-    }
-
     public async Task<WankWavuPlayer> GetOrCreatePlayerAsync(string twitchId, string tekkenId)
     {
         try
@@ -58,6 +36,8 @@ public class DailyStreakService(
 
                 context.WankWavuPlayers.Add(player);
                 await context.SaveChangesAsync();
+                
+                // Обновляем кэш после добавления нового игрока
                 await UpdateChannels();
             }
 
@@ -68,6 +48,40 @@ public class DailyStreakService(
             logger.LogException(ex);
             throw new Exception($"Ошибка получения/создания игрока {twitchId}: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Получает статистику для конкретного канала по Twitch ID канала
+    /// </summary>
+    public async Task<WankWavuPlayerStats?> GetPlayerDailyStatsAsync(string channelTwitchId)
+    {
+        try
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            
+            // Получаем игрока из базы данных по Twitch ID канала
+            var player =
+                await context.WankWavuPlayers.FirstOrDefaultAsync(p => p.TwitchId == channelTwitchId)
+                ?? throw new Exception($"Игрок с Twitch ID канала {channelTwitchId} не найден в базе данных");
+
+            // Получаем статистику с сайта
+            var stats = await parser.GetDailyStats(player);
+
+            return stats;
+        }
+        catch (Exception ex)
+        {
+            logger.LogException(ex);
+            throw new Exception($"Ошибка получения статистики для канала {channelTwitchId}: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, есть ли у канала подключенный профиль wavu wank
+    /// </summary>
+    public bool HasChannelProfile(string channelTwitchId)
+    {
+        return ChannelsIdsWithWank.Contains(channelTwitchId);
     }
 
     public async Task UpdateChannels()

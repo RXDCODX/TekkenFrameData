@@ -45,87 +45,90 @@ public class DailyStreakHandler(
         var diplayname = onChatCommandReceivedArgs.Command.ChatMessage.DisplayName;
         var userId = onChatCommandReceivedArgs.Command.ChatMessage.UserId;
 
-        if (
-            channelId.Equals(
-                TwitchClientExstension.ChannelId.ToString(),
-                StringComparison.OrdinalIgnoreCase
-            )
-        )
+        // Убираем проверку на конкретный канал - теперь команда работает на любом канале
+        await Task.Factory.StartNew(async () =>
         {
-            await Task.Factory.StartNew(async () =>
+            if (IsChannelApproved(channelId))
             {
-                if (IsChannelApproved(userId))
+                if (
+                    onChatCommandReceivedArgs.Command.CommandText.Equals(
+                        "wank",
+                        StringComparison.OrdinalIgnoreCase
+                    )
+                )
                 {
-                    if (
-                        onChatCommandReceivedArgs.Command.CommandText.Equals(
-                            "wank",
-                            StringComparison.OrdinalIgnoreCase
-                        )
+                    var count = onChatCommandReceivedArgs.Command.ArgumentsAsList.Count;
+
+                    if (onChatCommandReceivedArgs.Command.ArgumentsAsList.Count == 0)
+                    {
+                        client.SendMessage(
+                            channelName,
+                            dailyStreakService.HasChannelProfile(userId)
+                                ? "Твой ваву профиль уже добавлен!"
+                                : "Если хочешь добавить себе на канал твой персональный дневную статистику, напиши !wank <ссылка на твой wavu wank профиль>"
+                        );
+                    }
+                    else if (
+                        count == 1
+                        && !dailyStreakService.HasChannelProfile(userId)
                     )
                     {
-                        var count = onChatCommandReceivedArgs.Command.ArgumentsAsList.Count;
-
-                        if (onChatCommandReceivedArgs.Command.ArgumentsAsList.Count == 0)
+                        WankWavuPlayer player = null!;
+                        try
                         {
-                            client.SendMessage(
-                                channelName,
-                                DailyStreakService.ChannelsIdsWithWank.Contains(userId)
-                                    ? "Твой ваву профиль уже добавлен!"
-                                    : "Если хочешь добавить себе на канал твой персональный дневную статистику, напиши !wank <ссылка на твой wavu wank профиль>"
-                            );
-                        }
-                        else if (
-                            count == 1
-                            && !DailyStreakService.ChannelsIdsWithWank.Contains(userId)
-                        )
-                        {
-                            WankWavuPlayer player = null!;
-                            try
-                            {
-                                var link = onChatCommandReceivedArgs.Command.ArgumentsAsList[0]!;
-                                if (
-                                    DailyStreakSiteParser.TryParseWankWavuUrl(
-                                        link,
-                                        out var tekkenId
-                                    )
+                            var link = onChatCommandReceivedArgs.Command.ArgumentsAsList[0]!;
+                            if (
+                                DailyStreakSiteParser.TryParseWankWavuUrl(
+                                    link,
+                                    out var tekkenId
                                 )
-                                {
-                                    player = await dailyStreakService.GetOrCreatePlayerAsync(
-                                        userId,
-                                        tekkenId
-                                    );
-                                }
-                                else
-                                {
-                                    client.SendMessage(
-                                        TwitchClientExstension.Channel,
-                                        "@"
-                                            + diplayname
-                                            + ", кривая ссылка на профиль, проверь что это ссылка типа wank.wavu.wiki/player/{tekkenId}!"
-                                    );
-                                    return;
-                                }
+                            )
+                            {
+                                player = await dailyStreakService.GetOrCreatePlayerAsync(
+                                    userId,
+                                    tekkenId
+                                );
                             }
-                            catch (Exception e)
+                            else
                             {
                                 client.SendMessage(
-                                    TwitchClientExstension.Channel,
-                                    "@" + diplayname + ", " + e.Message
+                                    channelName,
+                                    "@"
+                                        + diplayname
+                                        + ", кривая ссылка на профиль, проверь что это ссылка типа wank.wavu.wiki/player/{tekkenId}!"
                                 );
                                 return;
                             }
-
+                        }
+                        catch (Exception e)
+                        {
                             client.SendMessage(
-                                TwitchClientExstension.Channel,
-                                "@"
-                                    + diplayname
-                                    + ", добавил твой профиль! Теперь любой на твоем канале может писать !wl и увидит твою дневную статистику."
+                                channelName,
+                                "@" + diplayname + ", " + e.Message
                             );
+                            return;
+                        }
+
+                        client.SendMessage(
+                            channelName,
+                            "@"
+                                + diplayname
+                                + ", добавил твой профиль! Теперь любой на твоем канале может писать !wl и увидит твою дневную статистику."
+                        );
+
+                        // Автоматически присоединяемся к каналу, если еще не присоединены
+                        if (
+                            !client.JoinedChannels.Any(t =>
+                                t.Channel.Equals(channelName, StringComparison.OrdinalIgnoreCase)
+                            )
+                        )
+                        {
+                            client.JoinChannel(channelName);
                         }
                     }
                 }
-            });
-        }
+            }
+        });
     }
 
     private async void ClientOnOnMessageReceived(
@@ -140,8 +143,19 @@ public class DailyStreakHandler(
 
         if (command.Equals("wl", StringComparison.OrdinalIgnoreCase))
         {
-            if (DailyStreakService.ChannelsIdsWithWank.Contains(channelId))
+            // Проверяем, есть ли у владельца канала подключенный профиль
+            if (dailyStreakService.HasChannelProfile(channelId))
             {
+                // Автоматически присоединяемся к каналу, если еще не присоединены
+                if (
+                    !client.JoinedChannels.Any(t =>
+                        t.Channel.Equals(channelName, StringComparison.OrdinalIgnoreCase)
+                    )
+                )
+                {
+                    client.JoinChannel(channelName);
+                }
+
                 await Task.Factory.StartNew(async () =>
                 {
                     try
@@ -172,6 +186,14 @@ public class DailyStreakHandler(
                         client.SendMessage(channelName, "Бот пока на техобслуживании");
                     }
                 });
+            }
+            else
+            {
+                // Информируем пользователей, что на этом канале нет подключенного профиля
+                client.SendMessage(
+                    channelName, 
+                    "На этом канале не подключен профиль wavu wank. Стример может подключить его командой !wank <ссылка на профиль>"
+                );
             }
         }
     }

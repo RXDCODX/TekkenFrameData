@@ -29,55 +29,59 @@ public class ContractorService(
         var channel = e.Command.ChatMessage.Channel;
         var command = e.Command.CommandText.ToLower();
 
-        if (channel.Equals(TwitchClientExstension.Channel, StringComparison.OrdinalIgnoreCase))
-        {
-            await Task
-                .Factory.StartNew(
-                    () =>
+        // Убираем ограничение на основной канал - теперь команды работают в любом канале
+        await Task
+            .Factory.StartNew(
+                () =>
+                {
+                    var taskResult = command switch
                     {
-                        var taskResult = command switch
-                        {
-                            "start" => ContractorHelper.StartTask(
-                                factory,
-                                client,
-                                e,
-                                CancellationToken
-                            ),
-                            "accept" => ContractorHelper.AcceptTask(
-                                factory,
-                                client,
-                                e,
-                                CancellationToken
-                            ),
-                            "cancel" => ContractorHelper.CancelTask(
-                                factory,
-                                client,
-                                e,
-                                CancellationToken
-                            ),
-                            "reject" => ContractorHelper.RejectTask(
-                                factory,
-                                client,
-                                e,
-                                CancellationToken
-                            ),
-                            _ => Task.CompletedTask,
-                        };
+                        "start" => ContractorHelper.StartTask(
+                            factory,
+                            client,
+                            e,
+                            CancellationToken
+                        ),
+                        "accept" => ContractorHelper.AcceptTask(
+                            factory,
+                            client,
+                            e,
+                            CancellationToken
+                        ),
+                        "cancel" => ContractorHelper.CancelTask(
+                            factory,
+                            client,
+                            e,
+                            CancellationToken
+                        ),
+                        "cancel_neutralbackkorobka" => ContractorHelper.CancelTask(
+                            factory,
+                            client,
+                            e,
+                            CancellationToken
+                        ),
+                        "reject" => ContractorHelper.RejectTask(
+                            factory,
+                            client,
+                            e,
+                            CancellationToken
+                        ),
+                        _ => Task.CompletedTask,
+                    };
 
-                        return taskResult != Task.CompletedTask;
-                    },
-                    CancellationToken
-                )
-                .ContinueWith(
-                    async (t) =>
+                    return taskResult != Task.CompletedTask;
+                },
+                CancellationToken
+            )
+            .ContinueWith(
+                async (t) =>
+                {
+                    if (await t)
                     {
-                        if (await t)
-                        {
-                            await connector.ConnectToStreams();
-                        }
-                    },
-                    CancellationToken
-                );
-        }
+                        await connector.ConnectToStreams();
+                    }
+                },
+                CancellationToken
+            );
     }
 }

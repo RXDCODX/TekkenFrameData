@@ -217,7 +217,7 @@ public class TekkenVictorinaLeaderbord(
             }
             else
             {
-                if (DateTimeOffset.Now - value >= TimeSpan.FromSeconds(30))
+                if (DateTimeOffset.Now - value >= TimeSpan.FromSeconds(3))
                 {
                     cooldownDictionary.AddOrUpdate(
                         channelId,

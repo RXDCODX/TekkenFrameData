@@ -65,21 +65,20 @@ public class DailyStreakHandler(
                     {
                         client.SendMessage(
                             channelName,
-                            dailyStreakService.HasChannelProfile(userId)
+                            dailyStreakService.HasChannelProfile(channelId)
                                 ? "Твой ваву профиль уже добавлен!"
                                 : "Если хочешь добавить себе на канал твой персональный дневную статистику, напиши !wank <ссылка на твой wavu wank профиль>"
                         );
                     }
-                    else if (count == 1 && !dailyStreakService.HasChannelProfile(userId))
+                    else if (count == 1 && !dailyStreakService.HasChannelProfile(channelId))
                     {
-                        WankWavuPlayer player = null!;
                         try
                         {
                             var link = onChatCommandReceivedArgs.Command.ArgumentsAsList[0]!;
                             if (DailyStreakSiteParser.TryParseWankWavuUrl(link, out var tekkenId))
                             {
-                                player = await dailyStreakService.GetOrCreatePlayerAsync(
-                                    userId,
+                                await dailyStreakService.GetOrCreatePlayerAsync(
+                                    channelId,
                                     tekkenId
                                 );
                             }

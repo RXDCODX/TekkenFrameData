@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using TekkenFrameData.Library.Models.SignalRInterfaces;
 using TekkenFrameData.Watcher.Hubs;
 using TekkenFrameData.Watcher.Services.AlisaService;
+using TekkenFrameData.Watcher.Services.DailyStreak;
 using TekkenFrameData.Watcher.Services.Framedata;
 using TekkenFrameData.Watcher.Services.StreamersNotificationsService;
 using TekkenFrameData.Watcher.Services.TelegramBotService.CommandCalls.Attribute;
@@ -24,7 +25,8 @@ public partial class Commands(
     IDbContextFactory<AppDbContext> dbContextFactory,
     IHubContext<MainHub, IMainHubCommands> hubContext,
     MessagesHandler globalNotifHandler,
-    DiscordClient discordClient
+    DiscordClient discordClient,
+    DailyStreakService dailyStreakService
 )
 {
     public const string Template =

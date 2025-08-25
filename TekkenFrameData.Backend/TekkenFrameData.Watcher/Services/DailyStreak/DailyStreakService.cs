@@ -36,7 +36,7 @@ public class DailyStreakService(
 
                 context.WankWavuPlayers.Add(player);
                 await context.SaveChangesAsync();
-                
+
                 // Обновляем кэш после добавления нового игрока
                 await UpdateChannels();
             }
@@ -58,11 +58,15 @@ public class DailyStreakService(
         try
         {
             await using var context = await contextFactory.CreateDbContextAsync();
-            
+
             // Получаем игрока из базы данных по Twitch ID канала
             var player =
-                await context.WankWavuPlayers.FirstOrDefaultAsync(p => p.TwitchId == channelTwitchId)
-                ?? throw new Exception($"Игрок с Twitch ID канала {channelTwitchId} не найден в базе данных");
+                await context.WankWavuPlayers.FirstOrDefaultAsync(p =>
+                    p.TwitchId == channelTwitchId
+                )
+                ?? throw new Exception(
+                    $"Игрок с Twitch ID канала {channelTwitchId} не найден в базе данных"
+                );
 
             // Получаем статистику с сайта
             var stats = await parser.GetDailyStats(player);
@@ -72,7 +76,9 @@ public class DailyStreakService(
         catch (Exception ex)
         {
             logger.LogException(ex);
-            throw new Exception($"Ошибка получения статистики для канала {channelTwitchId}: {ex.Message}");
+            throw new Exception(
+                $"Ошибка получения статистики для канала {channelTwitchId}: {ex.Message}"
+            );
         }
     }
 

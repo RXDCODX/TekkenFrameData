@@ -1,8 +1,7 @@
-﻿using System.Collections.Concurrent;
-using SteamKit2.GC.Dota.Internal;
-using TekkenFrameData.Library.Exstensions;
+﻿using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
+using TekkenFrameData.Watcher.Services.Contractor;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;
 using TwitchLib.Client.Events;
 using TwitchLib.Client.Interfaces;
@@ -48,7 +47,10 @@ public class DailyStreakHandler(
         // Убираем проверку на конкретный канал - теперь команда работает на любом канале
         await Task.Factory.StartNew(async () =>
         {
-            if (IsChannelApproved(channelId))
+            if (
+                IsChannelApproved(channelId)
+                && ContractorHelper.IsAuthorizedUser(onChatCommandReceivedArgs)
+            )
             {
                 if (
                     onChatCommandReceivedArgs.Command.CommandText.Equals(
@@ -68,21 +70,13 @@ public class DailyStreakHandler(
                                 : "Если хочешь добавить себе на канал твой персональный дневную статистику, напиши !wank <ссылка на твой wavu wank профиль>"
                         );
                     }
-                    else if (
-                        count == 1
-                        && !dailyStreakService.HasChannelProfile(userId)
-                    )
+                    else if (count == 1 && !dailyStreakService.HasChannelProfile(userId))
                     {
                         WankWavuPlayer player = null!;
                         try
                         {
                             var link = onChatCommandReceivedArgs.Command.ArgumentsAsList[0]!;
-                            if (
-                                DailyStreakSiteParser.TryParseWankWavuUrl(
-                                    link,
-                                    out var tekkenId
-                                )
-                            )
+                            if (DailyStreakSiteParser.TryParseWankWavuUrl(link, out var tekkenId))
                             {
                                 player = await dailyStreakService.GetOrCreatePlayerAsync(
                                     userId,
@@ -102,10 +96,7 @@ public class DailyStreakHandler(
                         }
                         catch (Exception e)
                         {
-                            client.SendMessage(
-                                channelName,
-                                "@" + diplayname + ", " + e.Message
-                            );
+                            client.SendMessage(channelName, "@" + diplayname + ", " + e.Message);
                             return;
                         }
 
@@ -191,7 +182,7 @@ public class DailyStreakHandler(
             {
                 // Информируем пользователей, что на этом канале нет подключенного профиля
                 client.SendMessage(
-                    channelName, 
+                    channelName,
                     "На этом канале не подключен профиль wavu wank. Стример может подключить его командой !wank <ссылка на профиль>"
                 );
             }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Collections.Generic;
-using ProtoBuf.Serializers;
+﻿using System.Collections.Generic;
 using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Library.Models.FrameData.Entitys.Enums;
 using TekkenFrameData.Watcher.Services.TwitchFramedata;

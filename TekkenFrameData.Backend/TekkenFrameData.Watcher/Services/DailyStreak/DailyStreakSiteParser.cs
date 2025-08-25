@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Text.RegularExpressions;
-using System.Xml.XPath;
 using TekkenFrameData.Library.Models.DailyStreak;
 using TekkenFrameData.Library.Models.DailyStreak.structures;
 

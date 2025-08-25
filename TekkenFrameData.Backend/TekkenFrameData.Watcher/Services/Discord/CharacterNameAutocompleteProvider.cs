@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using TekkenFrameData.Library.Exstensions;
 using TekkenFrameData.Watcher.Services.Framedata;
 
 namespace TekkenFrameData.Watcher.Services.Discord;

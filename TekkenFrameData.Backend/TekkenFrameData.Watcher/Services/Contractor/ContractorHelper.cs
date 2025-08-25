@@ -49,7 +49,7 @@ public static class ContractorHelper
         }
     }
 
-    private static bool IsAuthorizedUser(OnChatCommandReceivedArgs e)
+    public static bool IsAuthorizedUser(OnChatCommandReceivedArgs e)
     {
         var userId = e.Command.ChatMessage.UserId;
         var isBroadcaster = e.Command.ChatMessage.IsBroadcaster;
@@ -111,11 +111,7 @@ public static class ContractorHelper
             dbContext.TekkenChannels.Add(channel);
             await dbContext.SaveChangesAsync(cancellationToken);
             await AwaitRpsLimit();
-            await SendMessageToChannel(
-                client,
-                channelName,
-                string.Format(HelloMessage, userName)
-            );
+            await SendMessageToChannel(client, channelName, string.Format(HelloMessage, userName));
         }
         else
         {
@@ -208,11 +204,7 @@ public static class ContractorHelper
             dbContext.TekkenChannels.Add(channel);
             await dbContext.SaveChangesAsync(cancellationToken);
             await AwaitRpsLimit();
-            await SendMessageToChannel(
-                client,
-                channelName,
-                string.Format(HelloMessage, userName)
-            );
+            await SendMessageToChannel(client, channelName, string.Format(HelloMessage, userName));
         }
         else
         {
@@ -283,7 +275,10 @@ public static class ContractorHelper
         }
 
         // Определяем тип команды
-        var isFullCancel = e.Command.CommandText.Equals("cancel_neutralbackkorobka", StringComparison.OrdinalIgnoreCase);
+        var isFullCancel = e.Command.CommandText.Equals(
+            "cancel_neutralbackkorobka",
+            StringComparison.OrdinalIgnoreCase
+        );
 
         await using var dbContext = await factory.CreateDbContextAsync(cancellationToken);
 
@@ -311,11 +306,7 @@ public static class ContractorHelper
             dbContext.TekkenChannels.Add(channel);
             await dbContext.SaveChangesAsync(cancellationToken);
             await AwaitRpsLimit();
-            await SendMessageToChannel(
-                client,
-                channelName,
-                string.Format(HelloMessage, userName)
-            );
+            await SendMessageToChannel(client, channelName, string.Format(HelloMessage, userName));
         }
         else
         {
